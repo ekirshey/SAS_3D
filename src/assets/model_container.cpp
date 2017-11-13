@@ -1,9 +1,13 @@
 #include <iostream>
+#include "core/error_codes.h"
 #include "model_container.h"
 
 namespace SAS_3D {
 	namespace Assets {
-		ModelContainer::ModelContainer() {
+		ModelContainer::ModelContainer(std::string modelpath, std::string texturepath) 
+			: _modelpath(modelpath)
+			, _texturepath(texturepath)
+		{
 
 		}
 
@@ -11,39 +15,35 @@ namespace SAS_3D {
 
 		}
 
-
-		ModelIdx ModelContainer::AddModel(const aiScene* scene) {
+		ModelIdx ModelContainer::LoadModelFromFile(std::string path, unsigned int flags) {
 			Core::SetError(Core::ErrorCode::NO_ERROR);
-			if (_models.size() > MAXMODELS) {
+
+			if (_models.size()+1 > MAXMODELS) {
 				Core::SetError(Core::ErrorCode::MODEL_CONTAINER_FILLED);
 				return -1;
 			}
 
-			_models.push_back(Model(scene));
+			Assimp::Importer importer;
+			std::string fullpath = _modelpath + path;
+			const aiScene* scene = importer.ReadFile(fullpath, flags);
+			// Check for errors
+			if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
+				std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+				Core::SetError(Core::ErrorCode::BAD_MODEL_FILE);
+				return -1;
+			}
 
-			return (ModelIdx)(_models.size()-1);
+			_models.push_back(Model(fullpath, scene));
+
+			return static_cast<ModelIdx>(_models.size()-1);
 		}
 
 		void ModelContainer::LoadModelIntoGPU(ModelIdx idx) {
-			// Might move this somewhere else
-			for (int i = 0; i < _models[idx].meshes.size(); i++) {
-				_models[idx].meshes[i].LoadIntoGPU();
-			}
+			_models[idx].LoadIntoGPU();
 		}
 
-		void ModelContainer::Draw(ModelIdx idx) 
-		{
-			auto model = &_models[idx];
-			if (!model->loaded) {
-				std::cout << "Trying to draw unloaded model: " << idx << std::endl;
-			}
-
-			for (int i = 0; i < _models[idx].meshes.size(); i++) {
-				auto m = &model->meshes[i];
-				glBindVertexArray(m->VAO);
-				glDrawElements(GL_TRIANGLES,m->indices.size(), GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
-			}
+		void ModelContainer::Draw(ModelIdx idx, const Shaders::TextureShader& textureshader) {
+			_models[idx].Draw(textureshader);
 		}
 	}
 }

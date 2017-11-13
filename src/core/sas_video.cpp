@@ -1,7 +1,6 @@
 #include <iostream>
 #include "sas_video.h"
 #include <GL/glew.h>
-#include "third_party/INIReader.h"
 
 namespace SAS_3D {
 	namespace Core {
@@ -54,20 +53,8 @@ namespace SAS_3D {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		
-		uptrSASWindow InitializeVideo(std::string cfg) {
+		uptrSASWindow InitializeVideo(std::string windowtitle, int width, int height) {
 			SetError(ErrorCode::NO_ERROR);
-			// Load values from configfile ini
-			INIReader reader(cfg);
-
-			if (reader.ParseError() < 0) {
-				std::cerr << "Could not load file " << cfg << std::endl;
-				SetError(ErrorCode::FILE_NOT_FOUND);
-				return nullptr;
-			}
-
-			auto windowtitle = reader.Get("video", "windowtitle", "default");
-			auto screenwidth = reader.GetInteger("video", "screenwidth", 800);
-			auto screenheight = reader.GetInteger("video", "screenheight", 600);
 
 			// Start up SDL
 			// Make sure it hasn't already been initialized.
@@ -95,7 +82,7 @@ namespace SAS_3D {
 			}
 
 			// Construct and return the window
-			return std::make_unique<SASWindow>(windowtitle, screenwidth, screenheight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+			return std::make_unique<SASWindow>(windowtitle, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 		}
 	}
 }

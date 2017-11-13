@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 	GSM::Game game("F:/github/SAS_3D/bin/Debug/config.ini");
 
 	game.AddState<GSM::MainMenuState>(true,0);
-	game.AddState<GSM::GameRunningState>(false,1,game.ViewportWidth(), game.ViewportHeight());
+	game.AddState<GSM::GameRunningState>(false,1,game.Config());
 
 	game.Run();
 

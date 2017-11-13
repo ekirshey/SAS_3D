@@ -1,0 +1,23 @@
+/*
+* texture.h
+*
+* Defines structures and functions for managing textures
+* Separated from model.h right now but could hypothetically be merged in
+*
+* Author: Erik Kirshey
+* Date: 10/4/17
+*/
+#pragma once
+#include <string>
+
+namespace SAS_3D {
+	namespace Assets {
+		struct Texture {
+			unsigned int id;
+			std::string type;
+			std::string path;
+		};
+
+		Texture LoadTextureFromFile(const char* path, std::string type_name);
+	}
+}

@@ -1,4 +1,7 @@
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext.hpp>
 #include "core/file_io.h"
 #include "core/error_codes.h"
 #include "shaders/shader_program.h"
@@ -35,15 +38,35 @@ namespace SAS_3D {
 
 		}
 
-		void ShaderProgram::UseProgram()
+		void ShaderProgram::UseProgram() const
 		{
 			glUseProgram(_shaderprogram);
 		}
 
-		GLint ShaderProgram::GetUniformLocation(std::string name) {
+		GLint ShaderProgram::GetUniformLocation(std::string name) const {
 			return glGetUniformLocation(_shaderprogram, name.c_str());
 		}
 		
+		// Base Case shaderprogram will take in MVP matrices
+		// I haven't learned enough to think of a situation where 
+		// that isn't true
+		void ShaderProgram::ApplyMVP(const glm::mat4& model
+					 , const glm::mat4& view
+					 , const glm::mat4& projection) const
+		{
+			UseProgram();
+
+			GLint modelLoc = GetUniformLocation("model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			GLint viewLoc = GetUniformLocation("view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+			GLint projectionLoc = GetUniformLocation("projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+		}
+
 		GLuint ShaderProgram::_createShader(const std::string &filename, GLenum shadertype) {
 			// Read file as std::string 
 			std::string str = Core::ReadFile(filename);

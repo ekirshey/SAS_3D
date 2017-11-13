@@ -11,7 +11,8 @@ namespace SAS_3D {
 		Game::Game(std::string config)
 			: _gamestates()
 			, _activestate(0)
-			, _window(Core::InitializeVideo(config))
+			, _config(LoadConfig(config))
+			, _window(Core::InitializeVideo(_config.windowtitle, _config.screenwidth, _config.screenheight))
 			, _gamerunning(true)
 		{
 		}

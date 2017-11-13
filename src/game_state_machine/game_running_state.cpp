@@ -1,9 +1,12 @@
+#include <assimp/postprocess.h>     // Post processing flags
 #include "game_state_machine/game_running_state.h"
 
 namespace SAS_3D {
 	namespace GSM {
-		GameRunningState::GameRunningState(int screenwidth, int screenheight) 
-			: _camera(screenwidth, screenheight)
+		GameRunningState::GameRunningState(const GameConfig& config)
+			: _camera(config.screenwidth, config.screenheight)
+			, _textureshader(config.shaderpath)
+			, _mc(config.modelpath, config.texturepath)
 		{
 
 		}
@@ -13,9 +16,8 @@ namespace SAS_3D {
 		}
 
 		FSMStates GameRunningState::InitializeState(Core::SASWindow* window, const Core::InputState& input) {
-			_crowidx = SAS_3D::Assets::ModelLoader::LoadModelFromFile(
-				_mc
-				, "F:/game_assets/totalwar_warhammerII/models2_exports/crow.fbx"
+			_crowidx = _mc.LoadModelFromFile(
+				"nanosuit/nanosuit.obj"
 				, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 			if (_crowidx == -1) {
@@ -35,9 +37,9 @@ namespace SAS_3D {
 			glm::mat4 view = _camera.GetViewMatrix();
 			glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)window->GetScreenWidth() / (float)window->GetScreenHeight(), 0.1f, 100.0f);
 
-			window->TurnOnWireframe();
-			SAS_3D::Shaders::ApplyShader(_baseshader, model, view, projection);
-			_mc.Draw(_crowidx);
+			//window->TurnOnWireframe();
+			_textureshader.ApplyMVP( model, view, projection);
+			_mc.Draw(_crowidx, _textureshader);
 
 			return FSMStates::UPDATE;
 		}

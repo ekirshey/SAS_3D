@@ -46,6 +46,6 @@ namespace SAS_3D {
 		* ec will hold possible error information, set to NO_ERROR if good 
 		*
 		*/
-		uptrSASWindow InitializeVideo(std::string cfg);
+		uptrSASWindow InitializeVideo(std::string windowtitle, int width, int height);
 	}
 }

@@ -24,11 +24,11 @@
 #   GLEW_LIBRARIES - libraries to link against GLEW
 #   GLEW_FOUND - true if GLEW has been found and can be used
 
-find_path(GLEW_INCLUDE_DIR GL/glew.h)
+find_path(GLEW_INCLUDE_DIR GL/glew.h PATHS ${PROJECT_SOURCE_DIR}/src/third_party/glew)
 
 if(NOT GLEW_LIBRARY)
-  find_library(GLEW_LIBRARY_RELEASE NAMES GLEW glew32 glew glew32s PATH_SUFFIXES lib64 x64)
-  find_library(GLEW_LIBRARY_DEBUG NAMES GLEWd glew32d glewd PATH_SUFFIXES lib64 x64)
+  find_library(GLEW_LIBRARY_RELEASE NAMES GLEW glew32 glew glew32s PATHS ${PROJECT_SOURCE_DIR}/third_party_lib)
+  find_library(GLEW_LIBRARY_DEBUG NAMES GLEWd glew32d glewd PATHS ${PROJECT_SOURCE_DIR}/third_party_lib)
 
   include(${CMAKE_CURRENT_LIST_DIR}/SelectLibraryConfigurations.cmake)
   select_library_configurations(GLEW)

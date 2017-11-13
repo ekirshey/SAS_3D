@@ -11,8 +11,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <assimp/scene.h>           // Output data structure
-
-#include "core/error_codes.h"
+#include "assets/textures.h"
+#include "shaders/texture_shader.h"
 
 namespace SAS_3D {
 	namespace Assets {
@@ -25,21 +25,30 @@ namespace SAS_3D {
 			glm::vec2 TexCoords;
 		};
 
-		struct Mesh {
-			std::vector<Vertex> vertices;
-			std::vector<GLuint> indices;
-			GLuint VAO;
-			GLuint VBO;
-			GLuint EBO;
-			void LoadIntoGPU();
-			void UnloadFromGPU();
-			Mesh(const aiMesh* ai_m, const aiScene* scene);
+		class Mesh {
+			public:
+				std::vector<Vertex> vertices;
+				std::vector<GLuint> indices;
+				std::vector<Texture> textures;
+				GLuint VAO;
+				GLuint VBO;
+				GLuint EBO;
+				void LoadIntoGPU();
+				void UnloadFromGPU();
+
+				Mesh(std::string rootpath, const aiMesh* ai_m, const aiScene* scene);
+			private:
+				void _loadMaterialTextures(std::string rootpath, aiMaterial *mat, aiTextureType type, std::string type_name);
 		};
 
-		struct Model {
-			bool loaded;
-			std::vector<Mesh> meshes;
-			Model(const aiScene* scene);
+		class Model {
+			public:
+				Model(std::string path, const aiScene* scene);
+				void LoadIntoGPU();
+				void Draw(const Shaders::TextureShader& textureshader);
+			private:
+				std::vector<Mesh> meshes;
+				bool _loaded;
 		};
 	}
 }

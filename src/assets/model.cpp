@@ -3,7 +3,8 @@
 
 namespace SAS_3D {
 	namespace Assets {
-		Mesh::Mesh(const aiMesh* ai_m, const aiScene* scene) 
+
+		Mesh::Mesh(std::string rootpath, const aiMesh* ai_m, const aiScene* scene) 
 			: vertices{ai_m->mNumVertices}
 		{
 			// Walk through each of the ai_m's vertices
@@ -34,6 +35,7 @@ namespace SAS_3D {
 				}
 				vertices[i] = vertex;
 			}
+
 			// Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 			for (unsigned int i = 0; i < ai_m->mNumFaces; i++) {
 				aiFace face = ai_m->mFaces[i];
@@ -43,6 +45,20 @@ namespace SAS_3D {
 				}
 			}
 
+			// process materials
+			aiMaterial* material = scene->mMaterials[ai_m->mMaterialIndex];
+			_loadMaterialTextures(rootpath, material, aiTextureType_DIFFUSE, "texture_diffuse");
+
+		}
+
+		void Mesh::_loadMaterialTextures(std::string rootpath, aiMaterial *mat, aiTextureType type, std::string type_name) {
+			for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+				aiString str;
+				mat->GetTexture(type, i, &str);
+				std::string texpath(str.C_Str());
+				std::string path = rootpath + texpath;
+				textures.push_back(LoadTextureFromFile(path.c_str(), type_name));
+			}
 		}
 
 		void Mesh::LoadIntoGPU() {
@@ -82,11 +98,43 @@ namespace SAS_3D {
 			glDeleteBuffers(1, &EBO);
 		}
 
-		Model::Model(const aiScene* scene) {
+		Model::Model(std::string path, const aiScene* scene) {
 			if (scene->HasMeshes()) {
+				auto lastslash = path.rfind('/')+1;
 				for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-					meshes.push_back(Mesh(scene->mMeshes[i], scene));
+					meshes.push_back(Mesh(path.substr(0,lastslash),scene->mMeshes[i], scene));
 				}
+			}
+		}
+
+		void Model::LoadIntoGPU() {
+			_loaded = true;
+			for (int i = 0; i < meshes.size(); i++) {
+				meshes[i].LoadIntoGPU();
+			}
+		}
+
+		void Model::Draw(const Shaders::TextureShader& textureshader) {
+			if (!_loaded) {
+				// Proper error handling? Exception?
+				std::cout << "Trying to draw unloaded model"  << std::endl;
+				return;
+			}
+
+			for (auto& m : meshes) {
+				unsigned int tct = 0;
+				for (auto& t : m.textures) {
+					glActiveTexture(GL_TEXTURE0 + tct);
+					textureshader.ApplyTexture(tct);
+					glBindTexture(GL_TEXTURE_2D, t.id);
+					tct++;
+				}
+				
+				glBindVertexArray(m.VAO);
+				glDrawElements(GL_TRIANGLES, m.indices.size(), GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+
+				glActiveTexture(GL_TEXTURE0);
 			}
 		}
 	}

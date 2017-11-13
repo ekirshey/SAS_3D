@@ -14,5 +14,6 @@ find_package(OpenGL)
 find_package(GLEW)
 find_package(GLM)
 find_package(Assimp)
+#find_package(FreeImage)
 
 add_subdirectory(src)

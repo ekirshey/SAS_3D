@@ -3,6 +3,7 @@ include_directories(
 	${GLEW_INCLUDE_DIR}
 	${GLM_INCLUDE_DIR}
 	${ASSIMP_INCLUDE_DIR}
+	${FREEIMAGE_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/src
 )
 
@@ -80,4 +81,4 @@ source_group("entities"				FILES ${SRC_ENTITIES})
 source_group("game_state_machine"	FILES ${SRC_GSM})
 source_group("third_party"			FILES ${SRC_THIRD_PARTY})
 
-target_link_libraries (SAS_3D LINK_PUBLIC ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${GLEW_LIBRARY} ${ASSIMP_LIBRARY_DEBUG})
+target_link_libraries (SAS_3D LINK_PUBLIC ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${GLEW_LIBRARY} ${ASSIMP_LIBRARY_DEBUG} ${FREEIMAGE_LIBRARY_DEBUG})

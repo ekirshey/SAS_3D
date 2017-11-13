@@ -24,6 +24,6 @@
 #   GLEW_LIBRARIES - libraries to link against GLEW
 #   GLEW_FOUND - true if GLEW has been found and can be used
 
-find_path(GLM_INCLUDE_DIR glm/glm.hpp)
+find_path(GLM_INCLUDE_DIR glm/glm.hpp ${PROJECT_SOURCE_DIR}/src/third_party)
 
 mark_as_advanced(GLM_INCLUDE_DIR)

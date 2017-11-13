@@ -5,6 +5,7 @@
 #include "core/sas_video.h"
 #include "core/sas_input.h"
 #include "game_state_machine/game_state.h"
+#include "game_state_machine/game_config.h"
 
 namespace SAS_3D {
 	namespace GSM {
@@ -24,11 +25,13 @@ namespace SAS_3D {
 				void Run();
 				int ViewportWidth() { return _window->GetScreenWidth(); }
 				int ViewportHeight() { return _window->GetScreenHeight();  }
+				GameConfig Config() { return _config; }
 			private:
 				void Update(int elapsedtime, const Core::InputState& inputstate);
 
 				void RemoveStateAtIndex(int idx);
 
+				GameConfig _config;
 				std::unordered_map<int, std::unique_ptr<GameState>> _gamestates;
 				unsigned int _activestate;
 				bool _gamerunning;

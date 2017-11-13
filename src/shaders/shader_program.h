@@ -8,7 +8,8 @@
 */
 #pragma once
 #include <string>
-#include "assets/model.h"
+#include <GL/glew.h>
+#include <glm/glm.hpp>
 
 namespace SAS_3D {
 	namespace Shaders {
@@ -17,8 +18,12 @@ namespace SAS_3D {
 				ShaderProgram(std::string vertexfile, std::string fragfile);
 				~ShaderProgram();
 
-				void UseProgram();
-				GLint GetUniformLocation(std::string name);
+				void UseProgram() const;
+				GLint GetUniformLocation(std::string name) const;
+
+				void ApplyMVP( const glm::mat4& model
+							 , const glm::mat4& view
+							 , const glm::mat4& projection) const;
 			private:
 				GLuint _createShader(const std::string &filename, GLenum shadertype);
 				bool _compileShader(GLuint shader);
