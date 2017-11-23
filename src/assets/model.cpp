@@ -70,9 +70,6 @@ namespace SAS_3D {
 			glBindVertexArray(VAO);
 			// Load data into vertex buffers
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			// A great thing about structs is that their memory layout is sequential for all its items.
-			// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
-			// again translates to 3/2 floats which translates to a byte array.
 			glBufferData(GL_ARRAY_BUFFER,vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -98,19 +95,21 @@ namespace SAS_3D {
 			glDeleteBuffers(1, &EBO);
 		}
 
-		Model::Model(std::string path, const aiScene* scene) {
+		Model::Model(std::string path, const aiScene* scene) 
+			: _path(path)
+		{
 			if (scene->HasMeshes()) {
 				auto lastslash = path.rfind('/')+1;
 				for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-					meshes.push_back(Mesh(path.substr(0,lastslash),scene->mMeshes[i], scene));
+					_meshes.push_back(Mesh(path.substr(0,lastslash),scene->mMeshes[i], scene));
 				}
 			}
 		}
 
 		void Model::LoadIntoGPU() {
 			_loaded = true;
-			for (int i = 0; i < meshes.size(); i++) {
-				meshes[i].LoadIntoGPU();
+			for (int i = 0; i < _meshes.size(); i++) {
+				_meshes[i].LoadIntoGPU();
 			}
 		}
 
@@ -121,7 +120,7 @@ namespace SAS_3D {
 				return;
 			}
 
-			for (auto& m : meshes) {
+			for (auto& m : _meshes) {
 				unsigned int tct = 0;
 				for (auto& t : m.textures) {
 					glActiveTexture(GL_TEXTURE0 + tct);

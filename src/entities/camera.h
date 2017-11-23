@@ -11,12 +11,12 @@ namespace SAS_3D {
 		class Camera {
 		public:
 			Camera(GLfloat width, GLfloat height)
-				: _cameraSpeed(0.04f)
-				, _cameraPos(glm::vec3(0.0f, 0.0f, 2.0f))
+				: _cameraSpeed(0.25f)
+				, _cameraPos(glm::vec3(0.0f, 0.0f, 5.0f))
 				, _cameraFront(glm::vec3(0.0f, 0.0f, -1.0f))
 				, _cameraUp(glm::vec3(0.0f, 1.0f, 0.0f))
-				, _yaw(-90.0f)
-				, _pitch(-90.0f)
+				, _yaw(0.0f)
+				, _pitch(0.0f)
 				, _lastX(width / 2.0)
 				, _lastY(height / 2.0)
 				, _fov(45.0)

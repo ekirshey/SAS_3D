@@ -46,8 +46,10 @@ namespace SAS_3D {
 				Model(std::string path, const aiScene* scene);
 				void LoadIntoGPU();
 				void Draw(const Shaders::TextureShader& textureshader);
+				std::string Path() const { return _path; }
 			private:
-				std::vector<Mesh> meshes;
+				std::string _path;
+				std::vector<Mesh> _meshes;
 				bool _loaded;
 		};
 	}

@@ -18,6 +18,6 @@ namespace SAS_3D {
 			std::string path;
 		};
 
-		Texture LoadTextureFromFile(const char* path, std::string type_name);
+		Texture LoadTextureFromFile(const char* path, std::string type_name, GLint format = GL_BGRA);
 	}
 }

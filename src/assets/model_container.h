@@ -18,8 +18,7 @@
 namespace SAS_3D {
 	namespace Assets {
 		#define MAXMODELS 100
-		using ModelIdx = int;
-		using LoadedModelIdx = int;
+		using ModelIdx = unsigned int;
 		class ModelContainer {
 			public:
 				ModelContainer(std::string modelpath, std::string texturepath);

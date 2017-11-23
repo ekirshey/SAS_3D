@@ -26,6 +26,7 @@ namespace SAS_3D {
 			}
 
 			_mc.LoadModelIntoGPU(_crowidx);
+			std::cout << "Done loading textures!" << std::endl;
 
 			return FSMStates::TRANSITIONIN;
 		}
@@ -34,6 +35,10 @@ namespace SAS_3D {
 			_camera.Update(input);
 
 			glm::mat4 model;
+			// I seem to be looking down the x axis and im unsure why
+			//model = glm::translate(model, glm::vec3(10.0f, -200.0f, 5.0f));
+			//model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+			//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			glm::mat4 view = _camera.GetViewMatrix();
 			glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)window->GetScreenWidth() / (float)window->GetScreenHeight(), 0.1f, 100.0f);
 

@@ -16,6 +16,7 @@ namespace SAS_3D {
 		}
 
 		ModelIdx ModelContainer::LoadModelFromFile(std::string path, unsigned int flags) {
+			std::string fullpath = _modelpath + path;
 			Core::SetError(Core::ErrorCode::NO_ERROR);
 
 			if (_models.size()+1 > MAXMODELS) {
@@ -23,8 +24,16 @@ namespace SAS_3D {
 				return -1;
 			}
 
+			// Check if model has already been loaded
+			ModelIdx idx;
+			for (auto& m : _models) {
+				if (m.Path() == path) {
+					return idx;
+				}
+				idx++;
+			}
+
 			Assimp::Importer importer;
-			std::string fullpath = _modelpath + path;
 			const aiScene* scene = importer.ReadFile(fullpath, flags);
 			// Check for errors
 			if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
