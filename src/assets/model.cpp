@@ -119,7 +119,6 @@ namespace SAS_3D {
 				std::cout << "Trying to draw unloaded model"  << std::endl;
 				return;
 			}
-
 			for (auto& m : _meshes) {
 				unsigned int tct = 0;
 				for (auto& t : m.textures) {

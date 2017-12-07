@@ -41,7 +41,7 @@ namespace SAS_3D {
 			std::cout << "Finished Game Init" << std::endl;
 			std::cout << "Entering Main Loop" << std::endl << std::endl;
 
-			//currenttime = SAS_System::CurrentTicks();
+			currenttime = SDL_GetTicks();
 
 			// Main Game Loop
 			_window->SwapWindow();
@@ -49,7 +49,7 @@ namespace SAS_3D {
 			{
 				_window->Clear(0.2f, 0.3f, 0.3f);
 				previoustime = currenttime;
-				//currenttime = SAS_System::CurrentTicks();
+				currenttime = SDL_GetTicks();
 
 				// Read the event queue so the state has the input
 				Core::UpdateInput(_gamerunning, inputstate);

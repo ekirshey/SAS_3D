@@ -8,121 +8,148 @@
 
 namespace SAS_3D {
 	namespace Entities {
-		class Camera {
+		// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
+		enum Camera_Movement {
+			FORWARD,
+			BACKWARD,
+			LEFT,
+			RIGHT
+		};
+
+		// Default camera values
+		const float YAW = -90.0f;
+		const float PITCH = 0.0f;
+		const float SPEED = 2.5f;
+		const float SENSITIVTY = 0.6f;
+		const float ZOOM = 45.0f;
+
+
+		// An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
+		class Camera
+		{
 		public:
-			Camera(GLfloat width, GLfloat height)
-				: _cameraSpeed(0.25f)
-				, _cameraPos(glm::vec3(0.0f, 0.0f, 5.0f))
-				, _cameraFront(glm::vec3(0.0f, 0.0f, -1.0f))
-				, _cameraUp(glm::vec3(0.0f, 1.0f, 0.0f))
-				, _yaw(0.0f)
-				, _pitch(0.0f)
-				, _lastX(width / 2.0)
-				, _lastY(height / 2.0)
-				, _fov(45.0)
-				, _firstMouse(true)
-				, _cameraLock(false)
-				, _cameraLockControl(false)
+			// Camera Attributes
+			glm::vec3 Position;
+			glm::vec3 Front;
+			glm::vec3 Up;
+			glm::vec3 Right;
+			glm::vec3 WorldUp;
+			// Eular Angles
+			float Yaw;
+			float Pitch;
+			// Camera options
+			float MovementSpeed;
+			float MouseSensitivity;
+			float Zoom;
+
+			// Constructor with vectors
+			Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 			{
-
+				lastX = 0;
+				lastY = 0;
+				firstmouse = true;
+				Position = position;
+				WorldUp = up;
+				Yaw = yaw;
+				Pitch = pitch;
+				updateCameraVectors();
+			}
+			// Constructor with scalar values
+			Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+			{
+				Position = glm::vec3(posX, posY, posZ);
+				WorldUp = glm::vec3(upX, upY, upZ);
+				Yaw = yaw;
+				Pitch = pitch;
+				updateCameraVectors();
 			}
 
-			void SetFov(int scroll) {
-				if (_fov >= 1.0f && _fov <= 45.0f)
-					_fov -= scroll;
-				if (_fov <= 1.0f)
-					_fov = 1.0f;
-				if (_fov >= 45.0f)
-					_fov = 45.0f;
+			// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
+			glm::mat4 GetViewMatrix()
+			{
+				return glm::lookAt(Position, Position + Front, Up);
 			}
 
-			glm::vec3 Position() {
-				return _cameraPos;
+			void Update(const Core::InputState& input, float deltatime) {
+				ProcessKeyboard(input, deltatime);
+				ProcessMouseMovement(input);
 			}
 
-			void Update(const Core::InputState& input) {
-				if (_firstMouse) // this bool variable is initially set to true
+			// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
+			void ProcessKeyboard(const Core::InputState& input, float deltaTime)
+			{
+				float velocity = MovementSpeed * deltaTime;
+				if (input.keyarray[SDL_SCANCODE_W] == Core::KeyState::PRESSED)
+					Position += Front * velocity;
+				if (input.keyarray[SDL_SCANCODE_S] == Core::KeyState::PRESSED)
+					Position -= Front * velocity;
+				if (input.keyarray[SDL_SCANCODE_A] == Core::KeyState::PRESSED)
+					Position -= Right * velocity;
+				if (input.keyarray[SDL_SCANCODE_D] == Core::KeyState::PRESSED)
+					Position += Right * velocity;
+			}
+
+			// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
+			void ProcessMouseMovement(const Core::InputState& input, GLboolean constrainPitch = true)
+			{
+				if (firstmouse) {
+					lastX = input.m_x;
+					lastY = input.m_y;
+					firstmouse = false;
+				}
+				auto xoffset = input.m_x - lastX;
+				auto yoffset = lastY - input.m_y;
+				lastX = input.m_x;
+				lastY = input.m_y;
+
+				xoffset *= MouseSensitivity;
+				yoffset *= MouseSensitivity;
+
+				Yaw += xoffset;
+				Pitch += yoffset;
+
+				// Make sure that when pitch is out of bounds, screen doesn't get flipped
+				if (constrainPitch)
 				{
-					_lastX = input.m_x;
-					_lastY = input.m_y;
-					_firstMouse = false;
+					if (Pitch > 89.0f)
+						Pitch = 89.0f;
+					if (Pitch < -89.0f)
+						Pitch = -89.0f;
 				}
 
-				if (input.keyarray[SDL_SCANCODE_CAPSLOCK] == Core::KeyState::PRESSED) {
-					if (!_cameraLockControl) {
-						_cameraLockControl = true;
-						_cameraLock ^= true;
-					}
-				}
-				else {
-					_cameraLockControl = false;
-				}
-
-				// Don't update the camera position if it's locked
-				if (_cameraLock) {
-					return;
-				}
-
-				GLfloat xoffset = input.m_x - _lastX;
-				GLfloat yoffset = _lastY - input.m_y; // Reversed since y-coordinates range from bottom to top
-				_lastX = input.m_x;
-				_lastY = input.m_y;
-
-				GLfloat sensitivity = 0.35f;
-				xoffset *= sensitivity;
-				yoffset *= sensitivity;
-				_yaw += xoffset;
-				_pitch += yoffset;
-
-				if (_pitch > 89.0f)
-					_pitch = 89.0f;
-				if (_pitch < -89.0f)
-					_pitch = -89.0f;
-
-				glm::vec3 front;
-				front.x = cos(glm::radians(_pitch)) * cos(glm::radians(_yaw));
-				front.y = sin(glm::radians(_pitch));
-				front.z = cos(glm::radians(_pitch)) * sin(glm::radians(_yaw));
-				_cameraFront = glm::normalize(front);
-
-				// Keyboard input handling
-				if (input.keyarray[SDL_SCANCODE_W] == Core::KeyState::PRESSED) {
-					_cameraPos += _cameraSpeed * _cameraFront;
-				}
-				if (input.keyarray[SDL_SCANCODE_S] == Core::KeyState::PRESSED ) {
-					_cameraPos -= _cameraSpeed * _cameraFront;
-				}
-				if (input.keyarray[SDL_SCANCODE_A] == Core::KeyState::PRESSED) {
-					_cameraPos -= glm::normalize(glm::cross(_cameraFront, _cameraUp)) * _cameraSpeed;
-				}
-				if (input.keyarray[SDL_SCANCODE_D] == Core::KeyState::PRESSED) {
-					_cameraPos += glm::normalize(glm::cross(_cameraFront, _cameraUp)) * _cameraSpeed;
-				}
+				// Update Front, Right and Up Vectors using the updated Eular angles
+				updateCameraVectors();
 			}
 
-			glm::mat4 GetViewMatrix() {
-				return glm::lookAt(_cameraPos, _cameraPos + _cameraFront, _cameraUp);
-			}
-
-			GLfloat Zoom() {
-				return _fov;
+			// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+			void ProcessMouseScroll(float yoffset)
+			{
+				if (Zoom >= 1.0f && Zoom <= 45.0f)
+					Zoom -= yoffset;
+				if (Zoom <= 1.0f)
+					Zoom = 1.0f;
+				if (Zoom >= 45.0f)
+					Zoom = 45.0f;
 			}
 
 		private:
-			GLfloat _cameraSpeed;
-			glm::vec3 _cameraPos;
-			glm::vec3 _cameraFront;
-			glm::vec3 _cameraUp;
+			float lastX;
+			float lastY;
+			bool firstmouse;
 
-			GLfloat _yaw;	// Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
-			GLfloat _pitch;
-			GLfloat _lastX;
-			GLfloat _lastY;
-			GLfloat _fov;
-
-			bool _firstMouse;
-			bool _cameraLock;
-			bool _cameraLockControl;
+			// Calculates the front vector from the Camera's (updated) Eular Angles
+			void updateCameraVectors()
+			{
+				// Calculate the new Front vector
+				glm::vec3 front;
+				front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+				front.y = sin(glm::radians(Pitch));
+				front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+				Front = glm::normalize(front);
+				// Also re-calculate the Right and Up vector
+				Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+				Up = glm::normalize(glm::cross(Right, Front));
+			}
 		};
 	}
 }
