@@ -2,17 +2,17 @@
 #include <string>
 
 namespace SAS_3D {
-	namespace GSM {
-		struct GameConfig {
-			std::string windowtitle;
-			int screenwidth;
-			int screenheight;
+	struct GameConfig {
+		std::string windowtitle;
+		int screenwidth;
+		int screenheight;
 
-			std::string shaderpath;
-			std::string modelpath;
-			std::string texturepath;
-		};
+		std::string shaderpath;
+		std::string modelpath;
 
-		GameConfig LoadConfig(std::string ini);
-	}
+		std::string serverip;
+		std::string port;
+	};
+
+	GameConfig LoadConfig(std::string ini);
 }

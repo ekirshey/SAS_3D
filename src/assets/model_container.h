@@ -1,7 +1,7 @@
 /*
 * model_container.h
 *
-* Class for holding models and properly loading and freeing them 
+* Class for holding models and properly loading and freeing them
 * from gpu memory and properly selecting them when drawing
 *
 * Author: Erik Kirshey
@@ -13,24 +13,23 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include "assets/model.h"
-#include "shaders/texture_shader.h"
+#include "assets/textures.h"
+#include "render_engine/shaders/shader_program.h"
 
 namespace SAS_3D {
-	namespace Assets {
-		#define MAXMODELS 100
-		using ModelIdx = unsigned int;
-		class ModelContainer {
-			public:
-				ModelContainer(std::string modelpath, std::string texturepath);
-				~ModelContainer();
+	#define MAXMODELS 100
+	using ModelIdx = unsigned int;
+	class ModelContainer {
+	public:
+		ModelContainer(std::string modelpath);
+		~ModelContainer();
 
-				ModelIdx LoadModelFromFile(std::string path, unsigned int flags);
-				void LoadModelIntoGPU(ModelIdx idx);
-				void Draw(ModelIdx idx, const Shaders::TextureShader& textureshader);
-			private:
-				std::string _modelpath;
-				std::string _texturepath;
-				std::vector<Model> _models;
-		};
-	}
+		ModelIdx LoadModelFromFile(std::string path, unsigned int flags);
+		void LoadModelIntoGPU(ModelIdx idx);
+		void Draw(ModelIdx idx, ShaderProgram& shader);
+	private:
+		std::string _modelpath;
+		TextureContainer _tc;
+		std::vector<Model> _models;
+	};
 }

@@ -9,15 +9,20 @@
 */
 #pragma once
 #include <string>
+#include <unordered_map>
 
 namespace SAS_3D {
-	namespace Assets {
-		struct Texture {
-			unsigned int id;
-			std::string type;
-			std::string path;
-		};
+	struct Texture {
+		std::string type;
+		std::string path;
+	};
 
-		Texture LoadTextureFromFile(const char* path, std::string type_name, GLint format = GL_BGRA);
-	}
+	class TextureContainer {
+	public:
+		TextureContainer() {}
+		GLuint LoadTextureFromFile(std::string path, std::string type_name, GLint format = GL_BGRA);
+	private:
+		std::unordered_map<GLuint, Texture> _textures;
+	};
+
 }

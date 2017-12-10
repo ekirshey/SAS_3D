@@ -1,155 +1,50 @@
 #pragma once
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/ext.hpp>
-#include <SDL.h>
+#include "core/sas_input.h"
 
 namespace SAS_3D {
-	namespace Entities {
-		// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-		enum Camera_Movement {
-			FORWARD,
-			BACKWARD,
-			LEFT,
-			RIGHT
-		};
+	// Default camera values
+	const float YAW = -90.0f;
+	const float PITCH = 0.0f;
+	const float SPEED = 2.5f;
+	const float SENSITIVTY = 0.6f;
+	const float ZOOM = 45.0f;
 
-		// Default camera values
-		const float YAW = -90.0f;
-		const float PITCH = 0.0f;
-		const float SPEED = 2.5f;
-		const float SENSITIVTY = 0.6f;
-		const float ZOOM = 45.0f;
+	// An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
+	class Camera
+	{
+	public:
+		Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+		Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
+		glm::mat4 GetViewMatrix();
+		void Update(const InputState& input, float deltatime);
+		float Zoom() { return _zoom; }
 
-		// An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
-		class Camera
-		{
-		public:
-			// Camera Attributes
-			glm::vec3 Position;
-			glm::vec3 Front;
-			glm::vec3 Up;
-			glm::vec3 Right;
-			glm::vec3 WorldUp;
-			// Eular Angles
-			float Yaw;
-			float Pitch;
-			// Camera options
-			float MovementSpeed;
-			float MouseSensitivity;
-			float Zoom;
+	private:
+		void _process_keyboard(const InputState& input, float deltaTime);
+		void _process_mouse_movement(const InputState& input, GLboolean constrainPitch = true);
+		void _process_mouse_scroll(float yoffset);
+		void _update_camera_vectors();
 
-			// Constructor with vectors
-			Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
-			{
-				lastX = 0;
-				lastY = 0;
-				firstmouse = true;
-				Position = position;
-				WorldUp = up;
-				Yaw = yaw;
-				Pitch = pitch;
-				updateCameraVectors();
-			}
-			// Constructor with scalar values
-			Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
-			{
-				Position = glm::vec3(posX, posY, posZ);
-				WorldUp = glm::vec3(upX, upY, upZ);
-				Yaw = yaw;
-				Pitch = pitch;
-				updateCameraVectors();
-			}
+		// Camera Attributes
+		glm::vec3 _position;
+		glm::vec3 _front;
+		glm::vec3 _up;
+		glm::vec3 _right;
+		glm::vec3 _worldup;
 
-			// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-			glm::mat4 GetViewMatrix()
-			{
-				return glm::lookAt(Position, Position + Front, Up);
-			}
+		// Eular Angles
+		float _yaw;
+		float _pitch;
 
-			void Update(const Core::InputState& input, float deltatime) {
-				ProcessKeyboard(input, deltatime);
-				ProcessMouseMovement(input);
-			}
-
-			// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-			void ProcessKeyboard(const Core::InputState& input, float deltaTime)
-			{
-				float velocity = MovementSpeed * deltaTime;
-				if (input.keyarray[SDL_SCANCODE_W] == Core::KeyState::PRESSED)
-					Position += Front * velocity;
-				if (input.keyarray[SDL_SCANCODE_S] == Core::KeyState::PRESSED)
-					Position -= Front * velocity;
-				if (input.keyarray[SDL_SCANCODE_A] == Core::KeyState::PRESSED)
-					Position -= Right * velocity;
-				if (input.keyarray[SDL_SCANCODE_D] == Core::KeyState::PRESSED)
-					Position += Right * velocity;
-			}
-
-			// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-			void ProcessMouseMovement(const Core::InputState& input, GLboolean constrainPitch = true)
-			{
-				if (firstmouse) {
-					lastX = input.m_x;
-					lastY = input.m_y;
-					firstmouse = false;
-				}
-				auto xoffset = input.m_x - lastX;
-				auto yoffset = lastY - input.m_y;
-				lastX = input.m_x;
-				lastY = input.m_y;
-
-				xoffset *= MouseSensitivity;
-				yoffset *= MouseSensitivity;
-
-				Yaw += xoffset;
-				Pitch += yoffset;
-
-				// Make sure that when pitch is out of bounds, screen doesn't get flipped
-				if (constrainPitch)
-				{
-					if (Pitch > 89.0f)
-						Pitch = 89.0f;
-					if (Pitch < -89.0f)
-						Pitch = -89.0f;
-				}
-
-				// Update Front, Right and Up Vectors using the updated Eular angles
-				updateCameraVectors();
-			}
-
-			// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-			void ProcessMouseScroll(float yoffset)
-			{
-				if (Zoom >= 1.0f && Zoom <= 45.0f)
-					Zoom -= yoffset;
-				if (Zoom <= 1.0f)
-					Zoom = 1.0f;
-				if (Zoom >= 45.0f)
-					Zoom = 45.0f;
-			}
-
-		private:
-			float lastX;
-			float lastY;
-			bool firstmouse;
-
-			// Calculates the front vector from the Camera's (updated) Eular Angles
-			void updateCameraVectors()
-			{
-				// Calculate the new Front vector
-				glm::vec3 front;
-				front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-				front.y = sin(glm::radians(Pitch));
-				front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-				Front = glm::normalize(front);
-				// Also re-calculate the Right and Up vector
-				Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-				Up = glm::normalize(glm::cross(Right, Front));
-			}
-		};
-	}
+		// Camera options
+		float _movement_speed;
+		float _mouse_sensitivity;
+		float _zoom;
+		float _lastx;
+		float _lasty;
+		bool _firstmouse;
+	};
 }

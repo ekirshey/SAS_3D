@@ -11,7 +11,5 @@
 #include "core/error_codes.h"
 
 namespace SAS_3D {
-	namespace Core {
-		std::string ReadFile(std::string file);
-	}
+	std::string ReadFile(std::string file);
 }
