@@ -1,7 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include "core/sas_input.h"
+#include "core/sas_io.h"
 
 namespace SAS_3D {
 	// Default camera values

@@ -15,18 +15,17 @@ namespace SAS_3D {
 		GameRunningState(const GameConfig& config);
 		~GameRunningState();
 
-		FSMStates InitializeState(SASWindow* window, const InputState& input);
-		FSMStates UpdateState(int elapsedtime, SASWindow* window, const InputState& input);
+		FSMStates InitializeState(const InputState& input, RenderQueue* event_queue);
+		FSMStates UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input);
 		int NextState() { return _nextstate; }
 
 	private:
 		GameConfig _config;
 		Camera _camera;
-		LockingQueue<SceneGraph> _scene_queue;
 		int _nextstate;
 		bool _exit;
 
 		// TEST
-		RigidBody _player;
+		std::vector<RigidBody> _mobs;
 	};
 }

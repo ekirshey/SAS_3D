@@ -22,6 +22,16 @@ namespace SAS_3D {
 		glm::vec3 Normal;
 		// TexCoords
 		glm::vec2 TexCoords;
+		// Bones
+		std::vector<GLfloat> bones;
+		// Weights
+		std::vector<GLfloat> weights;
+	};
+
+	struct Bone {
+		std::string name;
+		glm::mat4 offsetmatrix;
+		std::unordered_map<unsigned int, std::vector<float>> weights;
 	};
 
 	class Mesh {
@@ -29,6 +39,7 @@ namespace SAS_3D {
 		std::vector<Vertex> vertices;
 		std::vector<GLuint> indices;
 		std::vector<GLuint> textures;
+		std::vector<Bone> bones;
 		GLuint VAO;
 		GLuint VBO;
 		GLuint EBO;

@@ -14,7 +14,6 @@ namespace SAS_3D {
 		void AddNode(const SceneNode& node) {
 			_data.push_back(node);
 		}
-	private:
 		// Temp
 		std::vector<SceneNode> _data;
 	};

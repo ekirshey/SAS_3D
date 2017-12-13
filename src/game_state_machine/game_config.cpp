@@ -26,12 +26,14 @@ namespace SAS_3D {
 
 		config.shaderpath = reader.Get("paths", "shader_path", "");
 		config.modelpath = reader.Get("paths", "model_path", "");
+		sanitizePath(config.shaderpath);
+		sanitizePath(config.modelpath);
+
+		config.model_registry = config.modelpath + reader.Get("paths", "model_registry", "");
 
 		config.serverip = reader.Get("network", "server_ip", "127.0.0.1");
 		config.port = reader.Get("network", "port", "25977");
 
-		sanitizePath(config.shaderpath);
-		sanitizePath(config.modelpath);
 
 		return config;
 	}

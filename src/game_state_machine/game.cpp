@@ -1,22 +1,26 @@
 #include "game_state_machine/game.h"
 #include <iostream>
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 const int SCREEN_FPS = 1000;
 const int SCREEN_TICK_PER_FRAME = 1000 / SCREEN_FPS;
 
 namespace SAS_3D {
 	Game::Game(std::string config)
-		: _gamestates()
-		, _activestate(0)
-		, _config(LoadConfig(config))
+		: _config(LoadConfig(config))
 		, _window(InitializeVideo(_config.windowtitle, _config.screenwidth, _config.screenheight))
+		, _gamestates()
+		, _activestate(0)
 		, _gamerunning(true)
 		, _client(_config.serverip, _config.port)
 	{
 	}
 
 	Game::~Game() {
+		_renderengine->Stop();
+		_renderthread.join();
 	}
 
 	void Game::RemoveStateAtIndex(int idx) {
@@ -34,21 +38,25 @@ namespace SAS_3D {
 		InputState inputstate;
 
 		// If everything initialized ok then enter main game loop
+		std::cout << "Kicking off render thread" << std::endl;
+
+		SDL_GL_MakeCurrent(NULL, NULL);
+		_renderthread = std::thread([&]() {
+			_window->SwitchContext();
+			_renderengine = std::make_unique <RenderEngine>(_config, _window.get(), &_event_queue);
+		});
+
+		//using namespace std::chrono_literals;
+		//std::this_thread::sleep_for(5s);
+
 		std::cout << "Finished Game Init" << std::endl;
 		std::cout << "Entering Main Loop" << std::endl << std::endl;
 
 		currenttime = SDL_GetTicks();
+		double targetticks = 16.67;
 
-		// DISABLES VSYNC
-		if (SDL_GL_SetSwapInterval(0) != 0) {
-			printf("Error: %s\n", SDL_GetError());
-		}
-
-		// Main Game Loop
-		_window->SwapWindow();
 		while (_gamerunning)
 		{
-			_window->Clear(0.2f, 0.3f, 0.3f);
 			previoustime = currenttime;
 			currenttime = SDL_GetTicks();
 
@@ -56,13 +64,6 @@ namespace SAS_3D {
 			UpdateInput(_gamerunning, inputstate);
 			if (_gamerunning) {
 				Update(currenttime - previoustime, inputstate);
-
-				/*
-				if (fps < 50) {
-					std::cout << "LOW FPS " << fps << std::endl;
-				}
-				*/
-				_window->SwapWindow();
 			}
 
 			if ((currenttime - previoustime) > 0) {
@@ -81,7 +82,7 @@ namespace SAS_3D {
 	}
 
 	void Game::Update(int elapsedtime, const InputState& inputstate) {
-		_activestate = _gamestates[_activestate]->FiniteStateMachine(elapsedtime, _window.get(), inputstate);
+		_activestate = _gamestates[_activestate]->FiniteStateMachine(elapsedtime, inputstate);
 		// Invalid next state
 		if (_activestate >= _gamestates.size() || _activestate < 0) {
 			_gamerunning = false;

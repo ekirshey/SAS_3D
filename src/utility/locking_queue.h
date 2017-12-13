@@ -17,8 +17,9 @@ namespace SAS_3D {
 			{
 				std::unique_lock<std::mutex> lk(_mx);
 				_peak = std::max(_peak, _queue.size());
-				if (_queue.size() <= 0)
+				if (_queue.size() <= 0) {
 					return 0;
+				}
 				size = _queue.size();
 				obj = std::move(_queue.front());
 				_queue.pop_front();

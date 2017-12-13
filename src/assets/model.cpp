@@ -3,6 +3,18 @@
 #include <iostream>
 
 namespace SAS_3D {
+	// helper https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
+	inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from) {
+		glm::mat4 to;
+
+		to[0][0] = (GLfloat)from.a1; to[0][1] = (GLfloat)from.b1;  to[0][2] = (GLfloat)from.c1; to[0][3] = (GLfloat)from.d1;
+		to[1][0] = (GLfloat)from.a2; to[1][1] = (GLfloat)from.b2;  to[1][2] = (GLfloat)from.c2; to[1][3] = (GLfloat)from.d2;
+		to[2][0] = (GLfloat)from.a3; to[2][1] = (GLfloat)from.b3;  to[2][2] = (GLfloat)from.c3; to[2][3] = (GLfloat)from.d3;
+		to[3][0] = (GLfloat)from.a4; to[3][1] = (GLfloat)from.b4;  to[3][2] = (GLfloat)from.c4; to[3][3] = (GLfloat)from.d4;
+
+		return to;
+	}
+
 	Mesh::Mesh(std::string modelpath, TextureContainer& c, const aiMesh* ai_m, const aiScene* scene)
 		: vertices{ai_m->mNumVertices}
 	{
@@ -32,10 +44,11 @@ namespace SAS_3D {
 			else {
 				vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 			}
+
 			vertices[i] = vertex;
 		}
 
-		// Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+		// Now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 		for (unsigned int i = 0; i < ai_m->mNumFaces; i++) {
 			aiFace face = ai_m->mFaces[i];
 			// Retrieve all indices of the face and store them in the indices vector
@@ -47,6 +60,22 @@ namespace SAS_3D {
 		// process materials
 		aiMaterial* material = scene->mMaterials[ai_m->mMaterialIndex];
 		_loadMaterialTextures(modelpath, c, material, aiTextureType_DIFFUSE, "texture_diffuse");
+
+		// process bones
+		for (unsigned int i = 0; i < ai_m->mNumBones; i++) {
+			Bone b;
+			aiBone* ai_b = ai_m->mBones[i];
+			b.name = ai_b->mName.C_Str();
+			b.offsetmatrix = aiMatrix4x4ToGlm(ai_b->mOffsetMatrix);
+			for (unsigned int j = 0; j < ai_b->mNumWeights; j++) {
+				auto vertid = ai_b->mWeights[j].mVertexId;
+				auto weight = ai_b->mWeights[j].mWeight;
+				b.weights[vertid].push_back(weight);
+				vertices[vertid].bones.push_back(i);
+				vertices[vertid].weights.push_back(weight);
+			}
+			bones.push_back(b);
+		}
 
 	}
 
@@ -96,6 +125,7 @@ namespace SAS_3D {
 
 	Model::Model(std::string path, TextureContainer& c, const aiScene* scene)
 		: _path(path)
+		, _loaded(false)
 	{
 		if (scene->HasMeshes()) {
 			auto lastslash = path.rfind('/') + 1;
@@ -106,17 +136,18 @@ namespace SAS_3D {
 	}
 
 	void Model::LoadIntoGPU() {
-		_loaded = true;
-		for (int i = 0; i < _meshes.size(); i++) {
-			_meshes[i].LoadIntoGPU();
+		if (!_loaded) {
+			_loaded = true;
+			for (int i = 0; i < _meshes.size(); i++) {
+				_meshes[i].LoadIntoGPU();
+			}
 		}
 	}
 
 	void Model::Draw(ShaderProgram& shader) {
 		if (!_loaded) {
-			// Proper error handling? Exception?
-			std::cout << "Trying to draw unloaded model"  << std::endl;
-			return;
+			// Load the model into memory
+			LoadIntoGPU();
 		}
 		auto texturemodule = shader.GetInputModule<TextureModule*>(TextureModule::ID);
 		for (auto& m : _meshes) {

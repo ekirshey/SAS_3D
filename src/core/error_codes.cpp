@@ -1,6 +1,7 @@
 #include "core/error_codes.h"
 
 namespace SAS_3D {
+
 	namespace {
 		ErrorCode global_error = ErrorCode::NO_ERROR;	// my equivalent of errno
 	}
@@ -12,4 +13,5 @@ namespace SAS_3D {
 	ErrorCode GetError() {
 		return global_error;
 	}
+
 }

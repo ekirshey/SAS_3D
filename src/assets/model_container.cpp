@@ -1,4 +1,10 @@
 #include <iostream>
+#include <GL/glew.h>
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/postprocess.h>     // Post processing flags
+#include "core/sas_io.h"
+#include "json.hpp"
 #include "core/error_codes.h"
 #include "model_container.h"
 
@@ -23,12 +29,10 @@ namespace SAS_3D {
 		}
 
 		// Check if model has already been loaded
-		ModelIdx idx;
-		for (auto& m : _models) {
-			if (m.Path() == path) {
-				return idx;
+		for (int i = 0; i < _models.size(); i++) {
+			if (_models[i].Path() == path) {
+				return i;
 			}
-			idx++;
 		}
 
 		Assimp::Importer importer;
@@ -36,7 +40,7 @@ namespace SAS_3D {
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
 			std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-			SetError(ErrorCode::BAD_MODEL_FILE);
+//			SetError(ErrorCode::BAD_MODEL_FILE);
 			return -1;
 		}
 
@@ -50,6 +54,27 @@ namespace SAS_3D {
 	}
 
 	void ModelContainer::Draw(ModelIdx idx, ShaderProgram& shader) {
-		_models[idx].Draw(shader);
+		// Make sure the model exists/loaded
+		if (idx < _models.size()) {
+			_models[idx].Draw(shader);
+		}
+	}
+
+	namespace ModelLoader {
+		void LoadModels(std::string model_registry, ModelContainer& mc) {
+			using json = nlohmann::json;
+			json j = json::parse(ReadFile(model_registry));
+			auto registry = j.at("registry");
+
+			for (int i = 0; i < registry.size(); i++) {
+				auto temp = mc.LoadModelFromFile(
+					registry[i].at("model_path")
+					, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+				if (temp == -1) {
+					std::cerr << "Error Loading Model." << std::endl;
+				}
+			}
+		}
 	}
 }

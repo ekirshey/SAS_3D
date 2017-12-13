@@ -7,7 +7,6 @@
 #include <string>
 
 namespace SAS_3D {
-
 	class BadShaderException : public std::runtime_error {
 	public:
 		explicit BadShaderException(const std::string& message)

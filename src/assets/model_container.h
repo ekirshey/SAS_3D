@@ -9,9 +9,6 @@
 */
 #pragma once
 #include <vector>
-#include <GL/glew.h>
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/Importer.hpp>      // C++ importer interface
 #include "assets/model.h"
 #include "assets/textures.h"
 #include "render_engine/shaders/shader_program.h"
@@ -19,7 +16,8 @@
 namespace SAS_3D {
 	#define MAXMODELS 100
 	using ModelIdx = unsigned int;
-	class ModelContainer {
+	class ModelContainer
+	{
 	public:
 		ModelContainer(std::string modelpath);
 		~ModelContainer();
@@ -32,4 +30,8 @@ namespace SAS_3D {
 		TextureContainer _tc;
 		std::vector<Model> _models;
 	};
+
+	namespace ModelLoader {
+		void LoadModels(std::string model_registry, ModelContainer& mc);
+	}
 }

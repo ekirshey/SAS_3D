@@ -9,6 +9,7 @@ namespace SAS_3D {
 
 		std::string shaderpath;
 		std::string modelpath;
+		std::string model_registry;
 
 		std::string serverip;
 		std::string port;

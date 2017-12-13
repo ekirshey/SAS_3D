@@ -2,7 +2,9 @@
 #include <memory>
 #include <iostream>
 #include "core/sas_video.h"
-#include "core/sas_input.h"
+#include "core/sas_io.h"
+#include "utility/locking_queue.h"
+#include "render_engine/render_engine.h"
 
 namespace SAS_3D {
 	enum class FSMStates { INITIALIZE = 0, TRANSITIONIN, UPDATE, TRANSITIONOUT, EXIT };
@@ -11,15 +13,15 @@ namespace SAS_3D {
 		virtual ~GameStateImpl() {}
 
 		// Every state must handle init and update
-		virtual FSMStates InitializeState(SASWindow* window, const InputState& input) = 0;
-		virtual FSMStates UpdateState(int elapsedtime, SASWindow* window, const InputState& input) = 0;
+		virtual FSMStates InitializeState( const InputState& input, RenderQueue* event_queue) = 0;
+		virtual FSMStates UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input) = 0;
 
 		// Not every state has to do these
-		virtual FSMStates TransitionIntoState(SASWindow* window) {
+		virtual FSMStates TransitionIntoState() {
 			return FSMStates::UPDATE;
 		}
 
-		virtual FSMStates TransitionFromState(SASWindow* window) {
+		virtual FSMStates TransitionFromState() {
 			return FSMStates::EXIT;
 		}
 
@@ -29,10 +31,11 @@ namespace SAS_3D {
 	class GameState
 	{
 	public:
-		GameState(int stateid, bool persistent, std::unique_ptr<GameStateImpl> impl)
+		GameState(int stateid, bool persistent, RenderQueue* event_queue, std::unique_ptr<GameStateImpl> impl)
 			: _stateid(stateid)
 			, _currentfsmstate(FSMStates::INITIALIZE)
 			, _persistent(persistent)
+			, _eq(event_queue)
 			, _impl(std::move(impl))
 		{
 
@@ -43,22 +46,22 @@ namespace SAS_3D {
 		virtual ~GameState() {}
 
 		// Default FSM for a state
-		int FiniteStateMachine(int elapsedtime, SASWindow* window, const InputState& input)
+		int FiniteStateMachine(int elapsedtime, const InputState& input)
 		{
 			int nextgamestate = _stateid;
 			switch (_currentfsmstate)
 			{
 			case FSMStates::INITIALIZE:
-				_currentfsmstate = _impl->InitializeState(window, input);
+				_currentfsmstate = _impl->InitializeState(input, _eq);
 				break;
 			case FSMStates::TRANSITIONIN:
-				_currentfsmstate = _impl->TransitionIntoState(window);
+				_currentfsmstate = _impl->TransitionIntoState();
 				break;
 			case FSMStates::UPDATE:
-				_currentfsmstate = _impl->UpdateState(elapsedtime, window, input);
+				_currentfsmstate = _impl->UpdateState(elapsedtime, _eq, input);
 				break;
 			case FSMStates::TRANSITIONOUT:
-				_currentfsmstate = _impl->TransitionFromState(window);
+				_currentfsmstate = _impl->TransitionFromState();
 				break;
 			case FSMStates::EXIT:
 				nextgamestate = _impl->NextState();
@@ -78,6 +81,7 @@ namespace SAS_3D {
 		int _stateid;
 		FSMStates _currentfsmstate;
 		bool _persistent;
+		RenderQueue* _eq;
 		std::unique_ptr<GameStateImpl> _impl;
 
 	};

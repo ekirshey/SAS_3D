@@ -1,6 +1,7 @@
 #include <iostream>
 #include "sas_video.h"
 #include <GL/glew.h>
+#include "core/error_codes.h"
 
 namespace SAS_3D {
 	void CheckSDLError(int line = -1) {

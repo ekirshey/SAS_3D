@@ -1,5 +1,5 @@
 /*
-* sas_input.h
+* sas_io.h
 *
 * Defines functions and structures needed for keeping track of mouse and keyboard input.
 * Input is currently handled by SDL
@@ -33,4 +33,5 @@ namespace SAS_3D {
 	};
 
 	void UpdateInput(bool& quit, InputState& input);
+	std::string ReadFile(std::string file);
 }

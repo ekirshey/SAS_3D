@@ -15,6 +15,7 @@ file(GLOB SRC_IMGUI
 
 file(GLOB SRC_THIRD_PARTY
 	${PROJECT_SOURCE_DIR}/src/third_party/*.h
+	${PROJECT_SOURCE_DIR}/src/third_party/*.hpp
 	${PROJECT_SOURCE_DIR}/src/third_party/*.cpp
 	${PROJECT_SOURCE_DIR}/src/third_party/*.c
 )

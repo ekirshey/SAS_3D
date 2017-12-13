@@ -1,5 +1,5 @@
 #include <iostream>
-#include "core/file_io.h"
+#include "core/sas_io.h"
 #include "core/error_codes.h"
 #include "shader_program.h"
 
@@ -26,12 +26,38 @@ namespace SAS_3D {
 		if (!success) {
 			glGetProgramInfoLog(_shaderprogram, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-			throw BadShaderException("Could not create shader program!");
+//			throw BadShaderException("Could not create shader program!");
 		}
 	}
 
 	ShaderProgram::~ShaderProgram() {
 
+	}
+
+	void ShaderProgram::Load(std::string vertexfile, std::string fragfile) {
+		GLuint vertexShader = _createShader(vertexfile, GL_VERTEX_SHADER);
+		_compileShader(vertexShader);
+
+		GLuint fragmentShader = _createShader(fragfile, GL_FRAGMENT_SHADER);
+		_compileShader(fragmentShader);
+
+		// Link shaders
+		GLint success;
+		GLchar infoLog[512];
+		_shaderprogram = glCreateProgram();
+		glAttachShader(_shaderprogram, vertexShader);
+		glAttachShader(_shaderprogram, fragmentShader);
+		glLinkProgram(_shaderprogram);
+		// Check for linking errors
+		glGetProgramiv(_shaderprogram, GL_LINK_STATUS, &success);
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+
+		if (!success) {
+			glGetProgramInfoLog(_shaderprogram, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+			//			throw BadShaderException("Could not create shader program!");
+		}
 	}
 
 	void ShaderProgram::UseProgram() const

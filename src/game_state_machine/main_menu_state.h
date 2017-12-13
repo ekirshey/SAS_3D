@@ -8,8 +8,8 @@ namespace SAS_3D {
 		MainMenuState();
 		~MainMenuState();
 
-		FSMStates InitializeState(SASWindow* window, const InputState& input);
-		FSMStates UpdateState(int elapsedtime, SASWindow* window, const InputState& input);
+		FSMStates InitializeState(const InputState& input, RenderQueue* event_queue);
+		FSMStates UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input);
 		int NextState() { return _nextstate; }
 
 	private:

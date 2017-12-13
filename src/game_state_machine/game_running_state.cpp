@@ -1,12 +1,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
+#include <thread>
 #include "game_state_machine/game_running_state.h"
+
+
+#include "glm/ext.hpp"
 
 namespace SAS_3D {
 	GameRunningState::GameRunningState(const GameConfig& config)
-		: _camera()//config.screenwidth, config.screenheight)
-		, _player(0.1f)
+		: _config(config)
+		, _camera()//config.screenwidth, config.screenheight)
 	{
 
 	}
@@ -15,37 +19,40 @@ namespace SAS_3D {
 
 	}
 
-	FSMStates GameRunningState::InitializeState(SASWindow* window, const InputState& input) {
-/*
-		_shader.AddInputModule<MVPModule>();
-		_shader.AddInputModule<TextureModule>();
+	FSMStates GameRunningState::InitializeState(const InputState& input, RenderQueue* event_queue) {
 
-		_crowidx = _mc.LoadModelFromFile(
-			"hagraven/hagraven_idle.fbx"
-			, aiProcess_Triangulate | aiProcess_FlipUVs);
+		auto view = _camera.GetViewMatrix();
+		glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
 
-		if (_crowidx == -1) {
-			std::cerr << "Error Loading Model." << std::endl;
-			return FSMStates::TRANSITIONOUT;
+		std::vector<RenderEvent> events;
+		for (int i = 0; i < 1; i++) {
+			_mobs.push_back(RigidBody(0.1f, glm::vec3(i*30+0.0f, 0.0, -5.0)));
+			RenderEvent ev;
+			ev.id = i;
+			ev.modelidx = 0;
+			ev.mvp = projection * view * _mobs.back().ModelMatrix();
+			events.push_back(ev);
 		}
 
-		_mc.LoadModelIntoGPU(_crowidx);
-		std::cout << "Done loading textures!" << std::endl;
-		*/
+		event_queue->enqueue(events);
 		return FSMStates::TRANSITIONIN;
 	}
 
-	FSMStates GameRunningState::UpdateState(int elapsedtime, SASWindow* window, const InputState& input) {
+	FSMStates GameRunningState::UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input) {
+		bool sendevent = false;
+		auto prevcam = _camera.GetViewMatrix();
 		_camera.Update(input, elapsedtime / 1000.0f);
 
 		glm::mat4 view = _camera.GetViewMatrix();
-		glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
-
-		glm::vec3 direction;
-		if (input.keyarray[SDL_SCANCODE_LEFT] == KeyState::PRESSED) {
-			std::cout << "Test" << std::endl;
-			direction.x = 1.0f;
+		if (prevcam != view) {
+			sendevent = true;
 		}
+
+		glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
+/*
+		glm::vec3 direction;
+		if (input.keyarray[SDL_SCANCODE_LEFT] == KeyState::PRESSED)
+			direction.x = 1.0f;
 		if (input.keyarray[SDL_SCANCODE_RIGHT] == KeyState::PRESSED)
 			direction.x = -1.0f;
 		if (input.keyarray[SDL_SCANCODE_DOWN] == KeyState::PRESSED)
@@ -56,8 +63,13 @@ namespace SAS_3D {
 			direction.y = 1.0f;
 		if (input.keyarray[SDL_SCANCODE_2] == KeyState::PRESSED)
 			direction.y = -1.0f;
+		
+		if (direction != glm::vec3()) {
+			sendevent = true;
+		}
 
 		_player.Move(elapsedtime, direction);
+*/
 
 		/*
 		In parallel the network thread is receiving messages, processing them and
@@ -78,12 +90,19 @@ namespace SAS_3D {
 			Send render events to render thread
 		*/
 
-		//window->TurnOnWireframe();
-		//_shader.UseProgram();
-		//auto mvpmodule = _shader.GetInputModule<MVPModule*>(MVPModule::ID);
-		//mvpmodule->SetMVP(projection*view*_player.ModelMatrix());
-		//_mc.Draw(_crowidx, _shader);
+		std::vector<RenderEvent> events;
+		if (sendevent) {
+			for (int i = 0; i < 1; i++) {
+				RenderEvent ev;
+				ev.id = i;
+				ev.modelidx = 0;
+				ev.mvp = projection * view * _mobs[i].ModelMatrix();
+				events.push_back(ev);
+			}
 
+			event_queue->enqueue(events);
+		}
+		
 		return FSMStates::UPDATE;
 	}
 }

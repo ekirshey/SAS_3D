@@ -5,20 +5,30 @@
 #include "render_engine/scene_graph.h"
 #include "game_state_machine/game_config.h"
 #include "utility/locking_queue.h"
+#include "core/sas_video.h"
 
 namespace SAS_3D {
+	struct RenderEvent {
+		unsigned long long id;
+		glm::mat4 mvp;
+		int modelidx;
+	};
+	using RenderQueue = LockingQueue<std::vector<RenderEvent>>;
+
 	class RenderEngine {
 	public:
-		RenderEngine(const GameConfig& config, LockingQueue<SceneGraph>& queue);
+		RenderEngine(const GameConfig& config, SASWindow* window, RenderQueue* queue);
 		~RenderEngine();
 		void Run();
 		void Stop() { _running = false; }
+		void LoadModels(std::string model_registry);
 	private:
 		GameConfig _config;
+		SASWindow* _window;
 		ShaderProgram _shader;
 		ModelContainer _mc;
-		int _crowidx;
-		LockingQueue<SceneGraph>& _scene_queue;
+		std::unordered_map<unsigned long long, RenderEvent> _entities;
+		RenderQueue* _event_queue;
 		bool _running;
 	};
 }

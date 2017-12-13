@@ -13,7 +13,6 @@
 #include <string>
 #include <memory>
 #include <SDL.h>
-#include "core/error_codes.h"
 
 namespace SAS_3D {
 	/*
@@ -31,6 +30,10 @@ namespace SAS_3D {
 		void TurnOnWireframe();
 		int GetScreenWidth() { return _screenwidth; }
 		int GetScreenHeight() { return _screenheight; }
+		void SwitchContext() { 
+			SDL_GL_MakeCurrent(_window, _glcontext); 
+			std::cout << SDL_GetError() << std::endl;
+		}
 	private:
 		SDL_Window* _window;
 		SDL_GLContext _glcontext;

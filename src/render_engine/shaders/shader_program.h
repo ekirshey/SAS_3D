@@ -19,8 +19,10 @@ namespace SAS_3D {
 	class ShaderProgram {
 	public:
 		ShaderProgram(std::string vertexfile, std::string fragfile);
+		ShaderProgram() {}
 		~ShaderProgram();
 
+		void Load(std::string vertexfile, std::string fragfile);
 		void UseProgram() const;
 		GLint GetUniformLocation(std::string name) const;
 
