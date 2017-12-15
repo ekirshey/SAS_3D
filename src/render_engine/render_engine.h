@@ -26,6 +26,7 @@ namespace SAS_3D {
 		GameConfig _config;
 		SASWindow* _window;
 		ShaderProgram _shader;
+		ShaderProgram _debugshader;
 		ModelContainer _mc;
 		std::unordered_map<unsigned long long, RenderEvent> _entities;
 		RenderQueue* _event_queue;

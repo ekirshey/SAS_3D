@@ -2,18 +2,23 @@
 #include "render_engine.h"
 #include "shaders/input_modules/mvp_module.h"
 #include "shaders/input_modules/texture_module.h"
+#include "shaders/input_modules/animation_module.h"
 
 namespace SAS_3D {
 	RenderEngine::RenderEngine(const GameConfig& config, SASWindow* window, RenderQueue* queue)
 		: _config(config)
 		, _window(window)
-		, _shader(config.shaderpath + "texture.vert", config.shaderpath + "texture.frag")
+		, _shader(config.shaderpath + "animation.vert", config.shaderpath + "animation.frag")
+		, _debugshader(config.shaderpath + "simple.vert", config.shaderpath + "simple.frag")
 		, _mc(config.modelpath)
 		, _event_queue(queue)
 		, _running(true)
 	{
 		_shader.AddInputModule<MVPModule>();
 		_shader.AddInputModule<TextureModule>();
+		_shader.AddInputModule<AnimationModule>();
+
+		_debugshader.AddInputModule<MVPModule>();
 
 		LoadModels(_config.model_registry);
 
@@ -52,11 +57,17 @@ namespace SAS_3D {
 				}
 			}
 
-			_shader.UseProgram();
 			for (auto &e : _entities){
+				_shader.UseProgram();
 				auto mvpmodule = _shader.GetInputModule<MVPModule*>(MVPModule::ID);
 				mvpmodule->SetMVP(e.second.mvp);
 				_mc.Draw(e.second.modelidx, _shader);
+
+				_debugshader.UseProgram();
+				_window->TurnOnWireframe();
+				mvpmodule = _debugshader.GetInputModule<MVPModule*>(MVPModule::ID);
+				mvpmodule->SetMVP(e.second.mvp);
+				_mc.Draw(1, _debugshader);
 			}
 
 			_window->SwapWindow();
