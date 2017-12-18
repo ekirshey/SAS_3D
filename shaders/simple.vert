@@ -9,7 +9,6 @@ uniform mat4 mvp;
 
 void main()
 {
-    gl_Position = mvp * vec4(aPos, 1.0f);
-
 	VertexColor = vec4(1.0, 1.0, 1.0, 1.0);
+	gl_Position = mvp * vec4(aPos, 1.0);
 }

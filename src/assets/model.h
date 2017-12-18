@@ -42,11 +42,6 @@ namespace SAS_3D {
 		std::unordered_map<unsigned int, std::vector<float>> weights;
 	};
 
-	struct Node {
-		std::string parent;
-		std::vector<std::string> children;
-	};
-
 	using Frame = std::unordered_map<std::string, glm::mat4>;
 
 	struct Animation {
@@ -54,15 +49,19 @@ namespace SAS_3D {
 		double duration;
 		std::map<double, Frame> frames;
 
-		bool CreateNewFrame(double time, std::unordered_map<std::string, Node>& nodes) {
+		void build_frames(Frame& frame, aiNode* node) {
+			frame.insert({ node->mName.C_Str(), glm::mat4() });
+			for (int i = 0; i < node->mNumChildren; i++) {
+				build_frames(frame, node->mChildren[i]);
+			}
+		}
+
+		bool CreateNewFrame(double time, aiNode* root) {
 			if (time < 0)
 				return false;
 			if (frames.find(time) == frames.end()) {
-				auto it = nodes.begin();
-				while (it != nodes.end()) {
-					frames[time].insert({ it->first, glm::mat4() });
-					it++;
-				}
+				Frame& frame = frames[time];
+				build_frames(frame, root);
 			}
 			return true;
 		}
@@ -96,7 +95,7 @@ namespace SAS_3D {
 		void UnloadFromGPU();
 
 		Mesh(std::string modelpath, TextureContainer& c, const aiMesh* ai_m, const aiScene* scene);
-		void BuildBoneMatrices(std::unordered_map<std::string, Animation>& animations);
+		void BuildBoneMatrices(std::unordered_map<std::string, Animation>& animations, aiNode* root);
 	private:
 		void _loadMaterialTextures(std::string modelpath, TextureContainer& c, aiMaterial *mat, aiTextureType type, std::string type_name);
 	};
@@ -106,11 +105,12 @@ namespace SAS_3D {
 		Model(std::string path, TextureContainer& c, const aiScene* scene);
 		void LoadIntoGPU();
 		void Draw(ShaderProgram& shader);
+		void Draw(); //Debug draw, just loads indices into opengl
+		void DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4 p, Model& primitive, ShaderProgram& shader);
 		std::string Path() { return _path; }
 	private:
 		std::string _path;
 		std::vector<Mesh> _meshes;
-		std::unordered_map<std::string, Node> _nodes;
 		std::unordered_map<std::string, Animation> _animations;
 		bool _loaded;
 	};

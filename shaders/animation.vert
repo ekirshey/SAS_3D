@@ -30,5 +30,5 @@ void main()
 	newVertex = (Bones[index] * pos) * aBoneWeight[3] + newVertex;
 	newNormal = (Bones[index] * vec4(aNormal, 0.0)) * aBoneWeight[3] + newNormal;
     TexCoords = aTexCoords;    
-    gl_Position = mvp * vec4(newVertex.xyz, 1.0);
+    gl_Position = mvp * pos;//vec4(newVertex.xyz, 1.0);
 }

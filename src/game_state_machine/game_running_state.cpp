@@ -30,7 +30,9 @@ namespace SAS_3D {
 			RenderEvent ev;
 			ev.id = i;
 			ev.modelidx = 0;
-			ev.mvp = projection * view * _mobs.back().ModelMatrix();
+			ev.model = _mobs.back().ModelMatrix();
+			ev.view = view;
+			ev.projection = projection;
 			events.push_back(ev);
 		}
 
@@ -96,7 +98,9 @@ namespace SAS_3D {
 				RenderEvent ev;
 				ev.id = i;
 				ev.modelidx = 0;
-				ev.mvp = projection * view * _mobs[i].ModelMatrix();
+				ev.model = _mobs[i].ModelMatrix();
+				ev.view = view;
+				ev.projection = projection;
 				events.push_back(ev);
 			}
 

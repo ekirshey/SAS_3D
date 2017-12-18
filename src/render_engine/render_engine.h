@@ -10,7 +10,9 @@
 namespace SAS_3D {
 	struct RenderEvent {
 		unsigned long long id;
-		glm::mat4 mvp;
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 projection;
 		int modelidx;
 	};
 	using RenderQueue = LockingQueue<std::vector<RenderEvent>>;

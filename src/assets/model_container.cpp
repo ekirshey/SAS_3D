@@ -60,6 +60,13 @@ namespace SAS_3D {
 		}
 	}
 
+	void ModelContainer::DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4 p, ShaderProgram& shader) {
+		// Make sure the model exists/loaded
+		if (idx < _models.size()) {
+			_models[idx].DrawSkeleton(m,v,p, _models[1], shader);
+		}
+	}
+
 	namespace ModelLoader {
 		void LoadModels(std::string model_registry, ModelContainer& mc) {
 			using json = nlohmann::json;

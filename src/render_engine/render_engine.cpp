@@ -60,14 +60,12 @@ namespace SAS_3D {
 			for (auto &e : _entities){
 				_shader.UseProgram();
 				auto mvpmodule = _shader.GetInputModule<MVPModule*>(MVPModule::ID);
-				mvpmodule->SetMVP(e.second.mvp);
+				mvpmodule->SetMVP(e.second.projection * e.second.view * e.second.model);
 				_mc.Draw(e.second.modelidx, _shader);
 
 				_debugshader.UseProgram();
 				_window->TurnOnWireframe();
-				mvpmodule = _debugshader.GetInputModule<MVPModule*>(MVPModule::ID);
-				mvpmodule->SetMVP(e.second.mvp);
-				_mc.Draw(1, _debugshader);
+				_mc.DrawSkeleton(e.second.modelidx, e.second.model, e.second.view, e.second.projection, _debugshader);
 			}
 
 			_window->SwapWindow();

@@ -1,6 +1,7 @@
 #include "model.h"
 #include "render_engine/shaders/input_modules/texture_module.h"
 #include "render_engine/shaders/input_modules/animation_module.h"
+#include "render_engine/shaders/input_modules/mvp_module.h"
 #include <iostream>
 #include <queue>
 #include <unordered_set>
@@ -81,14 +82,22 @@ namespace SAS_3D {
 		}
 	}
 
-	void Mesh::BuildBoneMatrices(std::unordered_map<std::string, Animation>& animations) {
+	void Mesh::BuildBoneMatrices(std::unordered_map<std::string, Animation>& animations, aiNode* root) {
 		if (animations.size() > 0) {
 			for (auto& f : animations.begin()->second.frames) {
 				bonematrices.insert({ f.first, std::vector<glm::mat4>{100} });
 				for (int i = 0; i < bones.size(); i++) {
 					auto bonename = bones[i].name;
 					// needs to recurse up
-					bonematrices[f.first].at(i) = f.second.at(bonename) * bones[i].offsetmatrix;
+					// p0 * p1 * p2 * p2_offset
+					glm::mat4 transform = f.second.at(bonename) * bones[i].offsetmatrix;
+					auto current_node = root->FindNode(bonename.c_str())->mParent;
+					while (current_node != NULL) {
+						std::string nodename = current_node->mName.C_Str();
+						transform = f.second.at(nodename) * transform;
+						current_node = current_node->mParent;
+					}
+					bonematrices[f.first].at(i) = transform;
 				}
 			}
 		}
@@ -149,31 +158,7 @@ namespace SAS_3D {
 		: _path(path)
 		, _loaded(false)
 	{
-		// Build Node list
-		std::queue<aiNode*> to_visit;
-		std::unordered_set<aiNode*> visited;
-		to_visit.push(scene->mRootNode);
-
-		while (!to_visit.empty()) {
-			auto n = to_visit.front();
-			to_visit.pop();
-			visited.insert(n);
-			// Build SAS Node
-			auto node_name = n->mName.C_Str();
-			_nodes.insert({ node_name, Node() });
-			auto active_node = &_nodes[node_name];
-			if (n->mParent != nullptr) {
-				active_node->parent = n->mParent->mName.C_Str();
-			}
-			for (unsigned int i = 0; i <n->mNumChildren; i++) {
-				if (visited.find(n->mChildren[i]) == visited.end()) {
-					auto child = n->mChildren[i];
-					active_node->children.push_back(child->mName.C_Str());
-					to_visit.push(child);
-				}
-			}
-		}
-
+		auto root_node = scene->mRootNode;
 		// Build animation frames
 		if (scene->HasAnimations()) {
 			for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
@@ -191,7 +176,7 @@ namespace SAS_3D {
 						auto time = nodeanim->mPositionKeys[q].mTime;
 						auto aipos = nodeanim->mPositionKeys[q].mValue;
 						glm::vec3 pos(aipos.x, aipos.y, aipos.z);
-						if (ani->CreateNewFrame(time, _nodes)) {
+						if (ani->CreateNewFrame(time, root_node)) {
 							ani->TranslateNode(time, nodename, pos);
 						}
 					}
@@ -200,7 +185,7 @@ namespace SAS_3D {
 						auto time = nodeanim->mRotationKeys[r].mTime;
 						auto airot = nodeanim->mRotationKeys[r].mValue;
 						glm::quat rot(airot.w, airot.x, airot.y, airot.z);
-						if (ani->CreateNewFrame(time, _nodes)) {
+						if (ani->CreateNewFrame(time, root_node)) {
 							ani->RotateNode(time, nodename, rot);
 						}
 					}
@@ -209,7 +194,7 @@ namespace SAS_3D {
 						auto time = nodeanim->mScalingKeys[k].mTime;
 						auto aiscale = nodeanim->mScalingKeys[k].mValue;
 						glm::vec3 scale(aiscale.x, aiscale.y, aiscale.z);
-						if (ani->CreateNewFrame(time, _nodes)) {
+						if (ani->CreateNewFrame(time, root_node)) {
 							ani->ScaleNode(time, nodename, scale);
 						}
 					}
@@ -222,7 +207,7 @@ namespace SAS_3D {
 			auto lastslash = path.rfind('/') + 1;
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 				_meshes.push_back(Mesh(path.substr(0, lastslash),c,scene->mMeshes[i], scene));
-				_meshes.back().BuildBoneMatrices(_animations);
+				_meshes.back().BuildBoneMatrices(_animations, root_node);
 			}
 		}
 
@@ -235,6 +220,47 @@ namespace SAS_3D {
 			for (int i = 0; i < _meshes.size(); i++) {
 				_meshes[i].LoadIntoGPU();
 			}
+		}
+	}
+	
+	void Model::DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4 p, Model& primitive, ShaderProgram& shader) {
+		if (!_loaded) {
+			// Load the model into memory
+			LoadIntoGPU();
+		}
+
+		auto mvpmodule = shader.GetInputModule<MVPModule*>(MVPModule::ID);
+
+		for (auto& me : _meshes) {
+			for (int i = 0; i < me.bones.size(); i++) {
+				//auto mat = mvp * m.bones[i].offsetmatrix;
+				// offset goes from mesh->bone, so to show it properly i need  to  invert it, so its not bone to mesh
+				//auto x = _animations.begin()->second.frames.begin()->second.at(me.bones[i].name);
+				auto x = me.bonematrices.begin()->second.at(i);
+				auto mat = p*v*m*x;// glm::scale(glm::inverse(me.bones[i].offsetmatrix), glm::vec3(0.5, 0.5, 0.5));
+				mvpmodule->SetMVP(mat);
+
+				shader.ApplyModules();
+
+				primitive.Draw();
+
+				glActiveTexture(GL_TEXTURE0);
+			}
+		}
+	}
+
+	void Model::Draw() {
+		if (!_loaded) {
+			// Load the model into memory
+			LoadIntoGPU();
+		}
+
+		for (auto& m : _meshes) {
+			glBindVertexArray(m.VAO);
+			glDrawElements(GL_TRIANGLES, m.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+
+			glActiveTexture(GL_TEXTURE0);
 		}
 	}
 
