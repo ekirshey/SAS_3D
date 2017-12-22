@@ -24,9 +24,9 @@ namespace SAS_3D {
 
 		ModelIdx LoadModelFromFile(std::string path, unsigned int flags);
 		void LoadModelIntoGPU(ModelIdx idx);
-		void Draw(ModelIdx idx, ShaderProgram& shader);
+		void Draw(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
 		// Debug draw
-		void DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4 p, ShaderProgram& shader);
+		void DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
 	private:
 		std::string _modelpath;
 		TextureContainer _tc;

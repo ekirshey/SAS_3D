@@ -19,16 +19,12 @@ void main()
 	//-----------------------
 	index=aBoneIndex[0];
 	newVertex = (Bones[index] * pos) * aBoneWeight[0];
-	newNormal = (Bones[index] * vec4(aNormal, 0.0)) * aBoneWeight[0];
 	index=aBoneIndex[1];
 	newVertex = (Bones[index] * pos) * aBoneWeight[1] + newVertex;
-	newNormal = (Bones[index] * vec4(aNormal, 0.0)) * aBoneWeight[1] + newNormal;
 	index=aBoneIndex[2];
 	newVertex = (Bones[index] * pos) * aBoneWeight[2] + newVertex;
-	newNormal = (Bones[index] * vec4(aNormal, 0.0)) * aBoneWeight[2] + newNormal;
 	index=aBoneIndex[3];
 	newVertex = (Bones[index] * pos) * aBoneWeight[3] + newVertex;
-	newNormal = (Bones[index] * vec4(aNormal, 0.0)) * aBoneWeight[3] + newNormal;
     TexCoords = aTexCoords;    
-    gl_Position = mvp * pos;//vec4(newVertex.xyz, 1.0);
+    gl_Position = mvp * vec4(newVertex.xyz, 1.0);
 }

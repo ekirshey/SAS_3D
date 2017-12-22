@@ -10,17 +10,16 @@ namespace SAS_3D {
 	// helper https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
 	inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from) {
 		glm::mat4 to;
-
-		to[0][0] = (GLfloat)from.a1; to[0][1] = (GLfloat)from.b1;  to[0][2] = (GLfloat)from.c1; to[0][3] = (GLfloat)from.d1;
-		to[1][0] = (GLfloat)from.a2; to[1][1] = (GLfloat)from.b2;  to[1][2] = (GLfloat)from.c2; to[1][3] = (GLfloat)from.d2;
-		to[2][0] = (GLfloat)from.a3; to[2][1] = (GLfloat)from.b3;  to[2][2] = (GLfloat)from.c3; to[2][3] = (GLfloat)from.d3;
-		to[3][0] = (GLfloat)from.a4; to[3][1] = (GLfloat)from.b4;  to[3][2] = (GLfloat)from.c4; to[3][3] = (GLfloat)from.d4;
-
+		//the a,b,c,d in assimp is the row ; the 1,2,3,4 is the column
+		to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
+		to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
+		to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
+		to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
 		return to;
 	}
 
 	Mesh::Mesh(std::string modelpath, TextureContainer& c, const aiMesh* ai_m, const aiScene* scene)
-		: vertices{ai_m->mNumVertices}
+		: vertices{ ai_m->mNumVertices }
 	{
 		// Walk through each of the ai_m's vertices
 		for (unsigned int i = 0; i < ai_m->mNumVertices; i++) {
@@ -66,23 +65,87 @@ namespace SAS_3D {
 		_loadMaterialTextures(modelpath, c, material, aiTextureType_DIFFUSE, "texture_diffuse");
 
 		// process bones
+		std::vector<int> bonetracker(vertices.size(),0);
+		std::vector<int> weighttracker(vertices.size(),0);
 		for (unsigned int i = 0; i < ai_m->mNumBones; i++) {
-			Bone b;
+			Joint b;
 			aiBone* ai_b = ai_m->mBones[i];
 			b.name = ai_b->mName.C_Str();
 			b.offsetmatrix = aiMatrix4x4ToGlm(ai_b->mOffsetMatrix);
 			for (unsigned int j = 0; j < ai_b->mNumWeights; j++) {
 				auto vertid = ai_b->mWeights[j].mVertexId;
 				auto weight = ai_b->mWeights[j].mWeight;
-				b.weights[vertid].push_back(weight);
-				vertices[vertid].bones.push_back(i);
-				vertices[vertid].weights.push_back(weight);
+				vertices[vertid].bones[bonetracker[vertid]++] = i;
+				vertices[vertid].weights[weighttracker[vertid]++] = weight;
 			}
-			bones.push_back(b);
+			skeleton.push_back(b);
+			bonemap.insert({ b.name, static_cast<int>(skeleton.size() - 1) });	// map bone index to name
+		}
+
+		auto node = scene->mRootNode;
+		auto rootid = FindRoot(node);
+		if (rootid != -1) {
+			auto tmp = node->FindNode(skeleton[rootid].name.c_str());
+			aiNode* root;
+			if (tmp != NULL) {
+				root = tmp->mParent;
+				rootnode.name = root->mName.C_Str();
+				rootnode.transformation = aiMatrix4x4ToGlm(root->mTransformation);
+			}
+		}
+
+	}
+
+	int Mesh::FindRoot(aiNode* node) {
+		std::queue<aiNode*> to_visit;
+		std::unordered_set<aiNode*> visited;
+		to_visit.push(node);
+		visited.insert(node);
+		int found;
+		while (!to_visit.empty()) {
+			auto node = to_visit.front();
+			to_visit.pop();
+			if (bonemap.find(node->mName.C_Str()) != bonemap.end()) {
+				return bonemap[node->mName.C_Str()];
+			}
+			for (int i = 0; i < node->mNumChildren; i++) {
+				auto child = node->mChildren[i];
+				if (visited.find(child) == visited.end()) {
+					visited.insert(child);
+					to_visit.push(child);
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	void Mesh::BuildGlobalTransforms(aiNode* node) {
+		auto nodename = node->mName.C_Str();
+		glm::mat4 localtransform;
+		if (bonemap.find(nodename) != bonemap.end()) {
+			int idx = bonemap[nodename];
+			glm::mat4 parenttransform;
+			if (node->mParent != NULL) {
+				int pidx = bonemap[node->mParent->mName.C_Str()];
+				parenttransform = pose.global_pose[pidx];
+			}
+		}
+		//pose.global_pose[idx] = parenttransform*localtransform;// *aiMatrix4x4ToGlm(node->mTransformation);// ;
+		/*
+		pose.global_pose[idx] = parenttransform * glm::translate(glm::mat4(), pose.local_pose[idx].translation)
+		* glm::toMat4(pose.local_pose[idx].rotation)
+			* glm::scale(glm::mat4(), pose.local_pose[idx].scale)
+			* skeleton[idx].offsetmatrix;
+			*/
+		for (int i = 0; i < node->mNumChildren; i++) {
+			BuildGlobalTransforms(node->mChildren[i]);
 		}
 	}
 
-	void Mesh::BuildBoneMatrices(std::unordered_map<std::string, Animation>& animations, aiNode* root) {
+
+	void Mesh::BuildBoneMatrices(std::unordered_map<std::string, Animation>& animations, const aiScene* scene) {
+#ifdef FOO
 		if (animations.size() > 0) {
 			for (auto& f : animations.begin()->second.frames) {
 				bonematrices.insert({ f.first, std::vector<glm::mat4>{100} });
@@ -90,7 +153,7 @@ namespace SAS_3D {
 					auto bonename = bones[i].name;
 					// needs to recurse up
 					// p0 * p1 * p2 * p2_offset
-					glm::mat4 transform = f.second.at(bonename) * bones[i].offsetmatrix;
+					glm::mat4 transform = f.second.at(bonename);// *bones[i].offsetmatrix;
 					auto current_node = root->FindNode(bonename.c_str())->mParent;
 					while (current_node != NULL) {
 						std::string nodename = current_node->mName.C_Str();
@@ -102,6 +165,42 @@ namespace SAS_3D {
 			}
 		}
 		std::cout << "done building matrices" << std::endl;
+#endif
+		if (scene->HasAnimations()) {
+			pose.local_pose.resize(skeleton.size(), JointPose());
+			pose.global_pose.resize(skeleton.size());
+			auto animation = scene->mAnimations[0];	
+			// Channels are nodes that are animated
+			for (int i = 0; i < animation->mNumChannels; i++) {
+				auto channel = animation->mChannels[i];
+				auto nodename = channel->mNodeName.C_Str();
+				if (bonemap.find(nodename) != bonemap.end()) {
+					int idx = bonemap[nodename];
+					auto scale = channel->mScalingKeys[0].mValue;
+					auto quat = channel->mRotationKeys[0].mValue;
+					auto trans = channel->mPositionKeys[0].mValue;
+					pose.local_pose[idx].scale = glm::vec3(scale.x, scale.y, scale.z);
+					pose.local_pose[idx].rotation = glm::quat(quat.w, quat.x, quat.y, quat.z);
+					pose.local_pose[idx].translation = glm::vec3(trans.x, trans.y, trans.z);
+				}
+			}
+			auto root = scene->mRootNode;//->FindNode(rootnode.name.c_str());
+			BuildGlobalTransforms(root);
+			for (int i = 0; i < pose.global_pose.size(); i++) {
+				pose.global_pose[i] = glm::inverse(rootnode.transformation) * pose.global_pose[i] * skeleton[i].offsetmatrix;
+			}
+		}
+		/*
+		auto node = root_node->FindNode(nodename)->mParent;
+		glm::mat4 newtransform = glm::translate(glm::mat4(), pose.local_pose[idx].translation) * glm::toMat4(pose.local_pose[idx].rotation) * glm::scale(glm::mat4(),pose.local_pose[idx].scale);
+		glm::mat4 transform = newtransform;
+		while (node != NULL) {
+		transform = aiMatrix4x4ToGlm(node->mTransformation) * transform;
+		node = node->mParent;
+		}
+		pose.global_pose[idx] = transform;
+		*/
+		std::cout << "end matrix build" << std::endl;
 	}
 
 	void Mesh::_loadMaterialTextures(std::string modelpath, TextureContainer& c, aiMaterial *mat, aiTextureType type, std::string type_name) {
@@ -154,61 +253,25 @@ namespace SAS_3D {
 		glDeleteBuffers(1, &EBO);
 	}
 
+	void Model::BuildMeshes(const aiScene* scene, TextureContainer& c, aiNode* node, std::string path) {
+		for (int j = 0; j < node->mNumMeshes; j++) {
+			_meshes.push_back(Mesh(path, c, scene->mMeshes[j], scene));
+			_meshes.back().globalmeshtransform = aiMatrix4x4ToGlm(node->mTransformation);
+			_meshes.back().BuildBoneMatrices(_animations, scene);
+		}
+		for (int i = 0; i < node->mNumChildren; i++) {
+			BuildMeshes(scene, c, node->mChildren[i], path);
+		}
+	}
+
 	Model::Model(std::string path, TextureContainer& c, const aiScene* scene)
 		: _path(path)
 		, _loaded(false)
 	{
-		auto root_node = scene->mRootNode;
-		// Build animation frames
-		if (scene->HasAnimations()) {
-			for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
-				auto ai_a = scene->mAnimations[i];
-				std::string ai_name = ai_a->mName.C_Str();
-				_animations[ai_name] = Animation();
-				auto ani = &_animations[ai_name];
-				ani->tickspersecond = ai_a->mTicksPerSecond;
-				ani->duration = ai_a->mDuration;
-				for (unsigned int j = 0; j < ai_a->mNumChannels; j++) {
-					auto nodeanim = ai_a->mChannels[j];
-					auto nodename = nodeanim->mNodeName.C_Str();
-					// Translate 
-					for (int q = 0; q < nodeanim->mNumPositionKeys; q++) {
-						auto time = nodeanim->mPositionKeys[q].mTime;
-						auto aipos = nodeanim->mPositionKeys[q].mValue;
-						glm::vec3 pos(aipos.x, aipos.y, aipos.z);
-						if (ani->CreateNewFrame(time, root_node)) {
-							ani->TranslateNode(time, nodename, pos);
-						}
-					}
-					//Rotate
-					for (int r = 0; r < nodeanim->mNumRotationKeys; r++) {
-						auto time = nodeanim->mRotationKeys[r].mTime;
-						auto airot = nodeanim->mRotationKeys[r].mValue;
-						glm::quat rot(airot.w, airot.x, airot.y, airot.z);
-						if (ani->CreateNewFrame(time, root_node)) {
-							ani->RotateNode(time, nodename, rot);
-						}
-					}
-					//Scale
-					for (int k = 0; k < nodeanim->mNumScalingKeys; k++) {
-						auto time = nodeanim->mScalingKeys[k].mTime;
-						auto aiscale = nodeanim->mScalingKeys[k].mValue;
-						glm::vec3 scale(aiscale.x, aiscale.y, aiscale.z);
-						if (ani->CreateNewFrame(time, root_node)) {
-							ani->ScaleNode(time, nodename, scale);
-						}
-					}
-				}
-			}
-		}
-
 		// Build meshes
 		if (scene->HasMeshes()) {
 			auto lastslash = path.rfind('/') + 1;
-			for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-				_meshes.push_back(Mesh(path.substr(0, lastslash),c,scene->mMeshes[i], scene));
-				_meshes.back().BuildBoneMatrices(_animations, root_node);
-			}
+			BuildMeshes(scene, c, scene->mRootNode, path.substr(0, lastslash));
 		}
 
 		std::cout << "Done model processing..." << std::endl;
@@ -223,7 +286,7 @@ namespace SAS_3D {
 		}
 	}
 	
-	void Model::DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4 p, Model& primitive, ShaderProgram& shader) {
+	void Model::DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4& p, Model& primitive, ShaderProgram& shader) {
 		if (!_loaded) {
 			// Load the model into memory
 			LoadIntoGPU();
@@ -232,12 +295,13 @@ namespace SAS_3D {
 		auto mvpmodule = shader.GetInputModule<MVPModule*>(MVPModule::ID);
 
 		for (auto& me : _meshes) {
-			for (int i = 0; i < me.bones.size(); i++) {
+			for (int i = 0; i < me.skeleton.size(); i++) {
 				//auto mat = mvp * m.bones[i].offsetmatrix;
 				// offset goes from mesh->bone, so to show it properly i need  to  invert it, so its not bone to mesh
 				//auto x = _animations.begin()->second.frames.begin()->second.at(me.bones[i].name);
-				auto x = me.bonematrices.begin()->second.at(i);
-				auto mat = p*v*m*x;// glm::scale(glm::inverse(me.bones[i].offsetmatrix), glm::vec3(0.5, 0.5, 0.5));
+				//auto x = me.bonematrices.begin()->second.at(i);
+				//auto mat = p * v * m * me.globalmeshtransform * glm::inverse(me.skeleton[i].offsetmatrix);// *root[i];// glm::inverse(me.skeleton[i].offsetmatrix);
+				auto mat = p * v * m * me.globalmeshtransform * me.pose.global_pose[0] * me.skeleton[i].offsetmatrix;// *root[i];// glm::inverse(me.skeleton[i].offsetmatrix);
 				mvpmodule->SetMVP(mat);
 
 				shader.ApplyModules();
@@ -264,29 +328,30 @@ namespace SAS_3D {
 		}
 	}
 
-	void Model::Draw(ShaderProgram& shader) {
+	void Model::Draw(ShaderProgram& shader, glm::mat4& m, glm::mat4& v, glm::mat4& p) {
 		if (!_loaded) {
 			// Load the model into memory
 			LoadIntoGPU();
 		}
 		auto texturemodule = shader.GetInputModule<TextureModule*>(TextureModule::ID);
 		auto animationmodule = shader.GetInputModule<AnimationModule*>(AnimationModule::ID);
-		for (auto& m : _meshes) {
+		auto mvpmodule = shader.GetInputModule<MVPModule*>(MVPModule::ID);
+		for (auto& me : _meshes) {
 			unsigned int tct = 0;
-			for (auto& t : m.textures) {
+			for (auto& t : me.textures) {
 				glActiveTexture(GL_TEXTURE0 + tct);
 				texturemodule->SetTexture(tct);
 				glBindTexture(GL_TEXTURE_2D, t);
 				tct++;
 			}
-			if (m.bonematrices.size() > 0) {
-				auto it = m.bonematrices.begin()++;
-				animationmodule->SetBones(&it->second);
+			if (me.skeleton.size() > 0) {
+				animationmodule->SetBones(&me.pose.global_pose);
 			}
+			mvpmodule->SetMVP(p*v*m);
 			shader.ApplyModules();
 
-			glBindVertexArray(m.VAO);
-			glDrawElements(GL_TRIANGLES, m.indices.size(), GL_UNSIGNED_INT, 0);
+			glBindVertexArray(me.VAO);
+			glDrawElements(GL_TRIANGLES, me.indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 
 			glActiveTexture(GL_TEXTURE0);

@@ -53,14 +53,14 @@ namespace SAS_3D {
 		_models[idx].LoadIntoGPU();
 	}
 
-	void ModelContainer::Draw(ModelIdx idx, ShaderProgram& shader) {
+	void ModelContainer::Draw(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader) {
 		// Make sure the model exists/loaded
 		if (idx < _models.size()) {
-			_models[idx].Draw(shader);
+			_models[idx].Draw(shader, m, v, p);
 		}
 	}
 
-	void ModelContainer::DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4 p, ShaderProgram& shader) {
+	void ModelContainer::DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader) {
 		// Make sure the model exists/loaded
 		if (idx < _models.size()) {
 			_models[idx].DrawSkeleton(m,v,p, _models[1], shader);
