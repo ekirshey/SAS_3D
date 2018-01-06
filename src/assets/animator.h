@@ -3,66 +3,45 @@
 #include <vector>
 #include <unordered_map>
 #include <assimp/scene.h>
-#include <glm/glm.hpp>
+#include "anim_evaluator.h"
+#include "anim_node.h"
 
 /*
 	Each mesh has a set of bones and are all bones mapped to a single bonemap?
 	How do I specify the bones needed for each individual mesh?
 	
 */
-
 namespace SAS_3D {
-	struct AnimNode {
-		AnimNode* _parent;
-		std::vector<std::unique_ptr<AnimNode>> _children;
-
-		std::string _name;
-
-		glm::mat4 _local_transform;
-		glm::mat4 _global_transform;
-
-		AnimNode* FindNode(std::string name) {
-			if (_name == name) {
-				return this;
-			}
-			for (int i = 0; i < _children.size(); i++) {
-				auto n = _children[i]->FindNode(name);
-				if (n != nullptr) {
-					return n;
-				}
-			}
-
-			return nullptr;
-		}
-
-		AnimNode(std::string name, AnimNode* parent) 
-			: _name(name)
-			, _parent(parent)
-		{
-
-		}
-	};
-
 	class Animator {
 	public:
 		Animator(const aiScene* scene);
+		void SetAnimationIndex(int i);
+		void Calculate(double time);
 		void GetBoneMatrices(std::vector<glm::mat4>& matrices, int meshidx);
 	private:
-		using pAnimNode = std::unique_ptr<AnimNode>;
+		using upAnimNode = std::unique_ptr<AnimNode>;
 
-		pAnimNode _createNodeTree(aiNode* node, AnimNode* parent);
+		int _animidx;
+		int _animct;
+		std::vector<AnimEvaluator> _animations;
 
+		// Root node tree.
 		std::unique_ptr<AnimNode> _rootnode;
+		// Node containing mesh transform
 		AnimNode* _meshnode;
 
 		// Map bone indices to nodes in the tree
-		using BoneMap = std::unordered_map<int, AnimNode*>;
-		// Each BoneMap corresponds to a mesh. Numbering for bones
+		// Each BoneVec corresponds to a mesh. Numbering for bones
 		// starts at 0 for each mesh
-		std::vector<BoneMap> _bonemaps;
+		using BoneVec = std::vector<AnimNode*>;
+		std::vector<BoneVec> _bonemaps;
 
 		using Skeleton = std::vector<glm::mat4>;
-		using MeshSkeletons = std::unordered_map<int, Skeleton>;
+		using MeshSkeletons = std::vector<Skeleton>;
 		MeshSkeletons _meshskeletons;
+
+		void _getGlobalTransform(AnimNode* node);
+		upAnimNode _createNodeTree(aiNode* node, AnimNode* parent);
+		void _updateNodes(AnimNode* node);
 	};
 }

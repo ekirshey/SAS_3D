@@ -3,18 +3,14 @@
 #include "animator.h"
 
 namespace SAS_3D {
-	// helper https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
-	inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from) {
-		glm::mat4 to;
-		//the a,b,c,d in assimp is the row ; the 1,2,3,4 is the column
-		to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
-		to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
-		to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
-		to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
-		return to;
-	}
+	Animator::Animator(const aiScene* scene) 
+	{
+		if (!scene->HasAnimations()) {
+			std::cout << "No animations!" << std::endl;
+		}
+		_animidx = 0;
+		_animct = scene->mNumAnimations;
 
-	Animator::Animator(const aiScene* scene) {
 		// Build up custom Node structure
 		_rootnode = _createNodeTree(scene->mRootNode, nullptr);
 
@@ -22,7 +18,8 @@ namespace SAS_3D {
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 		{
 			const aiMesh* mesh = scene->mMeshes[i];
-			_bonemaps.push_back(BoneMap());
+			_bonemaps.push_back(BoneVec{mesh->mNumBones});
+			_meshskeletons.push_back(Skeleton{mesh->mNumBones});
 			for (unsigned int n = 0; n < mesh->mNumBones; ++n)
 			{
 				const aiBone* bone = mesh->mBones[n];
@@ -30,10 +27,48 @@ namespace SAS_3D {
 				if (node == nullptr) {
 					std::cout << "Error! Could not find node with name " << bone->mName.data << std::endl;
 				}
-				_bonemaps[i].insert({n, node});
-				_meshskeletons[i].push_back(aiMatrix4x4ToGlm(bone->mOffsetMatrix));
+				_bonemaps[i][n] =node;
+				_meshskeletons[i][n] = aiMatrix4x4ToGlm(bone->mOffsetMatrix);
 			}
 		}
+
+		// Build up the transforms
+		for (int i = 0; i < scene->mNumAnimations; i++) {
+			_animations.push_back(AnimEvaluator(i, _rootnode.get(), scene->mAnimations[i]));
+		}
+	}
+
+	void Animator::SetAnimationIndex(int i) {
+		_animidx = i;
+	}
+
+	void Animator::_getGlobalTransform(AnimNode* node) {
+		auto parent = node->_parent;
+		if (parent != nullptr) {
+			node->_global_transform = parent->_global_transform * node->_local_transform;
+		}
+		else {
+			node->_global_transform = node->_local_transform;
+		}
+	}
+
+	void Animator::_updateNodes(AnimNode* node) {
+		auto channelid = node->_channelids[_animidx];
+		if (channelid != -1) {
+			node->_local_transform = _animations[_animidx].GetTransform(channelid);
+		}
+
+		_getGlobalTransform(node);
+
+		for (int i = 0; i < node->_children.size(); i++) {
+			_updateNodes(node->_children[i].get());
+		}
+	}
+
+	void Animator::Calculate(double time) {
+		_animations[_animidx].Calculate(time);
+
+		_updateNodes(_rootnode.get());
 	}
 
 	void Animator::GetBoneMatrices(std::vector<glm::mat4>& matrices, int meshidx) {
@@ -46,16 +81,11 @@ namespace SAS_3D {
 		}
 	}
 
-	Animator::pAnimNode Animator::_createNodeTree(aiNode* node, AnimNode* parent) {
-		pAnimNode internalnode = std::make_unique<AnimNode>(node->mName.data, parent);
+	Animator::upAnimNode Animator::_createNodeTree(aiNode* node, AnimNode* parent) {
+		upAnimNode internalnode = std::make_unique<AnimNode>(node->mName.data, parent, _animct);
 
 		internalnode->_local_transform = aiMatrix4x4ToGlm(node->mTransformation);
-		if (parent != nullptr) {
-			internalnode->_global_transform = parent->_global_transform * internalnode->_local_transform;
-		}
-		else {
-			internalnode->_global_transform = internalnode->_local_transform;
-		}
+		_getGlobalTransform(internalnode.get());
 
 		for (int i = 0; i < node->mNumChildren; i++) {
 			auto childnode = _createNodeTree(node->mChildren[i], internalnode.get());
