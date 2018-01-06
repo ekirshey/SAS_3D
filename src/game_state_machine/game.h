@@ -14,14 +14,20 @@ namespace SAS_3D {
 	class Game
 	{
 	public:
+		#define MAX_STATES 10
 		Game(std::string config);
 		virtual ~Game();
 
 		template<typename T, typename... Args>
 		void AddState(bool persistence, int index, Args&&... args) {
-			auto stateimpl = std::make_unique<T>(std::forward<Args>(args)...);
-			auto state = std::make_unique<GameState>(index, persistence, &_event_queue, std::move(stateimpl));
-			_gamestates.insert({ index,std::move(state) });
+			if (index < MAX_STATES ) {
+				auto stateimpl = std::make_unique<T>(std::forward<Args>(args)...);
+				auto state = std::make_unique<GameState>(index, persistence, &_event_queue, std::move(stateimpl));
+				_gamestates[index] = std::move(state);
+			}
+			else {
+				std::cout << "Error adding state. Index out of bounds" << std::endl;
+			}
 		}
 
 		void Run();
@@ -33,7 +39,7 @@ namespace SAS_3D {
 
 		GameConfig _config;
 		uptrSASWindow _window;
-		std::unordered_map<int, std::unique_ptr<GameState>> _gamestates;
+		std::vector<std::unique_ptr<GameState>> _gamestates;
 		unsigned int _activestate;
 		bool _gamerunning;
 

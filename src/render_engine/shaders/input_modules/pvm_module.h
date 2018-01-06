@@ -6,19 +6,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace SAS_3D {
-	class MVPModule : public InputModule {
+	class PVMModule : public InputModule {
 	public:
-		static const unsigned long long ID = MVPModuleID;
+		static const unsigned long long ID = PVMModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
-			GLint mvpLoc = shader->GetUniformLocation("mvp");
-			glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(_mvp));
+			GLint pvmLoc = shader->GetUniformLocation("pvm");
+			glUniformMatrix4fv(pvmLoc, 1, GL_FALSE, glm::value_ptr(_pvm));
 		}
 
 		unsigned long long UniqueBits() const { return ID; }
 
-		void SetMVP(const glm::mat4& mvp) { _mvp = mvp; }
+		void SetPVM(const glm::mat4& pvm) { _pvm = pvm; }
 	private:
-		glm::mat4 _mvp;
+		glm::mat4 _pvm;
 	};
 }

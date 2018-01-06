@@ -56,7 +56,18 @@ namespace SAS_3D {
 		FreeImage_FlipVertical(dib);
 
 		//retrieve the image data
+		auto bpp = FreeImage_GetBPP(dib);
+		if (bpp != 32) {
+			FIBITMAP* hOldImage = dib;
+			dib = FreeImage_ConvertTo32Bits(hOldImage);
+			FreeImage_Unload(hOldImage);
+		}
+
 		bits = FreeImage_GetBits(dib);
+		if (bits == NULL) {
+			std::cout << "Bit data not valid for " << path << std::endl;
+			return -1;
+		}
 
 		FREE_IMAGE_TYPE image_type = FreeImage_GetImageType(dib);
 

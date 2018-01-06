@@ -1,6 +1,7 @@
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
 #include "render_engine.h"
-#include "shaders/input_modules/mvp_module.h"
+#include "shaders/input_modules/pvm_module.h"
 #include "shaders/input_modules/texture_module.h"
 #include "shaders/input_modules/animation_module.h"
 
@@ -14,11 +15,11 @@ namespace SAS_3D {
 		, _event_queue(queue)
 		, _running(true)
 	{
-		_shader.AddInputModule<MVPModule>();
+		_shader.AddInputModule<PVMModule>();
 		_shader.AddInputModule<TextureModule>();
 		_shader.AddInputModule<AnimationModule>();
 
-		_debugshader.AddInputModule<MVPModule>();
+		_debugshader.AddInputModule<PVMModule>();
 
 		LoadModels(_config.model_registry);
 
@@ -61,7 +62,7 @@ namespace SAS_3D {
 				_shader.UseProgram();
 				_mc.Draw(e.second.modelidx, e.second.model, e.second.view, e.second.projection, _shader);
 
-				_debugshader.UseProgram();
+				//_debugshader.UseProgram();
 				//_window->TurnOnWireframe();
 				//_mc.DrawSkeleton(e.second.modelidx, e.second.model, e.second.view, e.second.projection, _debugshader);
 			}

@@ -11,7 +11,7 @@ namespace SAS_3D {
 	Game::Game(std::string config)
 		: _config(LoadConfig(config))
 		, _window(InitializeVideo(_config.windowtitle, _config.screenwidth, _config.screenheight))
-		, _gamestates()
+		, _gamestates{MAX_STATES}
 		, _activestate(0)
 		, _gamerunning(true)
 		, _client(_config.serverip, _config.port)

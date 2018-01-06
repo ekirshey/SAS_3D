@@ -8,7 +8,7 @@ namespace SAS_3D {
 		SceneGraph() {}
 		struct SceneNode {
 			int modelid;
-			glm::mat4 mvp;
+			glm::mat4 pvm;
 		};
 
 		void AddNode(const SceneNode& node) {
