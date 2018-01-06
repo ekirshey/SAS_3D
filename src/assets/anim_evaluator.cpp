@@ -12,18 +12,22 @@ namespace SAS_3D {
 		return to;
 	}
 
-	AnimEvaluator::AnimEvaluator(int id, AnimNode* rootnode, const aiAnimation* animation) {
+	AnimEvaluator::AnimEvaluator(int id, AnimNode* rootnode, const aiAnimation* animation) 
+		: _lasttime(0)
+	{
 		std::cout << "Processing new animation: " << animation->mName.data << std::endl;
 		if (animation->mNumChannels <= 0) {
 			std::cout << "Error: Animation has no channels" << std::endl;
 		}
-		double _ticksPerSecond = animation->mTicksPerSecond != 0.0 ? animation->mTicksPerSecond : 25.0;
+		_tickspersecond = animation->mTicksPerSecond != 0.0 ? animation->mTicksPerSecond : 25.0;
+		_duration = animation->mDuration;
+		_animlength = _duration / _tickspersecond;
 
 		// Process channels/nodes
 		for (int i = 0; i < animation->mNumChannels; i++) {
 			auto ai_c = animation->mChannels[i];
 			_channels.push_back(Channel());
-			auto c = _channels.back();
+			auto c = &_channels.back();
 			auto node = rootnode->FindNode(ai_c->mNodeName.data);
 			if (node != nullptr) {
 				node->_channelids[id] = _channels.size() - 1;
@@ -32,38 +36,61 @@ namespace SAS_3D {
 					auto t = ai_c->mPositionKeys[p].mTime;
 					auto ai_v = &ai_c->mPositionKeys[p].mValue;
 					glm::vec3 v(ai_v->x, ai_v->y, ai_v->z);;
-					c.positions.push_back(Key<glm::vec3>(t, v));
+					c->positions.push_back(Key<glm::vec3>(t, v));
 				}
 
 				for (int r = 0; r < ai_c->mNumRotationKeys; r++) {
 					auto t = ai_c->mRotationKeys[r].mTime;
 					auto ai_q = &ai_c->mRotationKeys[r].mValue;
 					glm::quat q(ai_q->w, ai_q->x, ai_q->y, ai_q->z);
-					c.rotations.push_back(Key<glm::quat>(t, q));
+					c->rotations.push_back(Key<glm::quat>(t, q));
 				}
 
 				for (int s = 0; s < ai_c->mNumScalingKeys; s++) {
 					auto t = ai_c->mScalingKeys[s].mTime;
 					auto ai_v = &ai_c->mScalingKeys[s].mValue;
 					glm::vec3 v(ai_v->x, ai_v->y, ai_v->z);;
-					c.scalings.push_back(Key<glm::vec3>(t, v));
+					c->scalings.push_back(Key<glm::vec3>(t, v));
 				}
 
 				// Set all indices to 0
-				std::get<0>(c.lastindices) = 0;
-				std::get<1>(c.lastindices) = 0;
-				std::get<2>(c.lastindices) = 0;
+				std::get<0>(c->lastindices) = 0;
+				std::get<1>(c->lastindices) = 0;
+				std::get<2>(c->lastindices) = 0;
 			}
 			else {
 				std::cout << "Error: Channel " << ai_c->mNodeName.data << " has no corresponding node" << std::endl;
 			}
 		}
+		std::cout << "done.." << std::endl;
 	}
 
-	void AnimEvaluator::Calculate(double time) {
+	void AnimEvaluator::Calculate(double rawtime) {
 
+		// _duration is specified in ticks
+		// 55 ticks is duration
+		// 25 ticks per second
+		// duration lasts 2.2 seconds
+		// tick every 0.04 seconds
+		
 		for (int i = 0; i < _channels.size(); i++) {
+			Channel* c = &_channels[i];
 
+			// Handle Position
+			if (c->positions.size() > 0) {
+
+			}
+
+			// Handle Rotations
+			if (c->rotations.size() > 0) {
+
+			}
+
+			// Handle Scaling
+			if (c->scalings.size() > 0) {
+
+			}
 		}
+		//_lasttime = time;
 	}
 }

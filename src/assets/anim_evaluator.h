@@ -19,9 +19,7 @@ namespace SAS_3D {
 		Key(double t, T v) 
 			: time(t)
 			, val(v)
-		{
-
-		}
+		{}
 	};
 
 	struct Channel {
@@ -36,11 +34,14 @@ namespace SAS_3D {
 	class AnimEvaluator {
 	public:
 		AnimEvaluator(int id, AnimNode* rootnode, const aiAnimation* animation);
-		void Calculate(double time);
+		void Calculate(double rawtime);
 		glm::mat4 GetTransform(int channelid) { return _channels[channelid].currenttransform; }
 	private:
 		std::vector<Channel> _channels;
 		double _tickspersecond;
+		double _duration;
+		double _animlength;	// in seconds
+		double _lasttime;
 
 	};
 }

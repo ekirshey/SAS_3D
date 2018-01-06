@@ -30,6 +30,7 @@ namespace SAS_3D {
 		ShaderProgram _shader;
 		ShaderProgram _debugshader;
 		ModelContainer _mc;
+		// Need to figure out the best way to replace this unordered_map
 		std::unordered_map<unsigned long long, RenderEvent> _entities;
 		RenderQueue* _event_queue;
 		bool _running;
