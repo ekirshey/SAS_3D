@@ -11,7 +11,7 @@
 #include <vector>
 #include "assets/model.h"
 #include "assets/textures.h"
-#include "render_engine/shaders/shader_program.h"
+#include "subsystems/render_engine/shaders/shader_program.h"
 
 namespace SAS_3D {
 	#define MAXMODELS 100
@@ -19,12 +19,11 @@ namespace SAS_3D {
 	class ModelContainer
 	{
 	public:
-		ModelContainer(std::string modelpath);
-		~ModelContainer();
-
-		ModelIdx LoadModelFromFile(std::string path, unsigned int flags);
+		ModelContainer();
+		
+		void AddModel(const SceneInfo& sceneinfo);
 		void LoadModelIntoGPU(ModelIdx idx);
-		void Draw(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
+		void Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pvm);
 		// Debug draw
 		void DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
 	private:
@@ -32,8 +31,4 @@ namespace SAS_3D {
 		TextureContainer _tc;
 		std::vector<Model> _models;
 	};
-
-	namespace ModelLoader {
-		void LoadModels(std::string model_registry, ModelContainer& mc);
-	}
 }

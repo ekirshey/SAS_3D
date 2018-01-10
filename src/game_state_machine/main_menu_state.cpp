@@ -1,5 +1,5 @@
 #include "game_state_machine/main_menu_state.h"
-#include "render_engine/render_engine.h"
+#include "subsystems/render_engine/render_engine.h"
 
 namespace SAS_3D {
 	MainMenuState::MainMenuState() {
@@ -10,11 +10,11 @@ namespace SAS_3D {
 
 	}
 
-	FSMStates MainMenuState::InitializeState(const InputState& input, RenderQueue* event_queue) {
+	FSMStates MainMenuState::InitializeState(SubsystemController* subsystems, const InputState& input) {
 		return FSMStates::TRANSITIONIN;
 	}
 
-	FSMStates MainMenuState::UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input) {
+	FSMStates MainMenuState::UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input) {
 		_nextstate = 1;
 		return FSMStates::TRANSITIONOUT;
 	}

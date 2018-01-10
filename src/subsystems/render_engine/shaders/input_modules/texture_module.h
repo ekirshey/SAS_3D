@@ -1,6 +1,6 @@
 #pragma once
 #include "input_module.h"
-#include "render_engine/shaders/shader_program.h"
+#include "subsystems/render_engine/shaders/shader_program.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

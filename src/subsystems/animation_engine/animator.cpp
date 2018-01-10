@@ -1,10 +1,12 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include "animator.h"
+#include "assets/assimp_loader.h"
 
 namespace SAS_3D {
-	Animator::Animator(const aiScene* scene) 
+	Animator::Animator(const SceneInfo* sceneinfo) 
 	{
+		auto scene = sceneinfo->scene;
 		if (!scene->HasAnimations()) {
 			std::cout << "No animations!" << std::endl;
 		}

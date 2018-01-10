@@ -6,19 +6,22 @@
 #include <string>
 
 namespace SAS_3D {
-	class ECSManager;
+	class EntityManager;
 
 	class System
 	{
 	public:
 		static const unsigned long long COMPONENTIDS = 0x0;
 		System();
-		System(std::string systemname, ECSManager* ecsmanager);
+		System(std::string systemname);
 
 		virtual ~System() {}
 
-		void Update(int elapsedtime);
-		virtual void ProcessEntities() = 0;
+		void Update(int elapsedtime, EntityManager* em);
+		virtual void BeforeObjectProcessing() {}
+		virtual void AfterObjectProcessing() {}
+		virtual void ProcessEntities(EntityManager* em);
+		virtual void ProcessEntity(EntityManager* em, uint_fast64_t entity);
 
 		virtual unsigned long long ComponentBits() { return COMPONENTIDS; }
 
@@ -27,8 +30,6 @@ namespace SAS_3D {
 
 		bool ContainsEntity(unsigned long long entityid);    // TODO Not sure if needed
 		bool ValidEntity(unsigned long long componentbits, unsigned long long SYSTEMID);
-
-		ECSManager* GetECSManager() { return _ecsmanager; }
 
 		unsigned long long GetEntityCount() { return _entitycount; }
 		void EntityCount(unsigned long long entitycount) { _entitycount = entitycount; }
@@ -45,13 +46,12 @@ namespace SAS_3D {
 		void SetSystemName(std::string name) { _systemname = name; }
 
 		template<typename T>
-		T GetEntityComponent(unsigned long long entityID, unsigned long long componentID) {
-			return _ecsmanager->GetEntityComponent<T>(entityID, componentID);
+		T GetEntityComponent(EntityManager* em, unsigned long long entityID, unsigned long long componentID) {
+			return em->GetEntityComponent<T>(entityID, componentID);
 		}
 
 	private:
 		std::string _systemname;	// For debugging purposes
-		ECSManager* _ecsmanager;
 		int _elapsedtime;
 		int _frametime;
 		unsigned long long _entitycount;

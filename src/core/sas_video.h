@@ -10,6 +10,7 @@
 * Date: 10/3/17
 */
 #pragma once
+#include <iostream>
 #include <string>
 #include <memory>
 #include <SDL.h>

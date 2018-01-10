@@ -3,20 +3,42 @@
 #include "ecs/framework/system.h"
 
 namespace SAS_3D {
-	System::System() : _systemname(""), _ecsmanager(nullptr), _elapsedtime(0), _frametime(0), _entitycount(0) {
+	System::System() 
+		: _systemname("")
+		, _elapsedtime(0)
+		, _frametime(0)
+		, _entitycount(0) 
+	{}
 
-	}
+	System::System(std::string systemname) 
+		: _systemname(systemname)
+		, _elapsedtime(0)
+		, _frametime(0)
+		, _entitycount(0) 
+	{}
 
-	System::System(std::string systemname, ECSManager* ecsmanager) : _systemname(systemname), _ecsmanager(ecsmanager), _elapsedtime(0), _frametime(0), _entitycount(0) {
-
-	}
-
-	void System::Update(int elapsedtime) {
+	void System::Update(int elapsedtime, EntityManager* em) {
 		SetFrameTime(elapsedtime);
 		UpdateTimeRunning(elapsedtime);
 
 		// Here is where the magic happens
-		ProcessEntities();
+		ProcessEntities(em);
+	}
+
+	void System::ProcessEntities(EntityManager* em) {
+		std::vector<uint_fast64_t> entities = RelevantEntities();
+
+		BeforeObjectProcessing();
+		//std::cout << SystemName() << " " << entities.size() << std::endl;
+		for (unsigned int i = 0; i < entities.size(); i++) {
+			ProcessEntity(em, entities[i]);
+		}
+
+		AfterObjectProcessing();
+	}
+
+	void System::ProcessEntity(EntityManager* em, uint_fast64_t entity) {
+
 	}
 
 	bool System::ValidEntity(unsigned long long componentbits, unsigned long long SYSTEMID) {

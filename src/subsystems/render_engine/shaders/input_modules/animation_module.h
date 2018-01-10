@@ -1,10 +1,11 @@
 #pragma once
-#include "input_module.h"
-#include "render_engine/shaders/shader_program.h"
 #include <GL/glew.h>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "input_module.h"
+#include "subsystems/render_engine/shaders/shader_program.h"
+
 
 namespace SAS_3D {
 	class AnimationModule : public InputModule {

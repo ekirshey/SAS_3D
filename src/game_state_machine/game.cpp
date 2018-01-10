@@ -1,8 +1,9 @@
-#include "game_state_machine/game.h"
 #include <iostream>
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include "game_state_machine/game.h"
+#include "assets/assimp_loader.h"
 
 const int SCREEN_FPS = 1000;
 const int SCREEN_TICK_PER_FRAME = 1000 / SCREEN_FPS;
@@ -10,17 +11,15 @@ const int SCREEN_TICK_PER_FRAME = 1000 / SCREEN_FPS;
 namespace SAS_3D {
 	Game::Game(std::string config)
 		: _config(LoadConfig(config))
-		, _window(InitializeVideo(_config.windowtitle, _config.screenwidth, _config.screenheight))
 		, _gamestates{MAX_STATES}
 		, _activestate(0)
 		, _gamerunning(true)
-		, _client(_config.serverip, _config.port)
+		, _subsystems(_config)
 	{
 	}
 
 	Game::~Game() {
-		_renderengine->Stop();
-		_renderthread.join();
+
 	}
 
 	void Game::RemoveStateAtIndex(int idx) {
@@ -40,12 +39,6 @@ namespace SAS_3D {
 		// If everything initialized ok then enter main game loop
 		std::cout << "Kicking off render thread" << std::endl;
 
-		SDL_GL_MakeCurrent(NULL, NULL);
-		_renderthread = std::thread([&]() {
-			_window->SwitchContext();
-			_renderengine = std::make_unique <RenderEngine>(_config, _window.get(), &_event_queue);
-		});
-
 		//using namespace std::chrono_literals;
 		//std::this_thread::sleep_for(5s);
 
@@ -54,6 +47,9 @@ namespace SAS_3D {
 
 		currenttime = SDL_GetTicks();
 		double targetticks = 16.67;
+
+		// Spin up all subsystems and threads
+		_subsystems.Bootstrap();
 
 		while (_gamerunning)
 		{
@@ -82,7 +78,7 @@ namespace SAS_3D {
 	}
 
 	void Game::Update(int elapsedtime, const InputState& inputstate) {
-		_activestate = _gamestates[_activestate]->FiniteStateMachine(elapsedtime, inputstate);
+		_activestate = _gamestates[_activestate]->FiniteStateMachine(elapsedtime, &_subsystems, inputstate);
 		// Invalid next state
 		if (_activestate >= _gamestates.size() || _activestate < 0) {
 			_gamerunning = false;

@@ -2,8 +2,7 @@
 #include "game_state_machine/game.h"
 #include "game_state_machine/main_menu_state.h"
 #include "game_state_machine/game_running_state.h"
-#include "network/client.h"
-#include "asio.hpp"
+#include "subsystems/network/client.h"
 
 using namespace SAS_3D;
 using namespace asio::ip;

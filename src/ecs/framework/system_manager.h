@@ -6,7 +6,7 @@
 namespace SAS_3D {
 	// Forward Declarations
 	class System;
-	class ECSManager;
+	class EntityManager;
 
 	class SystemManager
 	{
@@ -23,7 +23,7 @@ namespace SAS_3D {
 		void RemoveEntityFromSystems(unsigned long long entity);
 		void RemoveEntityFromSystems(unsigned long long entity, unsigned long long entitycomponents);
 
-		void Update(int elapsedtime);
+		void Update(int elapsedtime, EntityManager* em);
 	private:
 		std::vector<std::unique_ptr<System>> _systemlist;
 		unsigned long long _systemcount;

@@ -1,20 +1,21 @@
 #include <iostream>
 #include "model.h"
-#include "render_engine/shaders/input_modules/texture_module.h"
-#include "render_engine/shaders/input_modules/animation_module.h"
-#include "render_engine/shaders/input_modules/pvm_module.h"
+#include "subsystems/render_engine/shaders/input_modules/texture_module.h"
+#include "subsystems/render_engine/shaders/input_modules/animation_module.h"
+#include "subsystems/render_engine/shaders/input_modules/pvm_module.h"
+#include "assets/assimp_loader.h"
 
 namespace SAS_3D {
-	Model::Model(std::string path, TextureContainer& c, const aiScene* scene)
-		: _path(path)
+	Model::Model(const SceneInfo* sceneinfo, TextureContainer& c)
+		: _path(sceneinfo->filepath)
 		, _loaded(false)
-		, _anim(scene)
 	{
 		// Build meshes
+		auto scene = sceneinfo->scene;
 		if (scene->HasMeshes()) {
-			auto lastslash = path.rfind('/') + 1;
+			auto lastslash = _path.rfind('/') + 1;
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-				_meshes.push_back(Mesh(path.substr(0, lastslash), c, scene->mMeshes[i], scene));
+				_meshes.push_back(Mesh(_path.substr(0, lastslash), c, scene->mMeshes[i], scene));
 			}
 		}
 
@@ -58,7 +59,7 @@ namespace SAS_3D {
 		}
 	}
 
-	void Model::Draw(ShaderProgram& shader, glm::mat4& m, glm::mat4& v, glm::mat4& p) {
+	void Model::Draw(ShaderProgram& shader, glm::mat4& pvm) {
 		if (!_loaded) {
 			// Load the model into memory
 			LoadIntoGPU();
@@ -76,11 +77,12 @@ namespace SAS_3D {
 				glBindTexture(GL_TEXTURE_2D, t);
 				tct++;
 			}
+			/*
 			std::vector<glm::mat4> bones;
 			_anim.GetBoneMatrices(bones, i);
 			animationmodule->SetBones(&bones);
-
-			pvmmodule->SetPVM(p*v*m);
+			*/
+			pvmmodule->SetPVM(pvm);
 			shader.ApplyModules();
 
 			glBindVertexArray(me->VAO);

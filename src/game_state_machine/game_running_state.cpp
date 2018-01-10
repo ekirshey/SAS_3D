@@ -19,7 +19,7 @@ namespace SAS_3D {
 
 	}
 
-	FSMStates GameRunningState::InitializeState(const InputState& input, RenderQueue* event_queue) {
+	FSMStates GameRunningState::InitializeState(SubsystemController* subsystems, const InputState& input) {
 
 		auto view = _camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
@@ -30,17 +30,17 @@ namespace SAS_3D {
 			RenderEvent ev;
 			ev.id = i;
 			ev.modelidx = 0;
-			ev.model = _mobs.back().ModelMatrix();
-			ev.view = view;
-			ev.projection = projection;
+			ev.pvm = projection * view * _mobs.back().ModelMatrix();
 			events.push_back(ev);
 		}
 
-		event_queue->enqueue(events);
+		auto renderer = subsystems->GetRenderEngine();
+		renderer->RegisterEvent(events);
+
 		return FSMStates::TRANSITIONIN;
 	}
 
-	FSMStates GameRunningState::UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input) {
+	FSMStates GameRunningState::UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input) {
 		bool sendevent = false;
 		auto prevcam = _camera.GetViewMatrix();
 		_camera.Update(input, elapsedtime / 1000.0f);
@@ -98,13 +98,12 @@ namespace SAS_3D {
 				RenderEvent ev;
 				ev.id = i;
 				ev.modelidx = 0;
-				ev.model = _mobs[i].ModelMatrix();
-				ev.view = view;
-				ev.projection = projection;
+				ev.pvm = projection * view * _mobs[i].ModelMatrix();
 				events.push_back(ev);
 			}
 
-			event_queue->enqueue(events);
+			auto renderer = subsystems->GetRenderEngine();
+			renderer->RegisterEvent(events);
 		}
 		
 		return FSMStates::UPDATE;

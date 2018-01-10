@@ -70,9 +70,9 @@ namespace SAS_3D {
 		}
 	}
 
-	void SystemManager::Update(int elapsedtime) {
+	void SystemManager::Update(int elapsedtime, EntityManager* em) {
 		for (unsigned int i = 0; i < _systemcount; i++) {
-			_systemlist[i]->Update(elapsedtime);
+			_systemlist[i]->Update(elapsedtime, em);
 		}
 	}
 }

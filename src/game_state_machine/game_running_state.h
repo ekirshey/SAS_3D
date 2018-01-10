@@ -3,9 +3,9 @@
 #include "game_state_machine/game_config.h"
 #include "assets/model_container.h"
 #include "entities/camera.h"
-#include "physics/rigid_body.h"
-#include "render_engine/render_engine.h"
-#include "render_engine/scene_graph.h"
+#include "subsystems/physics/rigid_body.h"
+#include "subsystems/render_engine/render_engine.h"
+#include "subsystems/render_engine/scene_graph.h"
 #include "utility/locking_queue.h"
 
 namespace SAS_3D {
@@ -15,8 +15,8 @@ namespace SAS_3D {
 		GameRunningState(const GameConfig& config);
 		~GameRunningState();
 
-		FSMStates InitializeState(const InputState& input, RenderQueue* event_queue);
-		FSMStates UpdateState(int elapsedtime, RenderQueue* event_queue, const InputState& input);
+		FSMStates InitializeState(SubsystemController* subsystems, const InputState& input);
+		FSMStates UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input);
 		int NextState() { return _nextstate; }
 
 	private:

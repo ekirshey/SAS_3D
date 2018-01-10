@@ -8,7 +8,6 @@ namespace SAS_3D {
 		int screenheight;
 
 		std::string shaderpath;
-		std::string modelpath;
 		std::string model_registry;
 
 		std::string serverip;

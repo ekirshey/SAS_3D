@@ -1,12 +1,12 @@
 {
-	"registry" : [
-		{
-			"model_id" : 0,
-			"model_path" : "dwarf/dwarf.x"
+	"root_model_path": "../../media/",
+	"registry": [{
+			"model_id": 0,
+			"model_path": "dwarf/dwarf.x"
 		},
 		{
-			"model_id" : 1,
-			"model_path" : "primitives/sphere.fbx"
+			"model_id": 1,
+			"model_path": "primitives/sphere.fbx"
 		}
 	]
 }

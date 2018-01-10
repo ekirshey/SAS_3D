@@ -25,39 +25,19 @@ file(GLOB SRC_CORE
 	${PROJECT_SOURCE_DIR}/src/core/*.cpp
 )
 
-file(GLOB SRC_SUBSYSTEMS
-	${PROJECT_SOURCE_DIR}/src/subsystems/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/*.cpp
-)
-
-file(GLOB SRC_ANIMATION_ENGINE
-	${PROJECT_SOURCE_DIR}/src/subsystems/animation_engine/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/animation_engine/*.cpp
-)
-
 file(GLOB SRC_RENDER_ENGINE
-	${PROJECT_SOURCE_DIR}/src/subsystems/render_engine/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/render_engine/*.cpp
+	${PROJECT_SOURCE_DIR}/src/render_engine/*.h
+	${PROJECT_SOURCE_DIR}/src/render_engine/*.cpp
 )
 
 file(GLOB SRC_SHADERS
-	${PROJECT_SOURCE_DIR}/src/subsystems/render_engine/shaders/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/render_engine/shaders/*.cpp
+	${PROJECT_SOURCE_DIR}/src/render_engine/shaders/*.h
+	${PROJECT_SOURCE_DIR}/src/render_engine/shaders/*.cpp
 )
 
 file(GLOB SRC_INPUT_MODULES
-	${PROJECT_SOURCE_DIR}/src/subsystems/render_engine/shaders/input_modules/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/render_engine/shaders/input_modules/*.cpp
-)
-
-file(GLOB SRC_NETWORK
-	${PROJECT_SOURCE_DIR}/src/subsystems/network/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/network/*.cpp
-)
-
-file(GLOB SRC_PHYSICS
-	${PROJECT_SOURCE_DIR}/src/subsystems/physics/*.h
-	${PROJECT_SOURCE_DIR}/src/subsystems/physics/*.cpp
+	${PROJECT_SOURCE_DIR}/src/render_engine/shaders/input_modules/*.h
+	${PROJECT_SOURCE_DIR}/src/render_engine/shaders/input_modules/*.cpp
 )
 
 file(GLOB SRC_ASSETS
@@ -73,6 +53,16 @@ file(GLOB SRC_ENTITIES
 file(GLOB SRC_GSM
 	${PROJECT_SOURCE_DIR}/src/game_state_machine/*.h
 	${PROJECT_SOURCE_DIR}/src/game_state_machine/*.cpp
+)
+
+file(GLOB SRC_NETWORK
+	${PROJECT_SOURCE_DIR}/src/network/*.h
+	${PROJECT_SOURCE_DIR}/src/network/*.cpp
+)
+
+file(GLOB SRC_PHYSICS
+	${PROJECT_SOURCE_DIR}/src/physics/*.h
+	${PROJECT_SOURCE_DIR}/src/physics/*.cpp
 )
 
 file(GLOB SRC_ECS_FRAMEWORK
@@ -95,6 +85,11 @@ file(GLOB SRC_UTILITY
 	${PROJECT_SOURCE_DIR}/src/utility/*.cpp
 )
 
+file(GLOB SRC_ANIMATION
+	${PROJECT_SOURCE_DIR}/src/animation_engine/*.h
+	${PROJECT_SOURCE_DIR}/src/animation_engine/*.cpp
+)
+
 file( GLOB SRC 
 	${PROJECT_SOURCE_DIR}/src/*.h
 	${PROJECT_SOURCE_DIR}/src/*.cpp
@@ -104,8 +99,6 @@ add_executable(SAS_3D
 	${SRC} 
 	${SRC_CORE}
 	${SRC_ASSETS}
-	${SRC_SUBSYSTEMS}
-	${SRC_ANIMATION_ENGINE}
 	${SRC_RENDER_ENGINE}
 	${SRC_SHADERS}
 	${SRC_INPUT_MODULES}
@@ -117,27 +110,27 @@ add_executable(SAS_3D
 	${SRC_ECS_SYSTEMS}
 	${SRC_ECS_COMPONENTS}
 	${SRC_UTILITY}
+	${SRC_ANIMATION}
 	${SRC_IMGUI}
 	${SRC_THIRD_PARTY}
 )
 
-source_group("assets"												FILES ${SRC_ASSETS})
-source_group("core"													FILES ${SRC_CORE})
-source_group("subsystems"											FILES ${SRC_SUBSYSTEMS})
-source_group("subsystems\\animation_engine"							FILES ${SRC_ANIMATION_ENGINE})
-source_group("subsystems\\render_engine"							FILES ${SRC_RENDER_ENGINE})
-source_group("subsystems\\render_engine\\shaders"					FILES ${SRC_SHADERS})
-source_group("subsystems\\render_engine\\shaders\\input_modules"	FILES ${SRC_INPUT_MODULES})
-source_group("subsystems\\network"									FILES ${SRC_NETWORK})
-source_group("subsystems\\physics"									FILES ${SRC_PHYSICS})
-source_group("entities"												FILES ${SRC_ENTITIES})
-source_group("game_state_machine"									FILES ${SRC_GSM})
-source_group("ecs\\framework"										FILES ${SRC_ECS_FRAMEWORK})
-source_group("ecs\\systems"											FILES ${SRC_ECS_SYSTEMS})
-source_group("ecs\\components"										FILES ${SRC_ECS_COMPONENTS})
-source_group("utility"												FILES ${SRC_UTILITY})
-source_group("third_party"											FILES ${SRC_THIRD_PARTY})
-source_group("third_party\\imgui"									FILES ${SRC_IMGUI})
+source_group("assets"									FILES ${SRC_ASSETS})
+source_group("core"										FILES ${SRC_CORE})
+source_group("render_engine"							FILES ${SRC_RENDER_ENGINE})
+source_group("render_engine\\shaders"					FILES ${SRC_SHADERS})
+source_group("render_engine\\shaders\\input_modules"	FILES ${SRC_INPUT_MODULES})
+source_group("entities"									FILES ${SRC_ENTITIES})
+source_group("game_state_machine"						FILES ${SRC_GSM})
+source_group("network"									FILES ${SRC_NETWORK})
+source_group("physics"									FILES ${SRC_PHYSICS})
+source_group("ecs\\framework"							FILES ${SRC_ECS_FRAMEWORK})
+source_group("ecs\\systems"								FILES ${SRC_ECS_SYSTEMS})
+source_group("ecs\\components"							FILES ${SRC_ECS_COMPONENTS})
+source_group("utility"									FILES ${SRC_UTILITY})
+source_group("animation_engine"							FILES ${SRC_ANIMATION_ENGINE})
+source_group("third_party"								FILES ${SRC_THIRD_PARTY})
+source_group("third_party\\imgui"						FILES ${SRC_IMGUI})
 
 target_link_libraries (SAS_3D LINK_PUBLIC ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${GLEW_LIBRARY} ${ASSIMP_LIBRARY_DEBUG} ${FREEIMAGE_LIBRARY_DEBUG})
 

@@ -58,7 +58,7 @@ namespace SAS_3D {
 	}
 
 	void ECSManager::Update(int elapsedtime) {
-		_systemmanager.Update(elapsedtime);
+		_systemmanager.Update(elapsedtime, &this->_entitymanager);
 	}
 
 	// Tag functions

@@ -12,9 +12,10 @@
 	
 */
 namespace SAS_3D {
+	struct SceneInfo;
 	class Animator {
 	public:
-		Animator(const aiScene* scene);
+		Animator(const SceneInfo* sceneinfo);
 		void SetAnimationIndex(int i);
 		void Calculate(double time);
 		void GetBoneMatrices(std::vector<glm::mat4>& matrices, int meshidx);

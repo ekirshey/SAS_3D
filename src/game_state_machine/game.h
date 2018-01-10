@@ -4,11 +4,9 @@
 #include <thread>
 #include <memory>
 #include "core/sas_io.h"
-#include "network/client.h"
 #include "game_state_machine/game_state.h"
 #include "game_state_machine/game_config.h"
-#include "utility/locking_queue.h"
-#include "render_engine/render_engine.h"
+#include "subsystems/subsystem_controller.h"
 
 namespace SAS_3D {
 	class Game
@@ -22,7 +20,7 @@ namespace SAS_3D {
 		void AddState(bool persistence, int index, Args&&... args) {
 			if (index < MAX_STATES ) {
 				auto stateimpl = std::make_unique<T>(std::forward<Args>(args)...);
-				auto state = std::make_unique<GameState>(index, persistence, &_event_queue, std::move(stateimpl));
+				auto state = std::make_unique<GameState>(index, persistence, std::move(stateimpl));
 				_gamestates[index] = std::move(state);
 			}
 			else {
@@ -38,15 +36,10 @@ namespace SAS_3D {
 		void RemoveStateAtIndex(int idx);
 
 		GameConfig _config;
-		uptrSASWindow _window;
 		std::vector<std::unique_ptr<GameState>> _gamestates;
 		unsigned int _activestate;
 		bool _gamerunning;
 
-		std::unique_ptr<RenderEngine> _renderengine;
-		RenderQueue _event_queue;
-		std::thread _renderthread;
-
-		Client _client;
+		SubsystemController _subsystems;
 	};
 }
