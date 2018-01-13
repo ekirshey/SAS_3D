@@ -25,8 +25,7 @@ namespace SAS_3D {
 		_window->SwitchContext();
 
 		_mc = std::move(mc);
-		//_shader.Load(_config.shaderpath + "animation.vert", _config.shaderpath + "animation.frag");
-		_shader.Load(_config.shaderpath + "model.vert", _config.shaderpath + "model.frag");
+		_shader.Load(_config.shaderpath + "animation.vert", _config.shaderpath + "animation.frag");
 		_debugshader.Load(_config.shaderpath + "simple.vert", _config.shaderpath + "simple.frag");
 
 		_shader.AddInputModule<PVMModule>();

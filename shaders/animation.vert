@@ -28,5 +28,5 @@ void main()
 	
 	
     TexCoords = aTexCoords;    
-    gl_Position = pvm * vec4(newVertex.xyz, 1.0);
+    gl_Position = pvm * pos;//vec4(newVertex.xyz, 1.0);
 }

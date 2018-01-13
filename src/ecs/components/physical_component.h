@@ -9,7 +9,8 @@ namespace SAS_3D {
 
 		ComponentID UniqueBits() const { return ID; }
 
-		PhysicalComponent()
+		PhysicalComponent(glm::mat4 mat)
+			: modeltransform(mat)
 		{}
 
 		glm::mat4 modeltransform;

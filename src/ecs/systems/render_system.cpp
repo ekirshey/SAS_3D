@@ -23,7 +23,7 @@ namespace SAS_3D {
 	}
 
 	void RenderSystem::BeforeEntityProcessing(SubsystemController* subsystems) {
-		glm::mat4 projection = glm::perspective(_zoom, (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
+		_projection = glm::perspective(_zoom, (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
 	}
 
 	void RenderSystem::ProcessEntity(int elapsedtime, SubsystemController* subsystems, EntityManager* em, EntityID entity) {
