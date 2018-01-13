@@ -1,3 +1,4 @@
+#include <thread>
 #include "anim_system.h"
 
 namespace SAS_3D {
@@ -9,15 +10,16 @@ namespace SAS_3D {
 
 	}
 
-	void AnimationSystem::ProcessEntity(uint_fast64_t entity) {
+	void AnimationSystem::ProcessEntity(int elapsedtime, SubsystemController* subsystems, EntityManager* em, EntityID entity) {
 
 	}
 
-	void AnimationSystem::BeforeObjectProcessing() {
+	void AnimationSystem::BeforeEntityProcessing(SubsystemController* subsystems) {
 
 	}
 
-	void AnimationSystem::AfterObjectProcessing() {
+	void AnimationSystem::AfterEntityProcessing(SubsystemController* subsystems) {
+		// Check if it's the frame before we need to calculate new bone matrices
 
 	}
 }

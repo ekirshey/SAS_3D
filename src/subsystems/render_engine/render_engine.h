@@ -8,8 +8,9 @@
 #include "core/sas_video.h"
 
 namespace SAS_3D {
+	using RenderID = unsigned long long;
 	struct RenderEvent {
-		unsigned long long id;
+		RenderID id;
 		glm::mat4 pvm;
 		int modelidx;
 	};
@@ -34,7 +35,7 @@ namespace SAS_3D {
 		ShaderProgram _debugshader;
 		ModelContainer _mc;
 		// Need to figure out the best way to replace this unordered_map
-		std::unordered_map<unsigned long long, RenderEvent> _entities;
+		std::unordered_map<RenderID, RenderEvent> _entities;
 		RenderQueue* _event_queue;
 		bool _running;
 	};
@@ -45,7 +46,7 @@ namespace SAS_3D {
 		~RenderEngine();
 		void Start(ModelContainer&& mc);
 		bool isRunning();
-		void RegisterEvent(std::vector<RenderEvent>& events);
+		void RegisterEvents(std::vector<RenderEvent>& events);
 	private:
 		RenderImpl _impl;
 		RenderQueue _eventqueue;

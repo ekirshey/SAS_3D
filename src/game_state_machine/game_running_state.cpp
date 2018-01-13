@@ -1,11 +1,12 @@
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/ext.hpp>
 #include <thread>
 #include "game_state_machine/game_running_state.h"
+#include "ecs/systems/anim_system.h"
+#include "ecs/systems/render_system.h"
 
-
-#include "glm/ext.hpp"
+// components
+#include "ecs/components/physical_component.h"
+#include "ecs/components/anim_component.h"
+#include "ecs/components/render_component.h"
 
 namespace SAS_3D {
 	GameRunningState::GameRunningState(const GameConfig& config)
@@ -20,22 +21,14 @@ namespace SAS_3D {
 	}
 
 	FSMStates GameRunningState::InitializeState(SubsystemController* subsystems, const InputState& input) {
+		int priority = 0;
+		_ecs.AddSystem<AnimationSystem>("AnimationSystem",priority++);
+		_rendersystem = _ecs.AddSystem<RenderSystem>("RenderSystem", priority++, _config);
 
-		auto view = _camera.GetViewMatrix();
-		glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
-
-		std::vector<RenderEvent> events;
-		for (int i = 0; i < 1; i++) {
-			_mobs.push_back(RigidBody(0.1f, glm::vec3(i*30+0.0f, 0.0, -5.0)));
-			RenderEvent ev;
-			ev.id = i;
-			ev.modelidx = 0;
-			ev.pvm = projection * view * _mobs.back().ModelMatrix();
-			events.push_back(ev);
-		}
-
-		auto renderer = subsystems->GetRenderEngine();
-		renderer->RegisterEvent(events);
+		_player = _ecs.CreateEntity();
+		_ecs.AddComponentToEntity<PhysicalComponent>(_player);
+		_ecs.AddComponentToEntity<AnimationComponent>(_player);
+		_ecs.AddComponentToEntity<RenderComponent>(_player);
 
 		return FSMStates::TRANSITIONIN;
 	}
@@ -45,12 +38,11 @@ namespace SAS_3D {
 		auto prevcam = _camera.GetViewMatrix();
 		_camera.Update(input, elapsedtime / 1000.0f);
 
-		glm::mat4 view = _camera.GetViewMatrix();
-		if (prevcam != view) {
-			sendevent = true;
-		}
+		// HIDEOUS
+		auto rendersystem = static_cast<RenderSystem*>(_ecs.GetSystem(_rendersystem));
+		rendersystem->UpdateViewTransform(_camera);
 
-		glm::mat4 projection = glm::perspective(_camera.Zoom(), (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
+		_ecs.Update(elapsedtime, subsystems);
 /*
 		glm::vec3 direction;
 		if (input.keyarray[SDL_SCANCODE_LEFT] == KeyState::PRESSED)
@@ -92,20 +84,6 @@ namespace SAS_3D {
 			Send render events to render thread
 		*/
 
-		std::vector<RenderEvent> events;
-		if (sendevent) {
-			for (int i = 0; i < 1; i++) {
-				RenderEvent ev;
-				ev.id = i;
-				ev.modelidx = 0;
-				ev.pvm = projection * view * _mobs[i].ModelMatrix();
-				events.push_back(ev);
-			}
-
-			auto renderer = subsystems->GetRenderEngine();
-			renderer->RegisterEvent(events);
-		}
-		
 		return FSMStates::UPDATE;
 	}
 }

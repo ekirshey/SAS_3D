@@ -25,18 +25,19 @@ namespace SAS_3D {
 		_window->SwitchContext();
 
 		_mc = std::move(mc);
-		_shader.Load(_config.shaderpath + "animation.vert", _config.shaderpath + "animation.frag");
+		//_shader.Load(_config.shaderpath + "animation.vert", _config.shaderpath + "animation.frag");
+		_shader.Load(_config.shaderpath + "model.vert", _config.shaderpath + "model.frag");
 		_debugshader.Load(_config.shaderpath + "simple.vert", _config.shaderpath + "simple.frag");
 
 		_shader.AddInputModule<PVMModule>();
 		_shader.AddInputModule<TextureModule>();
-		_shader.AddInputModule<AnimationModule>();
+		//_shader.AddInputModule<AnimationModule>();
 
 		_debugshader.AddInputModule<PVMModule>();
 	}
 
 	void RenderImpl::Run() {
-		// Main Game Loop
+		// Render loop 
 		// DISABLES VSYNC
 		if (SDL_GL_SetSwapInterval(0) != 0) {
 			printf("Error: %s\n", SDL_GetError());
@@ -99,7 +100,7 @@ namespace SAS_3D {
 		return _impl.isRunning();
 	}
 
-	void RenderEngine::RegisterEvent(std::vector<RenderEvent>& events) {
+	void RenderEngine::RegisterEvents(std::vector<RenderEvent>& events) {
 		_eventqueue.enqueue(events);
 	}
 }

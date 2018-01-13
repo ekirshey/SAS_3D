@@ -8,14 +8,14 @@
 namespace SAS_3D {
 	class TextureModule : public InputModule {
 	public:
-		static const unsigned long long ID = TextureModuleID;
+		static const InputID ID = TextureModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
 			GLint sampleloc = shader->GetUniformLocation("texture_diffuse1");
 			glUniform1f(sampleloc, _textureunit);
 		}
 
-		unsigned long long UniqueBits() const { return ID; }
+		InputID UniqueBits() const { return ID; }
 
 		void SetTexture(const unsigned int textureunit) { _textureunit = textureunit; }
 	private:

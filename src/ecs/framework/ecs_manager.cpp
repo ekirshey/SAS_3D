@@ -3,6 +3,7 @@
 #include "ecs/framework/ecs_manager.h"
 #include "ecs/framework/system_manager.h"
 #include "ecs/framework/system.h"
+#include "subsystems/subsystem_controller.h"
 
 namespace SAS_3D {
 	ECSManager::ECSManager() : _status(true), _errorcode(1) {
@@ -24,11 +25,11 @@ namespace SAS_3D {
 		return _systemmanager.GetSystem(systemid);
 	}
 
-	unsigned long long ECSManager::CreateEntity() {
+	EntityID ECSManager::CreateEntity() {
 		return _entitymanager.GetNewEntityUUID();
 	}
 
-	void ECSManager::RemoveEntity(unsigned long long entity) {
+	void ECSManager::RemoveEntity(EntityID entity) {
 		std::vector<std::string> entitytags;
 		_entitymanager.RemoveEntity(entity);
 		_systemmanager.RemoveEntityFromSystems(entity);
@@ -40,33 +41,33 @@ namespace SAS_3D {
 		}
 	}
 
-	std::vector<Component*> ECSManager::GetAllEntityComponents(unsigned long long entity) {
+	std::vector<Component*> ECSManager::GetAllEntityComponents(EntityID entity) {
 		return _entitymanager.GetAllEntityComponents(entity);
 	}
 
-	void ECSManager::AddComponentToEntity(unsigned long long entity, std::unique_ptr<Component> componenttoadd) {
+	void ECSManager::AddComponentToEntity(EntityID entity, std::unique_ptr<Component> componenttoadd) {
 		if (_entitymanager.AddComponent(entity, std::move(componenttoadd))) {
 			_systemmanager.AddEntityToSystem(entity, _entitymanager.GetEntityComponentBits(entity));
 		}
 	}
 
 
-	void ECSManager::RemoveComponentFromEntity(unsigned long long entity, unsigned long long componentid) {
+	void ECSManager::RemoveComponentFromEntity(EntityID entity, EntityID componentid) {
 		if (_entitymanager.RemoveComponent(entity, componentid)) {
 			_systemmanager.RemoveEntityFromSystems(entity, _entitymanager.GetEntityComponentBits(entity));
 		}
 	}
 
-	void ECSManager::Update(int elapsedtime) {
-		_systemmanager.Update(elapsedtime, &this->_entitymanager);
+	void ECSManager::Update(int elapsedtime, SubsystemController* subsystems) {
+		_systemmanager.Update(elapsedtime, subsystems, &this->_entitymanager);
 	}
 
 	// Tag functions
-	void ECSManager::AssignEntityTag(unsigned long long entity, std::string tag) {
+	void ECSManager::AssignEntityTag(EntityID entity, std::string tag) {
 		_tagmanager[tag].push_back(entity);
 	}
 
-	void ECSManager::RemoveEntityFromTag(unsigned long long entity, std::string tag) {
+	void ECSManager::RemoveEntityFromTag(EntityID entity, std::string tag) {
 		auto result = std::find(_tagmanager[tag].begin(), _tagmanager[tag].end(), entity);
 
 		if (result != std::end(_tagmanager[tag])) {
@@ -80,11 +81,11 @@ namespace SAS_3D {
 
 	void ECSManager::AddTag(std::string tag) {
 		if (_tagmanager.find(tag) == _tagmanager.end()) {
-			_tagmanager[tag] = std::vector<unsigned long long>();
+			_tagmanager[tag] = std::vector<EntityID>();
 		}
 	}
 
-	std::vector<std::string> ECSManager::GetAssociatedTags(unsigned long long entity) {
+	std::vector<std::string> ECSManager::GetAssociatedTags(EntityID entity) {
 		std::vector<std::string> tags;
 		for (auto it : _tagmanager) {
 			auto result = std::find(it.second.begin(), it.second.end(), entity);
@@ -100,7 +101,7 @@ namespace SAS_3D {
 		_tagmanager[tag].clear();
 	}
 
-	std::vector<unsigned long long> ECSManager::GetAssociatedEntities(std::string tag) {
+	std::vector<EntityID> ECSManager::GetAssociatedEntities(std::string tag) {
 		return _tagmanager[tag];
 	}
 }

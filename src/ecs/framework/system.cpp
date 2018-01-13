@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include "ecs/framework/system.h"
+#include "subsystems/subsystem_controller.h"
 
 namespace SAS_3D {
 	System::System() 
@@ -17,35 +18,22 @@ namespace SAS_3D {
 		, _entitycount(0) 
 	{}
 
-	void System::Update(int elapsedtime, EntityManager* em) {
+	void System::Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em) {
 		SetFrameTime(elapsedtime);
 		UpdateTimeRunning(elapsedtime);
 
-		// Here is where the magic happens
-		ProcessEntities(em);
-	}
-
-	void System::ProcessEntities(EntityManager* em) {
-		std::vector<uint_fast64_t> entities = RelevantEntities();
-
-		BeforeObjectProcessing();
-		//std::cout << SystemName() << " " << entities.size() << std::endl;
-		for (unsigned int i = 0; i < entities.size(); i++) {
-			ProcessEntity(em, entities[i]);
+		BeforeEntityProcessing(subsystems);
+		for (unsigned int i = 0; i < _relevantentities.size(); i++) {
+			ProcessEntity(elapsedtime, subsystems, em, _relevantentities[i]);
 		}
-
-		AfterObjectProcessing();
+		AfterEntityProcessing(subsystems);
 	}
 
-	void System::ProcessEntity(EntityManager* em, uint_fast64_t entity) {
-
-	}
-
-	bool System::ValidEntity(unsigned long long componentbits, unsigned long long SYSTEMID) {
+	bool System::ValidEntity(EntityID componentbits, EntityID SYSTEMID) {
 		return ((componentbits & SYSTEMID) == SYSTEMID);
 	}
 
-	void System::AddEntity(unsigned long long entityid) {
+	void System::AddEntity(EntityID entityid) {
 		// TODO: BE MORE CLEVER maybe find a way that you dont have to loop thru every time you add/remove a component
 		if (!ContainsEntity(entityid)) {
 			_relevantentities.push_back(entityid);
@@ -53,11 +41,7 @@ namespace SAS_3D {
 		}
 	}
 
-	std::vector<unsigned long long> System::RelevantEntities() {
-		return _relevantentities;
-	}
-
-	void System::RemoveEntity(unsigned long long entityid) {
+	void System::RemoveEntity(EntityID entityid) {
 		if (_relevantentities.size() > 0) {
 			auto result = std::find(_relevantentities.begin(), _relevantentities.end(), entityid);
 
@@ -69,7 +53,7 @@ namespace SAS_3D {
 		}
 	}
 
-	bool System::ContainsEntity(unsigned long long entityid) {
+	bool System::ContainsEntity(EntityID entityid) {
 		if (std::find(_relevantentities.begin(), _relevantentities.end(), entityid) != _relevantentities.end()) {
 			return true;
 		}

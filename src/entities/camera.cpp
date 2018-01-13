@@ -40,7 +40,7 @@ namespace SAS_3D {
 	}
 
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-	glm::mat4 Camera::GetViewMatrix() {
+	glm::mat4 Camera::GetViewMatrix() const {
 		return glm::lookAt(_position, _position + _front, _up);
 	}
 

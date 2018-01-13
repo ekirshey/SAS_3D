@@ -1,5 +1,4 @@
 #pragma once
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -9,6 +8,7 @@
 
 namespace SAS_3D {
 	class System;
+	class SubsystemController;
 
 	class ECSManager
 	{
@@ -21,48 +21,48 @@ namespace SAS_3D {
 		// Use std::forward to maintain lvalue and rvalue references
 		template<typename T, typename... Args>
 		int AddSystem(std::string systemname, int priority, Args&&... args) {
-			auto system = std::make_unique<T>(systemname, this, std::forward<Args>(args)...);
+			auto system = std::make_unique<T>(systemname, std::forward<Args>(args)...);
 			return _systemmanager.AddSystem(std::move(system), priority);
 		}
 
 		System* GetSystem(int systemid);
 
-		unsigned long long CreateEntity();
-		void RemoveEntity(unsigned long long entity);
+		EntityID CreateEntity();
+		void RemoveEntity(EntityID entity);
 
 		template<class T>
-		T GetEntityComponent(unsigned long long entity, unsigned long long componentid) {
+		T GetEntityComponent(EntityID entity, EntityID componentid) {
 			return static_cast<T>(entitymanager_.GetEntityComponent(entity, componentid));
 		}
 
-		std::vector<Component*> GetAllEntityComponents(unsigned long long entity);
+		std::vector<Component*> GetAllEntityComponents(EntityID entity);
 
-		unsigned long long GetEntityComponentBits(unsigned long long entity) { return _entitymanager.GetEntityComponentBits(entity); }
-		unsigned long long EntityCount() { return _entitymanager.EntityCount(); }
+		EntityID GetEntityComponentBits(EntityID entity) { return _entitymanager.GetEntityComponentBits(entity); }
+		EntityID EntityCount() { return _entitymanager.EntityCount(); }
 
-		void AddComponentToEntity(unsigned long long entity, std::unique_ptr<Component> componenttoadd);
+		void AddComponentToEntity(EntityID entity, std::unique_ptr<Component> componenttoadd);
 
 		template<typename T, typename... Args>
-		void AddComponentToEntity(unsigned long long entity, Args&&... args) {
+		void AddComponentToEntity(EntityID entity, Args&&... args) {
 			auto c = std::make_unique<T>(std::forward<Args>(args)...);
-			if (entitymanager_.AddComponent(entity, std::move(c))) {
-				_systemmanager.AddEntityToSystem(entity, entitymanager_.GetEntityComponentBits(entity));
+			if (_entitymanager.AddComponent(entity, std::move(c))) {
+				_systemmanager.AddEntityToSystem(entity, _entitymanager.GetEntityComponentBits(entity));
 			}
 		}
 
-		void RemoveComponentFromEntity(unsigned long long entity, unsigned long long componentid);
+		void RemoveComponentFromEntity(EntityID entity, EntityID componentid);
 
-		void Update(int elapsedtime);
+		void Update(int elapsedtime, SubsystemController* subsystems);
 
 		// Tag functions    TODO Should these be in an object? Idk it will just double the function calls, who cares?
 		void ClearTagVector(std::string tag);
-		void AssignEntityTag(unsigned long long entity, std::string tag);
-		void RemoveEntityFromTag(unsigned long long entity, std::string tag);
+		void AssignEntityTag(EntityID entity, std::string tag);
+		void RemoveEntityFromTag(EntityID entity, std::string tag);
 		void RemoveTag(std::string tag);
 		void AddTag(std::string tag);
-		std::vector<std::string> GetAssociatedTags(unsigned long long entity);
-		std::vector<unsigned long long> GetAssociatedEntities(std::string tag);
-		std::vector<unsigned long long>* GetPtrToAssociatedEntities(std::string tag) { return &_tagmanager[tag]; }
+		std::vector<std::string> GetAssociatedTags(EntityID entity);
+		std::vector<EntityID> GetAssociatedEntities(std::string tag);
+		std::vector<EntityID>* GetPtrToAssociatedEntities(std::string tag) { return &_tagmanager[tag]; }
 
 		template<typename T, typename... Args>
 		void SendMessage(std::string queuename, Args&&... args) {
@@ -84,6 +84,6 @@ namespace SAS_3D {
 		int _errorcode;
 		SystemManager _systemmanager;
 		EntityManager _entitymanager;
-		std::unordered_map<std::string, std::vector<unsigned long long>> _tagmanager;
+		std::unordered_map<std::string, std::vector<EntityID>> _tagmanager;
 	};
 }

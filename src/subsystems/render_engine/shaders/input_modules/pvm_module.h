@@ -9,14 +9,14 @@
 namespace SAS_3D {
 	class PVMModule : public InputModule {
 	public:
-		static const unsigned long long ID = PVMModuleID;
+		static const InputID ID = PVMModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
 			GLint pvmLoc = shader->GetUniformLocation("pvm");
 			glUniformMatrix4fv(pvmLoc, 1, GL_FALSE, glm::value_ptr(_pvm));
 		}
 
-		unsigned long long UniqueBits() const { return ID; }
+		InputID UniqueBits() const { return ID; }
 
 		void SetPVM(const glm::mat4& pvm) { _pvm = pvm; }
 	private:

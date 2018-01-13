@@ -10,14 +10,14 @@
 namespace SAS_3D {
 	class AnimationModule : public InputModule {
 	public:
-		static const unsigned long long ID = AnimationModuleID;
+		static const InputID ID = AnimationModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
 			GLint bonesLoc = shader->GetUniformLocation("Bones");
-			glUniformMatrix4fv(bonesLoc, _bones->size(), GL_FALSE, glm::value_ptr(_bones->at(0)));
+//			glUniformMatrix4fv(bonesLoc, _bones->size(), GL_FALSE, glm::value_ptr(_bones->at(0)));
 		}
 
-		unsigned long long UniqueBits() const { return ID; }
+		InputID UniqueBits() const { return ID; }
 
 		void SetBones(std::vector<glm::mat4>* bones) {
 			_bones = bones;

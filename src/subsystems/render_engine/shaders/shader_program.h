@@ -38,7 +38,7 @@ namespace SAS_3D {
 		}
 
 		template<typename T>
-		T GetInputModule(unsigned long long id) {
+		T GetInputModule(InputID id) {
 			static_assert(std::is_pointer<T>::value, "T must be a pointer to a type derived from InputModule");
 			static_assert(std::is_base_of<InputModule, std::remove_pointer<T>::type>::value, "T must be derived from InputModule");
 
@@ -57,6 +57,6 @@ namespace SAS_3D {
 		bool _compileShader(GLuint shader);
 
 		GLuint _shaderprogram;
-		std::unordered_map<unsigned long long, std::unique_ptr<InputModule>> _inputmodules;
+		std::unordered_map<InputID, std::unique_ptr<InputModule>> _inputmodules;
 	};
 }

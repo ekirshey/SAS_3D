@@ -3,15 +3,15 @@
 
 namespace SAS_3D {
 	// Per instance animation data
-	struct AnimationComponent : Component {
-		static const ComponentID ID = ANIMATION_COMPONENT;
+	struct RenderComponent : Component {
+		static const ComponentID ID = RENDER_COMPONENT;
 
 		ComponentID UniqueBits() const { return ID; }
 
-		AnimationComponent() 
-			: animationstate(0)
+		RenderComponent()
+			: modelidx(0)
 		{}
 
-		int animationstate;
+		int modelidx;
 	};
 }

@@ -2,11 +2,13 @@
 #include <vector>
 #include <memory>
 #include <cstdint>
+#include "ecs/ecs_defines.h"
 
 namespace SAS_3D {
 	// Forward Declarations
 	class System;
 	class EntityManager;
+	class SubsystemController;
 
 	class SystemManager
 	{
@@ -18,15 +20,15 @@ namespace SAS_3D {
 		System* GetSystem(int priority);
 		void RemoveSystem(int systemid, int priority);
 
-		void AddEntityToSystem(unsigned long long entity, unsigned long long entitycomponents);
+		void AddEntityToSystem(EntityID entity, EntityID entitycomponents);
 
-		void RemoveEntityFromSystems(unsigned long long entity);
-		void RemoveEntityFromSystems(unsigned long long entity, unsigned long long entitycomponents);
+		void RemoveEntityFromSystems(EntityID entity);
+		void RemoveEntityFromSystems(EntityID entity, EntityID entitycomponents);
 
-		void Update(int elapsedtime, EntityManager* em);
+		void Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em);
 	private:
 		std::vector<std::unique_ptr<System>> _systemlist;
-		unsigned long long _systemcount;
+		EntityID _systemcount;
 
 	};
 }

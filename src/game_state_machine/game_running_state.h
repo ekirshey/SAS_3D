@@ -7,6 +7,7 @@
 #include "subsystems/render_engine/render_engine.h"
 #include "subsystems/render_engine/scene_graph.h"
 #include "utility/locking_queue.h"
+#include "ecs/framework/ecs_manager.h"
 
 namespace SAS_3D {
 	class GameRunningState : public GameStateImpl
@@ -21,9 +22,14 @@ namespace SAS_3D {
 
 	private:
 		GameConfig _config;
+		ECSManager _ecs;
 		Camera _camera;
 		int _nextstate;
 		bool _exit;
+		EntityID _player;
+
+		// temp: until i get a decent observer model for listening to camera events
+		int _rendersystem;
 
 		// TEST
 		std::vector<RigidBody> _mobs;

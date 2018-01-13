@@ -20,8 +20,8 @@ namespace SAS_3D {
 	EntityManager::~EntityManager() {
 	}
 
-	unsigned long long EntityManager::GetNewEntityUUID() {
-		unsigned long long entityid = 0;
+	EntityID EntityManager::GetNewEntityUUID() {
+		EntityID entityid = 0;
 
 		if (!_availableids.empty()) {
 			entityid = *_availableids.begin();
@@ -38,7 +38,7 @@ namespace SAS_3D {
 		return entityid;
 	}
 
-	void EntityManager::RemoveEntity(unsigned long long UUID) {
+	void EntityManager::RemoveEntity(EntityID UUID) {
 		// EKTEMP I think if you are moving new unique_ptr's into it then you dont need to clear
 		//_entitylist[UUID].clear();
 		_entitycomponentbits[UUID] = 0;
@@ -48,7 +48,7 @@ namespace SAS_3D {
 
 	// If a component is ADDED to an entity then the SystemManager needs to be made aware
 	// so it can ADD the entity to the appropriate system if it NOW meets the conditions
-	bool EntityManager::AddComponent(unsigned long long UUID, std::unique_ptr<Component> componenttoadd) {
+	bool EntityManager::AddComponent(EntityID UUID, std::unique_ptr<Component> componenttoadd) {
 		int componentid;
 		bool returnvalue = false;
 
@@ -76,7 +76,7 @@ namespace SAS_3D {
 
 	// If a component is REMOVED from an entity then the SystemManager needs to be made aware
 	// so it can REMOVE the entity to the appropriate system if it NO LONGER meets the conditions
-	bool EntityManager::RemoveComponent(unsigned long long UUID, unsigned long long componentid) {
+	bool EntityManager::RemoveComponent(EntityID UUID, EntityID componentid) {
 		// Remove component from an entity
 		_entitylist[UUID].at(fastlog(componentid)) = nullptr;
 		_entitycomponentbits[UUID] &= (componentid ^ 0xFFFFFFFFFFFFFFFF);
@@ -84,7 +84,7 @@ namespace SAS_3D {
 		return true;
 	}
 
-	std::vector<Component*> EntityManager::GetAllEntityComponents(unsigned long long UUID) {
+	std::vector<Component*> EntityManager::GetAllEntityComponents(EntityID UUID) {
 		std::vector<Component*> components;
 
 		for (unsigned int i = 0; i < _entitylist[UUID].size(); i++) {

@@ -2,6 +2,7 @@
 #include "ecs/framework/ecs_manager.h"
 #include "ecs/framework/system_manager.h"
 #include "ecs/framework/system.h"
+#include "subsystems/subsystem_controller.h"
 
 namespace SAS_3D {
 	static const int SYSTEM_LIST_STEP_SIZE = 100;
@@ -47,7 +48,7 @@ namespace SAS_3D {
 		// TODO No rush, how often are you going to remove a system? I cant even imagine why
 	}
 
-	void SystemManager::AddEntityToSystem(unsigned long long entity, unsigned long long entitycomponents) {
+	void SystemManager::AddEntityToSystem(EntityID entity, EntityID entitycomponents) {
 		for (unsigned int i = 0; i < _systemcount; i++) {
 			if (_systemlist[i]->ValidEntity(entitycomponents, _systemlist[i]->ComponentBits())) {
 				_systemlist[i]->AddEntity(entity);
@@ -56,7 +57,7 @@ namespace SAS_3D {
 	}
 
 	// TODO Test
-	void SystemManager::RemoveEntityFromSystems(unsigned long long entity, unsigned long long entitycomponents) {
+	void SystemManager::RemoveEntityFromSystems(EntityID entity, EntityID entitycomponents) {
 		for (unsigned int i = 0; i < _systemcount; i++) {
 			if (_systemlist[i]->ContainsEntity(entity) && !_systemlist[i]->ValidEntity(entitycomponents, _systemlist[i]->ComponentBits())) {
 				_systemlist[i]->RemoveEntity(entity);
@@ -64,15 +65,15 @@ namespace SAS_3D {
 		}
 	}
 
-	void SystemManager::RemoveEntityFromSystems(unsigned long long entity) {
+	void SystemManager::RemoveEntityFromSystems(EntityID entity) {
 		for (unsigned int i = 0; i < _systemcount; i++) {
 			_systemlist[i]->RemoveEntity(entity);
 		}
 	}
 
-	void SystemManager::Update(int elapsedtime, EntityManager* em) {
+	void SystemManager::Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em) {
 		for (unsigned int i = 0; i < _systemcount; i++) {
-			_systemlist[i]->Update(elapsedtime, em);
+			_systemlist[i]->Update(elapsedtime, subsystems, em);
 		}
 	}
 }
