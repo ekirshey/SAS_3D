@@ -46,33 +46,29 @@ namespace SAS_3D {
 		std::cout << "Entering Main Loop" << std::endl << std::endl;
 
 		currenttime = SDL_GetTicks();
+		auto current = std::chrono::high_resolution_clock::now();
 		double targetticks = 16.67;
+		std::chrono::microseconds targetticks_us(16670);
 
 		// Spin up all subsystems and threads
 		_subsystems.Bootstrap();
 
 		while (_gamerunning)
 		{
-			previoustime = currenttime;
-			currenttime = SDL_GetTicks();
-
+			auto previous = current;
+			current = std::chrono::high_resolution_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(current - previous).count();
 			// Read the event queue so the state has the input
 			UpdateInput(_gamerunning, inputstate);
 			if (_gamerunning) {
-				Update(currenttime - previoustime, inputstate);
+				Update(elapsed, inputstate);
 			}
 
-			if ((currenttime - previoustime) > 0) {
-				++samples;
-				auto t = 1000.0 / (currenttime - previoustime);
-				if (t < lowfps && t != 0)
-					lowfps = t;
-				if (t > highfps)
-					highfps = t;
-				fps = t;
-			}
+			auto end = std::chrono::high_resolution_clock::now();
 
-			framecounter++;
+			auto t = std::chrono::duration_cast<std::chrono::microseconds>(end - current);
+			std::this_thread::sleep_for(targetticks_us - t);
+
 		}   // End Main Loop
 
 	}
