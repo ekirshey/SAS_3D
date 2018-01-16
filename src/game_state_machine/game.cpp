@@ -27,11 +27,6 @@ namespace SAS_3D {
 	}
 
 	void Game::Run() {
-		int currenttime = 0;
-		int previoustime = 0;
-		int framecounter = 0;
-		double lowfps = 10000;
-		double highfps = 0;
 		double fps = 0;
 		double samples = 0;
 		InputState inputstate;
@@ -45,9 +40,7 @@ namespace SAS_3D {
 		std::cout << "Finished Game Init" << std::endl;
 		std::cout << "Entering Main Loop" << std::endl << std::endl;
 
-		currenttime = SDL_GetTicks();
 		auto current = std::chrono::high_resolution_clock::now();
-		double targetticks = 16.67;
 		std::chrono::microseconds targetticks_us(16670);
 
 		// Spin up all subsystems and threads

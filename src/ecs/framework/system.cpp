@@ -4,19 +4,15 @@
 #include "subsystems/subsystem_controller.h"
 
 namespace SAS_3D {
-	System::System() 
-		: _systemname("")
-		, _elapsedtime(0)
-		, _frametime(0)
-		, _entitycount(0) 
-	{}
-
-	System::System(std::string systemname) 
+	System::System(std::string systemname, SystemID uuid) 
 		: _systemname(systemname)
+		, _uuid(uuid)
 		, _elapsedtime(0)
 		, _frametime(0)
 		, _entitycount(0) 
-	{}
+	{
+		std::cout << "Name: " << systemname << " ID: " << uuid << std::endl;
+	}
 
 	void System::Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em) {
 		SetFrameTime(elapsedtime);

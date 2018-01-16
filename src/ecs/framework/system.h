@@ -14,12 +14,12 @@ namespace SAS_3D {
 	{
 	public:
 		static const EntityID COMPONENTIDS = 0x0;
-		System();
-		System(std::string systemname);
+		System(std::string systemname, SystemID uuid);
 
 		virtual ~System() {}
 
 		void Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em);
+		SystemID GetUUID() const { return _uuid; }
 
 		virtual void BeforeEntityProcessing(SubsystemController* subsystems) = 0;
 		virtual void ProcessEntity(int elapsedtime, SubsystemController* subsystems, EntityManager* em, EntityID entity) = 0;
@@ -52,6 +52,7 @@ namespace SAS_3D {
 
 	private:
 		std::string _systemname;	// For debugging purposes
+		SystemID _uuid;
 		int _elapsedtime;
 		int _frametime;
 		EntityID _entitycount;

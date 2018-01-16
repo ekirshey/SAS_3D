@@ -7,7 +7,7 @@ namespace SAS_3D {
 	public:
 		static const EntityID COMPONENTIDS = 1;// PositionComponentID | RenderComponentID;
 
-		AnimationSystem(std::string systemname);
+		AnimationSystem(std::string systemname, SystemID uuid);
 		~AnimationSystem();
 
 		EntityID ComponentBits() { return AnimationSystem::COMPONENTIDS; }    // TODO: Is this necessary or is just accessing the variable directly better?

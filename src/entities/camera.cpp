@@ -47,6 +47,8 @@ namespace SAS_3D {
 	void Camera::Update(const InputState& input, float deltatime) {
 		_process_keyboard(input, deltatime);
 		_process_mouse_movement(input);
+
+		SignalObservers(*this);
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

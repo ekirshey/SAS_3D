@@ -21,7 +21,7 @@ namespace SAS_3D {
 	}
 
 
-	System* ECSManager::GetSystem(int systemid) {
+	System* ECSManager::GetSystem(SystemID systemid) {
 		return _systemmanager.GetSystem(systemid);
 	}
 

@@ -5,6 +5,7 @@
 #include <string>
 #include "ecs/framework/system_manager.h"
 #include "ecs/framework/entity_manager.h"
+#include "core/uuid.h"
 
 namespace SAS_3D {
 	class System;
@@ -20,12 +21,12 @@ namespace SAS_3D {
 
 		// Use std::forward to maintain lvalue and rvalue references
 		template<typename T, typename... Args>
-		int AddSystem(std::string systemname, int priority, Args&&... args) {
-			auto system = std::make_unique<T>(systemname, std::forward<Args>(args)...);
+		SystemID AddSystem(std::string systemname, int priority, Args&&... args) {
+			auto system = std::make_unique<T>(systemname, GenerateUUID(), std::forward<Args>(args)...);
 			return _systemmanager.AddSystem(std::move(system), priority);
 		}
 
-		System* GetSystem(int systemid);
+		System* GetSystem(SystemID systemid);
 
 		EntityID CreateEntity();
 		void RemoveEntity(EntityID entity);

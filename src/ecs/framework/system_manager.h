@@ -16,8 +16,8 @@ namespace SAS_3D {
 		SystemManager();
 		virtual ~SystemManager();
 
-		int AddSystem(std::unique_ptr<System> system, int priority);
-		System* GetSystem(int priority);
+		SystemID AddSystem(std::unique_ptr<System> system, int priority);
+		System* GetSystem(SystemID uuid);
 		void RemoveSystem(int systemid, int priority);
 
 		void AddEntityToSystem(EntityID entity, EntityID entitycomponents);

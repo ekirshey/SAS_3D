@@ -19,13 +19,13 @@ namespace SAS_3D {
 	SystemManager::~SystemManager() {
 	}
 
-	int SystemManager::AddSystem(std::unique_ptr<System> system, int priority) {
-		int systemindex = -1;
+	SystemID SystemManager::AddSystem(std::unique_ptr<System> system, int priority) {
+		SystemID systemindex = -1;
 
 		// TODO: Resize and shift priorities
 		if (_systemlist[priority].get() == nullptr) {
 			_systemlist[priority] = std::move(system);
-			systemindex = priority;	// EKTEMP fetching by priority this isnt bad actually because -1 means failed to add
+			systemindex = _systemlist[priority]->GetUUID();
 			_systemcount++;
 		}
 		else {
@@ -35,10 +35,12 @@ namespace SAS_3D {
 		return systemindex;
 	}
 
-	System* SystemManager::GetSystem(int priority) {
+	System* SystemManager::GetSystem(SystemID uuid) {
 		System* system = nullptr;
-		if (priority >= 0 && priority < _systemlist.size()) {
-			system = _systemlist[priority].get();
+		for (int i =0; i < _systemcount; i++) {
+			if (uuid == _systemlist[i]->GetUUID()) {
+				return _systemlist[i].get();
+			}
 		}
 
 		return system;

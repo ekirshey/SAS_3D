@@ -1,3 +1,4 @@
+#include <thread>
 #include "anim_engine.h"
 
 namespace SAS_3D {
@@ -23,7 +24,6 @@ namespace SAS_3D {
 		}
 	}
 
-
 	/// Engine wrapper
 	AnimationEngine::~AnimationEngine() {
 		_impl.Stop();
@@ -35,5 +35,9 @@ namespace SAS_3D {
 		_animthread = std::thread([&]() {
 			_impl.Run();
 		});
+	}
+
+	void AnimationEngine::CalculateBoneMatrices() {
+		
 	}
 }

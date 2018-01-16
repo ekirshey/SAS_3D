@@ -35,6 +35,7 @@ namespace SAS_3D {
 		~AnimationEngine();
 		void Start(AnimationContainer&& ac);
 		bool isRunning() { return _impl.isRunning(); }
+		void CalculateBoneMatrices();
 	private:
 		AnimationImpl _impl;
 		std::thread _animthread;

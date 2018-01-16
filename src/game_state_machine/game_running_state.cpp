@@ -23,7 +23,21 @@ namespace SAS_3D {
 	FSMStates GameRunningState::InitializeState(SubsystemController* subsystems, const InputState& input) {
 		int priority = 0;
 		_ecs.AddSystem<AnimationSystem>("AnimationSystem",priority++);
-		_rendersystem = _ecs.AddSystem<RenderSystem>("RenderSystem", priority++, _config);
+		/* 
+			Generate UUID for system, not related to priority
+			I'm saving uuid of the system and that's how the system should be accessed.
+			No guarantee on the lifetime of the system pointer returned from the get function
+			You should use it in as limited scope as possible.
+			Does it make sense to do some weird thing where I return a special system pointer
+			object with an overloaded accessor, which will update the pointer to the internal ECS
+		*/
+		_renderuuid = _ecs.AddSystem<RenderSystem>("RenderSystem", priority++, _config);
+		_camera.RegisterObserver([&](const Camera& c) {
+			auto rendersystem = static_cast<RenderSystem*>(_ecs.GetSystem(_renderuuid));
+			if (rendersystem != nullptr) {
+				rendersystem->UpdateViewTransform(c);
+			}
+		});
 
 		_player = _ecs.CreateEntity();
 		auto x = RigidBody(0.1f, glm::vec3(30 + 0.0f, 0.0, -5.0));
@@ -37,34 +51,27 @@ namespace SAS_3D {
 	FSMStates GameRunningState::UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input) {
 		bool sendevent = false;
 		auto prevcam = _camera.GetViewMatrix();
-		_camera.Update(input, elapsedtime / 1000.0f);
-
-		// HIDEOUS
-		auto rendersystem = static_cast<RenderSystem*>(_ecs.GetSystem(_rendersystem));
-		rendersystem->UpdateViewTransform(_camera);
+		_camera.Update(input, elapsedtime/1000000.0f); //microseconds
 
 		_ecs.Update(elapsedtime, subsystems);
-/*
-		glm::vec3 direction;
-		if (input.keyarray[SDL_SCANCODE_LEFT] == KeyState::PRESSED)
-			direction.x = 1.0f;
-		if (input.keyarray[SDL_SCANCODE_RIGHT] == KeyState::PRESSED)
-			direction.x = -1.0f;
-		if (input.keyarray[SDL_SCANCODE_DOWN] == KeyState::PRESSED)
-			direction.z = 1.0f;
-		if (input.keyarray[SDL_SCANCODE_UP] == KeyState::PRESSED)
-			direction.z = -1.0f;
-		if (input.keyarray[SDL_SCANCODE_8] == KeyState::PRESSED)
-			direction.y = 1.0f;
-		if (input.keyarray[SDL_SCANCODE_2] == KeyState::PRESSED)
-			direction.y = -1.0f;
-		
-		if (direction != glm::vec3()) {
-			sendevent = true;
-		}
 
-		_player.Move(elapsedtime, direction);
-*/
+		/*
+			signal -> slot
+			bind event to system slot?
+			or bind slot to event
+			camera.update signals observers
+
+			camera has list of listeners
+			camera is the subject and systems are the observers
+			camera can extend a Subject class which has Signal(), Register() calls
+			Subject<T>? 
+			Does a system now extend an Observer base class?
+
+			the end goal for the rendersystem would be
+			Camera signals -> updateViewTransform(Camera* c) { _view=...}
+			std::function<void(T*)>
+		*/
+
 
 		/*
 		In parallel the network thread is receiving messages, processing them and

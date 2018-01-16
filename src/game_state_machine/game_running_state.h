@@ -10,6 +10,7 @@
 #include "ecs/framework/ecs_manager.h"
 
 namespace SAS_3D {
+	class RenderSystem;
 	class GameRunningState : public GameStateImpl
 	{
 	public:
@@ -28,10 +29,9 @@ namespace SAS_3D {
 		bool _exit;
 		EntityID _player;
 
-		// temp: until i get a decent observer model for listening to camera events
-		int _rendersystem;
-
-		// TEST
-		std::vector<RigidBody> _mobs;
+		/*
+			Ids of specific systems
+		*/
+		SystemID _renderuuid;
 	};
 }

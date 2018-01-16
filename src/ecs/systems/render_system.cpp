@@ -10,10 +10,11 @@
 #include "ecs/components/render_component.h"
 
 namespace SAS_3D {
-	RenderSystem::RenderSystem(std::string systemname, GameConfig config) 
-		: System(systemname)
+	RenderSystem::RenderSystem(std::string systemname, SystemID uuid, GameConfig config) 
+		: System(systemname, uuid)
 		, _config(config)
-	{}
+	{
+	}
 
 	RenderSystem::~RenderSystem() {}
 

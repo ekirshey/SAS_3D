@@ -1,9 +1,9 @@
-#include <thread>
 #include "anim_system.h"
 
 namespace SAS_3D {
-	AnimationSystem::AnimationSystem(std::string systemname) {
-
+	AnimationSystem::AnimationSystem(std::string systemname, SystemID uuid) 
+		: System(systemname, uuid)
+	{
 	}
 
 	AnimationSystem::~AnimationSystem() {

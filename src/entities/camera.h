@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "core/sas_io.h"
+#include "ecs/framework/subject.h"
 
 namespace SAS_3D {
 	// Default camera values
@@ -12,7 +13,7 @@ namespace SAS_3D {
 	const float ZOOM = 45.0f;
 
 	// An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
-	class Camera
+	class Camera : public Subject<Camera>
 	{
 	public:
 		Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
