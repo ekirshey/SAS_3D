@@ -15,7 +15,7 @@ namespace SAS_3D {
 	}
 
 
-	int ECSManager::AddSystem(std::unique_ptr<System> system, int priority) {
+	SystemID ECSManager::AddSystem(std::unique_ptr<System> system, int priority) {
 		//system->SetECSManager(this);
 		return _systemmanager.AddSystem(std::move(system), priority);
 	}

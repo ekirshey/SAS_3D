@@ -12,9 +12,16 @@ namespace SAS_3D {
 	public:
 		static const InputID ID = AnimationModuleID;
 
+		AnimationModule() 
+			: _bones(nullptr)
+		{
+		}
+
 		void ApplyToShader(ShaderProgram* shader) {
 			GLint bonesLoc = shader->GetUniformLocation("Bones");
-//			glUniformMatrix4fv(bonesLoc, _bones->size(), GL_FALSE, glm::value_ptr(_bones->at(0)));
+			if (_bones != nullptr) {
+				glUniformMatrix4fv(bonesLoc, _bones->size(), GL_FALSE, glm::value_ptr(_bones->at(0)));
+			}
 		}
 
 		InputID UniqueBits() const { return ID; }

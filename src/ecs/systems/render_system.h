@@ -19,8 +19,8 @@ namespace SAS_3D {
 		// for now. I'm thinking some observer type model/signal<-> slot/what have you
 		void UpdateViewTransform(const Camera& camera);
 		
-		void BeforeEntityProcessing(SubsystemController* subsystems);
-		void ProcessEntity(int elapsedtime, SubsystemController* subsystems, EntityManager* em, EntityID entity);
+		void BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems);
+		void ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity);
 		void AfterEntityProcessing(SubsystemController* subsystems);
 
 	private:

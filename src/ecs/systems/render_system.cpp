@@ -23,11 +23,11 @@ namespace SAS_3D {
 		_zoom = camera.Zoom();
 	}
 
-	void RenderSystem::BeforeEntityProcessing(SubsystemController* subsystems) {
+	void RenderSystem::BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems) {
 		_projection = glm::perspective(_zoom, (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
 	}
 
-	void RenderSystem::ProcessEntity(int elapsedtime, SubsystemController* subsystems, EntityManager* em, EntityID entity) {
+	void RenderSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {
 		// For each entity build up a render event
 		auto physical = GetEntityComponent<PhysicalComponent*>(em, entity, PHYSICAL_COMPONENT);
 		auto animation = GetEntityComponent<AnimationComponent*>(em, entity, ANIMATION_COMPONENT);
@@ -37,6 +37,7 @@ namespace SAS_3D {
 		re.id = entity;
 		re.pvm = _projection * _view * physical->modeltransform;
 		re.modelidx = render->modelidx;
+		re.bones = std::move(animation->animationstate.bones);
 		
 		_renderevents.push_back(std::move(re));
 	}

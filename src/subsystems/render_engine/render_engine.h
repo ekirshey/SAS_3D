@@ -3,6 +3,7 @@
 #include "assets/model_container.h"
 #include "subsystems/render_engine/shaders/shader_program.h"
 #include "subsystems/render_engine/scene_graph.h"
+#include "subsystems/animation_engine/anim_state.h"
 #include "game_state_machine/game_config.h"
 #include "utility/locking_queue.h"
 #include "core/sas_video.h"
@@ -13,6 +14,7 @@ namespace SAS_3D {
 		RenderID id;
 		glm::mat4 pvm;
 		int modelidx;
+		BoneMatrix bones;
 	};
 	using RenderQueue = LockingQueue<std::vector<RenderEvent>>;
 

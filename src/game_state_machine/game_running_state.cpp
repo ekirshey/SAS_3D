@@ -40,10 +40,11 @@ namespace SAS_3D {
 		});
 
 		_player = _ecs.CreateEntity();
-		auto x = RigidBody(0.1f, glm::vec3(30 + 0.0f, 0.0, -5.0));
+		auto x = RigidBody(0.1f, glm::vec3(30, 0.0, -5.0));
 		_ecs.AddComponentToEntity<PhysicalComponent>(_player, x.ModelMatrix());
 		_ecs.AddComponentToEntity<AnimationComponent>(_player);
 		_ecs.AddComponentToEntity<RenderComponent>(_player);
+		
 
 		return FSMStates::TRANSITIONIN;
 	}

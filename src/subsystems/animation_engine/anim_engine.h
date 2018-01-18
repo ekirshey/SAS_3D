@@ -1,43 +1,27 @@
 #pragma once
 #include <thread>
+#include <future>
 #include <atomic>
-#include "anim_container.h"
+#include "anim_state.h"
+#include "animator.h"
 #include "game_state_machine/game_config.h"
+#include "ecs/ecs_defines.h"
 
 namespace SAS_3D {
-
-	#define MAXBUFFERS 2
-	using BoneMatrix = std::vector<std::vector<glm::mat4*>>;
-	using BoneData = std::atomic<BoneMatrix*>;
-	struct AnimationState {
-		int animationidx;
-		std::tuple<int, int, int> frameindices;
-		BoneMatrix buffers[MAXBUFFERS];
-		BoneData dataptr;
-	};
-
-	class AnimationImpl {
-	public:
-		AnimationImpl();
-		void Initialize(AnimationContainer&& ac) { _animations = std::move(ac); }
-		void Run();
-		void Stop() { _running = false; }
-		bool isRunning() { return _running; }
-	private:
-		bool _running;
-		AnimationContainer _animations;
-		std::vector<AnimationState> _instances;
-	};
-
+	using AnimationContainer = std::vector<Animator>;
 	class AnimationEngine {
 	public:
-		AnimationEngine() {}
+		AnimationEngine();
 		~AnimationEngine();
-		void Start(AnimationContainer&& ac);
-		bool isRunning() { return _impl.isRunning(); }
-		void CalculateBoneMatrices();
+		void Initialize(AnimationContainer&& ac);
+		int AddAnimationInstance(int id, int index, std::tuple<int, int, int> frameindices);
+		void StartAsyncBoneCalculations(double time);
+		std::vector<AnimationState> CollectBoneCalculations();
 	private:
-		AnimationImpl _impl;
-		std::thread _animthread;
+		bool _calculateBoneMatrices(double time);
+		bool _asyncrunning;
+		AnimationContainer _animations;
+		std::vector<AnimationState> _instances;
+		std::future<bool> _boneresults;
 	};
 }

@@ -1,43 +1,58 @@
 #include <thread>
+#include <iostream>
 #include "anim_engine.h"
 
 namespace SAS_3D {
-
-	AnimationImpl::AnimationImpl()
-		: _running(false)
+	/// Engine wrapper
+	AnimationEngine::AnimationEngine() 
+		: _asyncrunning(false)
 	{
 	}
 
-	void AnimationImpl::Run() {
-		_running = true;
-		while (_running) {
-			/*
-				Listen for animation updates
-				Check for tick
-				if time to update
-					for each animationstate
-						Get new update
-						Write update to secondary buffer
-						swap buffer ptr
-			*/
+	AnimationEngine::~AnimationEngine()
+	{
+	}
 
+	bool AnimationEngine::_calculateBoneMatrices(double time) {
+		for (int i = 0; i < _instances.size(); i++) {
+			_animations[_instances[i].id].CalculateBoneMatrices(time, _instances[i]);
 		}
+		return true;
 	}
 
-	/// Engine wrapper
-	AnimationEngine::~AnimationEngine() {
-		_impl.Stop();
-		_animthread.join();
+	void AnimationEngine::Initialize(AnimationContainer&& ac) {
+		_animations = std::move(ac);
 	}
 
-	void AnimationEngine::Start(AnimationContainer&& ac) {
-		_impl.Initialize(std::move(ac));
-		_animthread = std::thread([&]() {
-			_impl.Run();
-		});
+	int AnimationEngine::AddAnimationInstance(int id, int index, std::tuple<int, int, int> frameindices) {
+		if (_asyncrunning) {
+			std::cout << "Wait for animation processing to finish" << std::endl;
+			return -1;
+		}
+		AnimationState animation;
+		animation.id = id;
+		animation.index = index;
+		animation.frameindices = frameindices;
+		if (animation.id < _animations.size()) {
+			_instances.push_back(animation);
+		}
+		else {
+			std::cout << "Invalid animation id: " << animation.id;
+		}
+
+		return _instances.size() - 1;
 	}
 
-	void AnimationEngine::CalculateBoneMatrices() {
-		
+	void AnimationEngine::StartAsyncBoneCalculations(double time) {
+		_asyncrunning = true;
+		_boneresults = std::async(std::launch::async, &AnimationEngine::_calculateBoneMatrices, this, time);
+	}
+
+	std::vector<AnimationState> AnimationEngine::CollectBoneCalculations() {
+		if (_asyncrunning) {
+			auto val = _boneresults.get();
+			_asyncrunning = false;
+		}
+		return std::move(_instances);
 	}
 }

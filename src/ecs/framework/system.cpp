@@ -18,9 +18,9 @@ namespace SAS_3D {
 		SetFrameTime(elapsedtime);
 		UpdateTimeRunning(elapsedtime);
 
-		BeforeEntityProcessing(subsystems);
+		BeforeEntityProcessing(elapsedtime, subsystems);
 		for (unsigned int i = 0; i < _relevantentities.size(); i++) {
-			ProcessEntity(elapsedtime, subsystems, em, _relevantentities[i]);
+			ProcessEntity(subsystems, em, _relevantentities[i]);
 		}
 		AfterEntityProcessing(subsystems);
 	}

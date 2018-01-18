@@ -27,21 +27,20 @@ namespace SAS_3D {
 		std::vector<Key<glm::quat>> rotations;
 		std::vector<Key<glm::vec3>> scalings;
 
-		std::tuple<int, int, int> lastindices;
 		glm::mat4 currenttransform;
 	};
 
 	class AnimEvaluator {
 	public:
 		AnimEvaluator(int id, AnimNode* rootnode, const aiAnimation* animation);
-		void Calculate(double rawtime);
+		void Calculate(double rawtime, std::tuple<int, int, int>& lastindices);
 		glm::mat4 GetTransform(int channelid) { return _channels[channelid].currenttransform; }
 	private:
 		std::vector<Channel> _channels;
 		double _tickspersecond;
+		double _mspertick;
 		double _duration;
 		double _animlength;	// in seconds
 		double _lasttime;
-
 	};
 }

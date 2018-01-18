@@ -30,7 +30,7 @@ namespace SAS_3D {
 
 		_shader.AddInputModule<PVMModule>();
 		_shader.AddInputModule<TextureModule>();
-		//_shader.AddInputModule<AnimationModule>();
+		_shader.AddInputModule<AnimationModule>();
 
 		_debugshader.AddInputModule<PVMModule>();
 	}
@@ -61,7 +61,7 @@ namespace SAS_3D {
 
 			for (auto &e : _entities){
 				_shader.UseProgram();
-				_mc.Draw(e.second.modelidx, _shader, e.second.pvm);
+				_mc.Draw(e.second.modelidx, _shader, e.second.pvm, &e.second.bones);
 
 				//_debugshader.UseProgram();
 				//_window->TurnOnWireframe();

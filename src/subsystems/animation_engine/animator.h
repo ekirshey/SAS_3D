@@ -5,6 +5,7 @@
 #include <assimp/scene.h>
 #include "anim_evaluator.h"
 #include "anim_node.h"
+#include "anim_state.h"
 
 /*
 	Each mesh has a set of bones and are all bones mapped to a single bonemap?
@@ -16,14 +17,15 @@ namespace SAS_3D {
 	class Animator {
 	public:
 		Animator(const SceneInfo* sceneinfo);
+		void CalculateBoneMatrices(double time, AnimationState& state);
 		void SetAnimationIndex(int i);
-		void Calculate(double time);
 		void GetBoneMatrices(std::vector<glm::mat4>& matrices, int meshidx);
 	private:
 		using upAnimNode = std::unique_ptr<AnimNode>;
 
 		int _animidx;
 		int _animct;
+		// Calculates the actual bone matrices at specific times
 		std::vector<AnimEvaluator> _animations;
 
 		// Root node tree.

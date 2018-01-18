@@ -67,10 +67,15 @@ namespace SAS_3D {
 		}
 	}
 
-	void Animator::Calculate(double time) {
-		_animations[_animidx].Calculate(time);
-
+	void Animator::CalculateBoneMatrices(double time, AnimationState& animation) {
+		_animidx != animation.index;
+		_animations[_animidx].Calculate(time, animation.frameindices);
 		_updateNodes(_rootnode.get());
+
+		animation.bones.resize(_bonemaps.size());
+		for (int i = 0; i < _bonemaps.size(); i++) {
+			GetBoneMatrices(animation.bones[i], i);
+		}
 	}
 
 	void Animator::GetBoneMatrices(std::vector<glm::mat4>& matrices, int meshidx) {

@@ -59,7 +59,7 @@ namespace SAS_3D {
 		}
 	}
 
-	void Model::Draw(ShaderProgram& shader, glm::mat4& pvm) {
+	void Model::Draw(ShaderProgram& shader, glm::mat4& pvm, BoneMatrix* bones) {
 		if (!_loaded) {
 			// Load the model into memory
 			LoadIntoGPU();
@@ -77,11 +77,13 @@ namespace SAS_3D {
 				glBindTexture(GL_TEXTURE_2D, t);
 				tct++;
 			}
-			/*
-			std::vector<glm::mat4> bones;
-			_anim.GetBoneMatrices(bones, i);
-			animationmodule->SetBones(&bones);
-			*/
+
+			if (animationmodule != nullptr) {
+				if (bones != nullptr && bones->size() >= (i + 1)) {
+					animationmodule->SetBones(&bones->at(i));
+				}
+			}
+
 			pvmmodule->SetPVM(pvm);
 			shader.ApplyModules();
 
@@ -92,4 +94,5 @@ namespace SAS_3D {
 			glActiveTexture(GL_TEXTURE0);
 		}
 	}
+
 }

@@ -7,7 +7,7 @@
 namespace SAS_3D{
 
 	namespace AssimpLoader {
-		void Load(std::string model_registry, AnimationContainer& ac, ModelContainer& mc, unsigned int flags) {
+		void Load(std::string model_registry, std::vector<Animator>& ac, ModelContainer& mc, unsigned int flags) {
 			using json = nlohmann::json;
 			json j = json::parse(ReadFile(model_registry));
 			auto registry = j.at("registry");
@@ -38,7 +38,7 @@ namespace SAS_3D{
 				}
 				else {
 					SceneInfo sceneinfo(fullpath, scene);
-					ac.AddAnimation(sceneinfo);
+					ac.push_back(Animator(&sceneinfo));
 					mc.AddModel(sceneinfo);
 				}
 			}

@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/postprocess.h>     // Post processing flags
 #include "assets/model_container.h"
-#include "subsystems/animation_engine/anim_container.h"
+#include "subsystems/animation_engine/animator.h"
 
 namespace SAS_3D {
 	struct SceneInfo {
@@ -15,6 +15,6 @@ namespace SAS_3D {
 		{}
 	};
 	namespace AssimpLoader {
-		void Load(std::string model_registry, AnimationContainer& ac, ModelContainer& mc, unsigned int flags);
+		void Load(std::string model_registry, std::vector<Animator>& ac, ModelContainer& mc, unsigned int flags);
 	};
 }

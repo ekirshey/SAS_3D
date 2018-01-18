@@ -18,15 +18,15 @@ void main()
 	uint index;
 	//-----------------------
 	index=aBoneIndex.x;
-	newVertex = (Bones[index] * pos);// * aBoneWeight.x;	
-	//index=aBoneIndex[1];
-	//newVertex = (Bones[index] * pos) * aBoneWeight[1] + newVertex;
-	//index=aBoneIndex[2];
-	//newVertex = (Bones[index] * pos) * aBoneWeight[2] + newVertex;
-	//index=aBoneIndex[3];
-	//newVertex = (Bones[index] * pos) * aBoneWeight[3] + newVertex;
+	newVertex = (Bones[index] * pos) * aBoneWeight.x;	
+	index=aBoneIndex.y;
+	newVertex = (Bones[index] * pos) * aBoneWeight.y + newVertex;
+	index=aBoneIndex.z;
+	newVertex = (Bones[index] * pos) * aBoneWeight.z + newVertex;
+	index=aBoneIndex.w;
+	newVertex = (Bones[index] * pos) * aBoneWeight.w + newVertex;
 	
 	
     TexCoords = aTexCoords;    
-    gl_Position = pvm * pos;//vec4(newVertex.xyz, 1.0);
+    gl_Position = pvm * vec4(newVertex.xyz, 1.0);
 }

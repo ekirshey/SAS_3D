@@ -21,11 +21,11 @@ namespace SAS_3D {
 		ModelContainer mc;
 		AssimpLoader::Load(_config.model_registry, ac, mc, aiProcess_Triangulate | aiProcess_FlipUVs);
 
+		_animengine.Initialize(std::move(ac));
 		_renderengine.Start(std::move(mc));
-		_animengine.Start(std::move(ac));
 
 		// Wait for subsystems to start so we can safely free the assimp loader
-		while (!_renderengine.isRunning() && !_animengine.isRunning()) {}
+		while (!_renderengine.isRunning()) {}
 
 		return true;
 	}

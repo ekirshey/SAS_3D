@@ -1,4 +1,6 @@
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "anim_evaluator.h"
 
 namespace SAS_3D {
@@ -20,6 +22,7 @@ namespace SAS_3D {
 			std::cout << "Error: Animation has no channels" << std::endl;
 		}
 		_tickspersecond = animation->mTicksPerSecond != 0.0 ? animation->mTicksPerSecond : 25.0;
+		_mspertick = 1000 / _tickspersecond;
 		_duration = animation->mDuration;
 		_animlength = _duration / _tickspersecond;
 
@@ -52,11 +55,6 @@ namespace SAS_3D {
 					glm::vec3 v(ai_v->x, ai_v->y, ai_v->z);;
 					c->scalings.push_back(Key<glm::vec3>(t, v));
 				}
-
-				// Set all indices to 0
-				std::get<0>(c->lastindices) = 0;
-				std::get<1>(c->lastindices) = 0;
-				std::get<2>(c->lastindices) = 0;
 			}
 			else {
 				std::cout << "Error: Channel " << ai_c->mNodeName.data << " has no corresponding node" << std::endl;
@@ -65,31 +63,73 @@ namespace SAS_3D {
 		std::cout << "done.." << std::endl;
 	}
 
-	void AnimEvaluator::Calculate(double rawtime) {
+	void AnimEvaluator::Calculate(double rawtime, std::tuple<int, int, int>& lastindices) {
 
 		// _duration is specified in ticks
 		// 55 ticks is duration
 		// 25 ticks per second
 		// duration lasts 2.2 seconds
 		// tick every 0.04 seconds
-		
+		double time = fmod(rawtime/_mspertick, _duration);
+		//std::cout << rawtime << " " << time << std::endl;
 		for (int i = 0; i < _channels.size(); i++) {
 			Channel* c = &_channels[i];
+			glm::mat4 translation;
+			glm::mat4 rotation;
+			glm::mat4 scaling;
 
 			// Handle Position
 			if (c->positions.size() > 0) {
+				int frame = std::get<0>(lastindices);
+				if (frame >= c->positions.size()) { frame = 0; }
 
+				auto initialtime = c->positions[frame].time;
+				while (frame < c->positions.size()-1) {
+					if (time < c->positions[frame+1].time) {
+						break;
+					}
+					frame++;
+				}
+				translation = glm::translate(translation, c->positions[frame].val);
+
+				std::get<0>(lastindices) = frame;
 			}
 
 			// Handle Rotations
 			if (c->rotations.size() > 0) {
+				int frame = std::get<1>(lastindices);
+				if (frame >= c->rotations.size()) { frame = 0; }
 
+				auto initialtime = c->rotations[frame].time;
+				while (frame < c->rotations.size() - 1) {
+					if (time < c->rotations[frame + 1].time) {
+						break;
+					}
+					frame++;
+				}
+				rotation = glm::toMat4(c->rotations[frame].val);
+
+				std::get<1>(lastindices) = frame;
 			}
 
 			// Handle Scaling
 			if (c->scalings.size() > 0) {
+				int frame = std::get<2>(lastindices);
+				if (frame >= c->scalings.size()) { frame = 0; }
 
+				auto initialtime = c->scalings[frame].time;
+				while (frame < c->scalings.size() - 1) {
+					if (time < c->scalings[frame + 1].time) {
+						break;
+					}
+					frame++;
+				}
+				scaling = glm::scale(scaling, c->scalings[frame].val);
+
+				std::get<2>(lastindices) = frame;	
 			}
+
+			c->currenttransform = translation * rotation * scaling;
 		}
 		//_lasttime = time;
 	}

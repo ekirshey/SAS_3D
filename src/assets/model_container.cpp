@@ -7,6 +7,7 @@
 #include "json.hpp"
 #include "core/error_codes.h"
 #include "model_container.h"
+#include "subsystems/animation_engine/anim_state.h"
 
 namespace SAS_3D {
 	ModelContainer::ModelContainer() {
@@ -21,10 +22,10 @@ namespace SAS_3D {
 		_models[idx].LoadIntoGPU();
 	}
 
-	void ModelContainer::Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pvm) {
+	void ModelContainer::Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pvm, BoneMatrix* bones) {
 		// Make sure the model exists/loaded
 		if (idx < _models.size()) {
-			_models[idx].Draw(shader, pvm);
+			_models[idx].Draw(shader, pvm, bones);
 		}
 	}
 
