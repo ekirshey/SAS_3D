@@ -24,7 +24,7 @@ namespace SAS_3D {
 		_animations = std::move(ac);
 	}
 
-	int AnimationEngine::AddAnimationInstance(int id, int index, std::tuple<int, int, int> frameindices) {
+	int AnimationEngine::AddAnimationInstance(int id, int index, const FrameIndices& frameindices) {
 		if (_asyncrunning) {
 			std::cout << "Wait for animation processing to finish" << std::endl;
 			return -1;

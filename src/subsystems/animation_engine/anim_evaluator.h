@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "anim_node.h"
+#include "anim_state.h"
 
 namespace SAS_3D {
 	// helper https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
@@ -33,7 +34,7 @@ namespace SAS_3D {
 	class AnimEvaluator {
 	public:
 		AnimEvaluator(int id, AnimNode* rootnode, const aiAnimation* animation);
-		void Calculate(double rawtime, std::tuple<int, int, int>& lastindices);
+		void Calculate(double rawtime, FrameIndices& lastindices);
 		glm::mat4 GetTransform(int channelid) { return _channels[channelid].currenttransform; }
 	private:
 		std::vector<Channel> _channels;

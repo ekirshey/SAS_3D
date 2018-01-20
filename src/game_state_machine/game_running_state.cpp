@@ -57,24 +57,6 @@ namespace SAS_3D {
 		_ecs.Update(elapsedtime, subsystems);
 
 		/*
-			signal -> slot
-			bind event to system slot?
-			or bind slot to event
-			camera.update signals observers
-
-			camera has list of listeners
-			camera is the subject and systems are the observers
-			camera can extend a Subject class which has Signal(), Register() calls
-			Subject<T>? 
-			Does a system now extend an Observer base class?
-
-			the end goal for the rendersystem would be
-			Camera signals -> updateViewTransform(Camera* c) { _view=...}
-			std::function<void(T*)>
-		*/
-
-
-		/*
 		In parallel the network thread is receiving messages, processing them and
 		throwing them on the appropriate queue
 

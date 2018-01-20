@@ -17,7 +17,7 @@ namespace SAS_3D {
 	void AnimationSystem::BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems) {
 		auto animengine = subsystems->GetAnimationEngine();
 		_animations = std::move(animengine->CollectBoneCalculations());
-		_time += elapsedtime / 1000;
+		_time += elapsedtime / 1000.0;
 	}
 
 	void AnimationSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {

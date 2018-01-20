@@ -79,12 +79,13 @@ namespace SAS_3D {
 	}
 
 	void Animator::GetBoneMatrices(std::vector<glm::mat4>& matrices, int meshidx) {
+		// Not sure if this is needed
 		glm::mat4 inverse_mesh_transform = glm::inverse(_meshnode->_global_transform);
 
 		matrices.resize(_bonemaps[meshidx].size(), glm::mat4());
 		for (int i = 0; i < _bonemaps[meshidx].size(); i++) {
 			const glm::mat4 current_global_transform = _bonemaps[meshidx].at(i)->_global_transform;
-			matrices[i] = inverse_mesh_transform * current_global_transform *_meshskeletons[meshidx].at(i);
+			matrices[i] = /*inverse_mesh_transform * */ current_global_transform *_meshskeletons[meshidx].at(i);
 		}
 	}
 
