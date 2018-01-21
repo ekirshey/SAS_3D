@@ -43,8 +43,12 @@ namespace SAS_3D {
 		auto x = RigidBody(0.1f, glm::vec3(30, 0.0, -5.0));
 		_ecs.AddComponentToEntity<PhysicalComponent>(_player, x.ModelMatrix());
 		_ecs.AddComponentToEntity<AnimationComponent>(_player);
-		_ecs.AddComponentToEntity<RenderComponent>(_player);
-		
+		_ecs.AddComponentToEntity<RenderComponent>(_player,0);		
+
+		auto landscape = _ecs.CreateEntity();
+		auto l = RigidBody(0.1f, glm::vec3(0, 0.0, 0.0));
+		_ecs.AddComponentToEntity<PhysicalComponent>(landscape, l.ModelMatrix());
+		_ecs.AddComponentToEntity<RenderComponent>(landscape, 1);
 
 		return FSMStates::TRANSITIONIN;
 	}

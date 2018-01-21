@@ -14,6 +14,7 @@ namespace SAS_3D {
 		, _window(window)	
 		, _event_queue(queue)
 		, _running(false)
+		, _shaders(2)
 	{
 	}
 
@@ -25,14 +26,13 @@ namespace SAS_3D {
 		_window->SwitchContext();
 
 		_mc = std::move(mc);
-		_shader.Load(_config.shaderpath + "animation.vert", _config.shaderpath + "animation.frag");
-		_debugshader.Load(_config.shaderpath + "simple.vert", _config.shaderpath + "simple.frag");
+		_shaders[0].Load(_config.shaderpath + "animation.vert", _config.shaderpath + "animation.frag");
+		_shaders[0].AddInputModule<PVMModule>();
+		_shaders[0].AddInputModule<TextureModule>();
+		_shaders[0].AddInputModule<AnimationModule>();
 
-		_shader.AddInputModule<PVMModule>();
-		_shader.AddInputModule<TextureModule>();
-		_shader.AddInputModule<AnimationModule>();
-
-		_debugshader.AddInputModule<PVMModule>();
+		_shaders[1].Load(_config.shaderpath + "simple.vert", _config.shaderpath + "simple.frag");
+		_shaders[1].AddInputModule<PVMModule>();
 	}
 
 	void RenderImpl::Run() {
@@ -60,8 +60,14 @@ namespace SAS_3D {
 			}
 
 			for (auto &e : _entities){
-				_shader.UseProgram();
-				_mc.Draw(e.second.modelidx, _shader, e.second.pvm, &e.second.bones);
+				if (e.second.bones.size() > 0) {
+					_shaders[0].UseProgram();
+					_mc.Draw(e.second.modelidx, _shaders[0], e.second.pv, e.second.m, &e.second.bones);
+				}
+				else {
+					_shaders[1].UseProgram();
+					_mc.Draw(e.second.modelidx, _shaders[1], e.second.pv, e.second.m);
+				}
 
 				//_debugshader.UseProgram();
 				//_window->TurnOnWireframe();

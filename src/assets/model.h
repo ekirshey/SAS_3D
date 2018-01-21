@@ -21,13 +21,14 @@ namespace SAS_3D {
 	public:
 		Model(const SceneInfo* sceneinfo, TextureContainer& c);
 		void LoadIntoGPU();
-		void Draw(ShaderProgram& shader, glm::mat4& pvm, BoneMatrix* bones = nullptr);
+		void Draw(ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones = nullptr);
 		void Draw(); //Debug draw, just loads indices into opengl
 		void DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4& p, Model& primitive, ShaderProgram& shader);
 		std::string Path() { return _path; }
 	private:
 		std::string _path;
 		std::vector<Mesh> _meshes;
+		glm::mat4 _transform;
 		bool _loaded;
 	};
 }

@@ -12,6 +12,14 @@ namespace SAS_3D {
 	{
 		// Build meshes
 		auto scene = sceneinfo->scene;
+		auto root = scene->mRootNode;
+		for (int i = 0; i < root->mNumChildren; i++) {
+			auto c = root->mChildren[i];
+			if (c->mNumMeshes > 0) {
+				_transform = aiMatrix4x4ToGlm(c->mTransformation);
+			}
+		}
+
 		if (scene->HasMeshes()) {
 			auto lastslash = _path.rfind('/') + 1;
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
@@ -59,7 +67,7 @@ namespace SAS_3D {
 		}
 	}
 
-	void Model::Draw(ShaderProgram& shader, glm::mat4& pvm, BoneMatrix* bones) {
+	void Model::Draw(ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones) {
 		if (!_loaded) {
 			// Load the model into memory
 			LoadIntoGPU();
@@ -71,11 +79,13 @@ namespace SAS_3D {
 		for (int i = 0; i < _meshes.size(); i++) {
 			auto me = &_meshes[i];
 			unsigned int tct = 0;
-			for (auto& t : me->textures) {
-				glActiveTexture(GL_TEXTURE0 + tct);
-				texturemodule->SetTexture(tct);
-				glBindTexture(GL_TEXTURE_2D, t);
-				tct++;
+			if (texturemodule != nullptr) {
+				for (auto& t : me->textures) {
+					glActiveTexture(GL_TEXTURE0 + tct);
+					texturemodule->SetTexture(tct);
+					glBindTexture(GL_TEXTURE_2D, t);
+					tct++;
+				}
 			}
 
 			if (animationmodule != nullptr) {
@@ -84,7 +94,7 @@ namespace SAS_3D {
 				}
 			}
 
-			pvmmodule->SetPVM(pvm);
+			pvmmodule->SetPVM(pv*m*_transform);
 			shader.ApplyModules();
 
 			glBindVertexArray(me->VAO);

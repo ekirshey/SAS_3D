@@ -71,7 +71,7 @@ namespace SAS_3D {
 		// duration lasts 2.2 seconds
 		// tick every 0.04 seconds
 		if (lastindices.size() != _channels.size()) {
-			lastindices.resize(_channels.size());
+			lastindices.resize(_channels.size(), { -1,-1,-1 });
 		}
 
 		double seconds = rawtime / 1000;
@@ -87,103 +87,104 @@ namespace SAS_3D {
 			// Handle Position
 			if (c->positions.size() > 0) {
 				int frame = std::get<0>(lastindices[i]);
-				if (frame >= c->positions.size()) { frame = 0; }
+				if (frame > 0 && frame >= c->positions.size()) { frame = 0; }
 
-				auto initialtime = c->positions[frame].time;
-				while (frame < c->positions.size()-1) {
+				int size = c->positions.size() - 1;
+				while (frame < size) {
 					if (time < c->positions[frame+1].time) {
 						break;
 					}
 					frame++;
 				}
-				int nextframe = (frame + 1) % c->positions.size();
-				auto key = &c->positions[frame];
-				auto nextkey = &c->positions[nextframe];
-				double difftime = nextkey->time - key->time;
-				glm::vec3 position;
-				if (difftime < 0.0)
-					difftime += _duration;
-				if (difftime > 0) {
-					float factor = float((time - key->time) / difftime);
-					position = key->val + (nextkey->val - key->val) * factor;
-				}
-				else {
-					position = key->val;
-				}
+				if (frame >= 0) {
+					int nextframe = (frame + 1) % c->positions.size();
+					auto key = &c->positions[frame];
+					auto nextkey = &c->positions[nextframe];
+					double difftime = nextkey->time - key->time;
+					glm::vec3 position;
+					if (difftime < 0.0)
+						difftime += _duration;
+					if (difftime > 0) {
+						float factor = float((time - key->time) / difftime);
+						position = key->val + (nextkey->val - key->val) * factor;
+					}
+					else {
+						position = key->val;
+					}
 
-				translation = glm::translate(translation, position);
+					translation = glm::translate(translation, position);
 
+				}
 				std::get<0>(lastindices[i]) = frame;
 			}
 
 			// Handle Rotations
 			if (c->rotations.size() > 0) {
 				int frame = std::get<1>(lastindices[i]);
-				if (frame >= c->rotations.size()) { frame = 0; }
-
-				auto initialtime = c->rotations[frame].time;
-				while (frame < c->rotations.size() - 1) {
+				if (frame > 0 && frame >= c->rotations.size()) { frame = 0; }
+				int size = c->rotations.size() - 1;
+				while (frame < size) {
 					if (time < c->rotations[frame + 1].time) {
 						break;
 					}
 					frame++;
 				}
+				if (frame >= 0) {
+					int nextframe = (frame + 1) % c->rotations.size();
+					auto key = &c->rotations[frame];
+					auto nextkey = &c->rotations[nextframe];
+					double difftime = nextkey->time - key->time;
 
-				int nextframe = (frame + 1) % c->rotations.size();
-				auto key = &c->rotations[frame];
-				auto nextkey = &c->rotations[nextframe];
-				double difftime = nextkey->time - key->time;
-				//std::cout << "T " << difftime << " " << nextkey->time << " " << key->time << " " << time << " " << frame << std::endl;
-				glm::quat quaternion;
-				if (difftime < 0.0)
-					difftime += _duration;
-				if (difftime > 0) {
-					float factor = float((time - key->time) / difftime);
-					quaternion = glm::lerp(key->val, nextkey->val, factor);
+					glm::quat quaternion;
+					if (difftime < 0.0)
+						difftime += _duration;
+					if (difftime > 0) {
+						float factor = float((time - key->time) / difftime);
+						quaternion = glm::lerp(key->val, nextkey->val, factor);
+					}
+					else {
+						quaternion = key->val;
+					}
+
+					rotation = glm::toMat4(quaternion);
 				}
-				else {
-					quaternion = key->val;
-				}
-
-				rotation = glm::toMat4(quaternion);
-
 				std::get<1>(lastindices[i]) = frame;
 			}
 
 			// Handle Scaling
 			if (c->scalings.size() > 0) {
 				int frame = std::get<2>(lastindices[i]);
-				if (frame >= c->scalings.size()) { frame = 0; }
+				if (frame > 0 && frame >= c->scalings.size()) { frame = 0; }
 
-				auto initialtime = c->scalings[frame].time;
-				while (frame < c->scalings.size() - 1) {
+				int size = c->scalings.size() - 1;
+				while (frame < size ) {
 					if (time < c->scalings[frame + 1].time) {
 						break;
 					}
 					frame++;
 				}
-				int nextframe = (frame + 1) % c->scalings.size();
-				auto key = &c->scalings[frame];
-				auto nextkey = &c->scalings[nextframe];
-				double difftime = nextkey->time - key->time;
-				glm::vec3 scale;
-				if (difftime < 0.0)
-					difftime += _duration;
-				if (difftime > 0) {
-					float factor = float((time - key->time) / difftime);
-					scale = key->val + (nextkey->val - key->val) * factor;
-				}
-				else {
-					scale = key->val;
-				}
+				if (frame >= 0) {
+					int nextframe = (frame + 1) % c->scalings.size();
+					auto key = &c->scalings[frame];
+					auto nextkey = &c->scalings[nextframe];
+					double difftime = nextkey->time - key->time;
+					glm::vec3 scale;
+					if (difftime < 0.0)
+						difftime += _duration;
+					if (difftime > 0) {
+						float factor = float((time - key->time) / difftime);
+						scale = key->val + (nextkey->val - key->val) * factor;
+					}
+					else {
+						scale = key->val;
+					}
 
-				scaling = glm::scale(scaling, scale);
-
+					scaling = glm::scale(scaling, scale);
+				}
 				std::get<2>(lastindices[i]) = frame;
 			}
 
 			c->currenttransform = translation * rotation * scaling;
 		}
-		//_lasttime = time;
 	}
 }

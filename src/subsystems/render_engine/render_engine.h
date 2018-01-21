@@ -12,7 +12,8 @@ namespace SAS_3D {
 	using RenderID = unsigned long long;
 	struct RenderEvent {
 		RenderID id;
-		glm::mat4 pvm;
+		glm::mat4 pv;
+		glm::mat4 m;
 		int modelidx;
 		BoneMatrix bones;
 	};
@@ -33,8 +34,7 @@ namespace SAS_3D {
 	private:
 		GameConfig _config;
 		SASWindow* _window;
-		ShaderProgram _shader;
-		ShaderProgram _debugshader;
+		std::vector<ShaderProgram> _shaders;
 		ModelContainer _mc;
 		// Need to figure out the best way to replace this unordered_map
 		std::unordered_map<RenderID, RenderEvent> _entities;

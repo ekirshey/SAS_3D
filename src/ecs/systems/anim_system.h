@@ -7,7 +7,7 @@ namespace SAS_3D {
 	class AnimationSystem : public System
 	{
 	public:
-		static const EntityID COMPONENTIDS = 1;// PositionComponentID | RenderComponentID;
+		static const EntityID COMPONENTIDS = ANIMATION_COMPONENT;
 
 		AnimationSystem(std::string systemname, SystemID uuid);
 		~AnimationSystem();

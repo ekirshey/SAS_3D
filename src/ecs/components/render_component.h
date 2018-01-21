@@ -8,8 +8,8 @@ namespace SAS_3D {
 
 		ComponentID UniqueBits() const { return ID; }
 
-		RenderComponent()
-			: modelidx(0)
+		RenderComponent(int id)
+			: modelidx(id)
 		{}
 
 		int modelidx;

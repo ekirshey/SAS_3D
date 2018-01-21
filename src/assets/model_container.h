@@ -23,7 +23,7 @@ namespace SAS_3D {
 		
 		void AddModel(const SceneInfo& sceneinfo);
 		void LoadModelIntoGPU(ModelIdx idx);
-		void Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pvm, BoneMatrix* bones = nullptr);
+		void Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones = nullptr);
 		// Debug draw
 		void DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
 	private:

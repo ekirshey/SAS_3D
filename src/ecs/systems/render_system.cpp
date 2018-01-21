@@ -24,7 +24,7 @@ namespace SAS_3D {
 	}
 
 	void RenderSystem::BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems) {
-		_projection = glm::perspective(_zoom, (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 100.0f);
+		_projection = glm::perspective(_zoom, (float)_config.screenwidth / (float)_config.screenheight, 0.1f, 1000.0f);
 	}
 
 	void RenderSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {
@@ -35,9 +35,12 @@ namespace SAS_3D {
 
 		RenderEvent re;
 		re.id = entity;
-		re.pvm = _projection * _view * physical->modeltransform;
+		re.pv = _projection * _view;
+		re.m = physical->modeltransform;
 		re.modelidx = render->modelidx;
-		re.bones = std::move(animation->animationstate.bones);
+		if (animation != nullptr) {
+			re.bones = std::move(animation->animationstate.bones);
+		}
 		
 		_renderevents.push_back(std::move(re));
 	}
