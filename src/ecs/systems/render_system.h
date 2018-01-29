@@ -1,6 +1,7 @@
 #pragma once
 #include "ecs/framework/system.h"
 #include "subsystems/render_engine/render_engine.h"
+#include "ecs/ecs_defines.h"
 
 namespace SAS_3D {
 	class Camera;
@@ -8,7 +9,7 @@ namespace SAS_3D {
 	class RenderSystem : public System
 	{
 	public:
-		static const EntityID COMPONENTIDS = 1;// PositionComponentID | RenderComponentID;
+		static const EntityID COMPONENTIDS = 0;// RENDER_COMPONENT | LIGHT_COMPONENT;// PositionComponentID | RenderComponentID;
 
 		RenderSystem(std::string systemname, SystemID uuid, GameConfig config);
 		~RenderSystem();
@@ -25,9 +26,12 @@ namespace SAS_3D {
 
 	private:
 		GameConfig _config;
-		std::vector<RenderEvent> _renderevents;
+		Scene _scene;
 		glm::mat4 _projection;
-		glm::mat4 _view;
-		float _zoom;
+		glm::vec3 _camerapos;
+		glm::mat4 _viewmatrix;
+		float _camerazoom;
+
+		double _elapsedtime;
 	};
 }

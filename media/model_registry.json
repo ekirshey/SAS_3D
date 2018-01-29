@@ -4,9 +4,13 @@
 			"model_id": 0,
 			"model_path": "dwarf/dwarf.x"
 		},
-        {
+        	{
 			"model_id": 1,
-			"model_path": "landscape/landscape.fbx"
+			"model_path": "landscape/terrain.fbx"
+		},
+		{
+			"model_id": 2,
+			"model_path": "primitives/sphere.fbx"
 		}
 	]
 }

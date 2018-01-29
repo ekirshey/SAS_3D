@@ -12,14 +12,22 @@ namespace SAS_3D {
 		static const InputID ID = PVMModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
-			GLint pvmLoc = shader->GetUniformLocation("pvm");
-			glUniformMatrix4fv(pvmLoc, 1, GL_FALSE, glm::value_ptr(_pvm));
+			GLint pvLoc = shader->GetUniformLocation("pv");
+			glUniformMatrix4fv(pvLoc, 1, GL_FALSE, glm::value_ptr(_pv));
+
+			GLint mLoc = shader->GetUniformLocation("m");
+			glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(_m));
 		}
 
 		InputID UniqueBits() const { return ID; }
 
-		void SetPVM(const glm::mat4& pvm) { _pvm = pvm; }
+		void SetPVM(const glm::mat4& pv, const glm::mat4& m) { 
+			_pv = pv;
+			_m = m;
+		}
+
 	private:
-		glm::mat4 _pvm;
+		glm::mat4 _pv;
+		glm::mat4 _m;
 	};
 }

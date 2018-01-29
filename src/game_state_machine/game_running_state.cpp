@@ -7,11 +7,12 @@
 #include "ecs/components/physical_component.h"
 #include "ecs/components/anim_component.h"
 #include "ecs/components/render_component.h"
+#include "ecs/components/light_component.h"
 
 namespace SAS_3D {
 	GameRunningState::GameRunningState(const GameConfig& config)
 		: _config(config)
-		, _camera()//config.screenwidth, config.screenheight)
+		, _camera(glm::vec3(-40.0,100.0,0.0))//config.screenwidth, config.screenheight)
 	{
 
 	}
@@ -40,7 +41,7 @@ namespace SAS_3D {
 		});
 
 		_player = _ecs.CreateEntity();
-		auto x = RigidBody(0.1f, glm::vec3(30, 0.0, -5.0));
+		auto x = RigidBody(0.1f, glm::vec3(0, 55.0, 0.0));
 		_ecs.AddComponentToEntity<PhysicalComponent>(_player, x.ModelMatrix());
 		_ecs.AddComponentToEntity<AnimationComponent>(_player);
 		_ecs.AddComponentToEntity<RenderComponent>(_player,0);		
@@ -49,6 +50,55 @@ namespace SAS_3D {
 		auto l = RigidBody(0.1f, glm::vec3(0, 0.0, 0.0));
 		_ecs.AddComponentToEntity<PhysicalComponent>(landscape, l.ModelMatrix());
 		_ecs.AddComponentToEntity<RenderComponent>(landscape, 1);
+
+		// Directional light with no physical representation
+		auto sun = _ecs.CreateEntity();
+		Light dirlight;
+		dirlight.m_type = LightType::Directional;
+		dirlight.m_direction = glm::vec3(0.0f, -1.0f, -1.0f);
+		dirlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		dirlight.m_diffuse = glm::vec3(1.4f, 1.4f, 1.4f);
+		dirlight.m_specular = glm::vec3(0.5f, 0.5f, 0.5f);
+		_ecs.AddComponentToEntity<LightComponent>(sun, dirlight);
+
+		// Point lights
+		for (int i = 0; i < 0; i++) {
+			auto light = _ecs.CreateEntity();
+			auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0 - 40*i, -50.0));
+			_ecs.AddComponentToEntity<PhysicalComponent>(light, lightbody.ModelMatrix());
+			_ecs.AddComponentToEntity<RenderComponent>(light, 2);
+			Light pointlight;
+			pointlight.m_type = LightType::Point;
+			glm::vec4 lightpos = lightbody.ModelMatrix() * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			pointlight.m_position = glm::vec3(lightpos.x, lightpos.y, lightpos.z);
+			pointlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+			pointlight.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
+			pointlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
+			pointlight.m_constant = 1.0f;
+			pointlight.m_linear = 0.09f;
+			pointlight.m_quadratic = 0.032f;
+			_ecs.AddComponentToEntity<LightComponent>(light, pointlight);
+		}
+
+		// Spotlight
+		auto light = _ecs.CreateEntity();
+		auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0, -50.0));
+		_ecs.AddComponentToEntity<PhysicalComponent>(light, lightbody.ModelMatrix());
+		_ecs.AddComponentToEntity<RenderComponent>(light, 2);
+		Light spotlight;
+		spotlight.m_type = LightType::Spotlight;
+		glm::vec4 lightpos = lightbody.ModelMatrix() * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		spotlight.m_direction = glm::vec3(0.0f, -1.0f, -1.0f);
+		spotlight.m_position = glm::vec3(lightpos.x, lightpos.y, lightpos.z);
+		spotlight.m_ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+		spotlight.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
+		spotlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotlight.m_cutoff = glm::cos(glm::radians(12.5));
+		spotlight.m_outercutoff = glm::cos(glm::radians(15.0f));
+		spotlight.m_constant = 1.0f;
+		spotlight.m_linear = 0.09f;
+		spotlight.m_quadratic = 0.032f;
+		_ecs.AddComponentToEntity<LightComponent>(light, spotlight);
 
 		return FSMStates::TRANSITIONIN;
 	}

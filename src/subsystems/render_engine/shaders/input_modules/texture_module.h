@@ -6,20 +6,38 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace SAS_3D {
-	class TextureModule : public InputModule {
+	class MaterialModule : public InputModule {
 	public:
-		static const InputID ID = TextureModuleID;
+		static const InputID ID = MaterialModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
-			GLint sampleloc = shader->GetUniformLocation("texture_diffuse1");
-			glUniform1f(sampleloc, _textureunit);
+			GLint diffuseLoc = shader->GetUniformLocation("material.diffuse");
+			glUniform1f(diffuseLoc, _diffuse);
+
+			GLint specularLoc = shader->GetUniformLocation("material.specular");
+			glUniform1f(specularLoc, _specular);
+
+			GLint shininessLoc = shader->GetUniformLocation("material.shininess");
+			glUniform1f(shininessLoc, _shininess);
 		}
 
 		InputID UniqueBits() const { return ID; }
 
-		void SetTexture(const unsigned int textureunit) { _textureunit = textureunit; }
+		void SetMaterial(const unsigned int diffuse, const int specular = -1, float shininess = 32.0f) { 
+			_diffuse = diffuse;
+			if (specular == -1) {
+				_specular = diffuse;
+			}
+			else {
+				_specular = specular;
+			}
+
+			_shininess = shininess;
+		}
 	private:
-		unsigned int _textureunit;
+		unsigned int _diffuse;
+		unsigned int _specular;
+		float _shininess;
 	};
 }
 

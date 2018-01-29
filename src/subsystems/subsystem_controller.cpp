@@ -1,5 +1,6 @@
 #include "subsystem_controller.h"
 #include "assets/assimp_loader.h"
+#include "core/sas_video.h"
 
 namespace SAS_3D {
 

@@ -9,4 +9,5 @@ namespace SAS_3D {
 	#define PHYSICAL_COMPONENT			0x01
 	#define ANIMATION_COMPONENT			0x02
 	#define RENDER_COMPONENT			0x04
+	#define LIGHT_COMPONENT				0x08
 }

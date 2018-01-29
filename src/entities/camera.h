@@ -8,7 +8,7 @@ namespace SAS_3D {
 	// Default camera values
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
-	const float SPEED = 2.5f;
+	const float SPEED = 10.5f;
 	const float SENSITIVTY = 0.6f;
 	const float ZOOM = 45.0f;
 
@@ -20,6 +20,7 @@ namespace SAS_3D {
 		Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
 		glm::mat4 GetViewMatrix() const;
+		glm::vec3 GetPosition() const { return _position; }
 		float Zoom() const { return _zoom; }
 		void Update(const InputState& input, float deltatime);
 

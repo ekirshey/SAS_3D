@@ -2,23 +2,15 @@
 #include <thread>
 #include "assets/model_container.h"
 #include "subsystems/render_engine/shaders/shader_program.h"
-#include "subsystems/render_engine/scene_graph.h"
-#include "subsystems/animation_engine/anim_state.h"
+#include "subsystems/render_engine/scene.h"
 #include "game_state_machine/game_config.h"
 #include "utility/locking_queue.h"
-#include "core/sas_video.h"
 
 namespace SAS_3D {
-	using RenderID = unsigned long long;
-	struct RenderEvent {
-		RenderID id;
-		glm::mat4 pv;
-		glm::mat4 m;
-		int modelidx;
-		BoneMatrix bones;
-	};
-	using RenderQueue = LockingQueue<std::vector<RenderEvent>>;
+	class SASWindow;
 
+	using RenderQueue = LockingQueue<Scene>;
+	#define MAX_SCENES 2
 	class RenderImpl {
 	public:
 		RenderImpl(const GameConfig& config, 
@@ -34,12 +26,15 @@ namespace SAS_3D {
 	private:
 		GameConfig _config;
 		SASWindow* _window;
-		std::vector<ShaderProgram> _shaders;
-		ModelContainer _mc;
-		// Need to figure out the best way to replace this unordered_map
-		std::unordered_map<RenderID, RenderEvent> _entities;
 		RenderQueue* _event_queue;
 		bool _running;
+		std::vector<ShaderProgram> _shaders;
+
+		// Camera information used in calculated ProjectionView and lights
+		glm::mat4 _projectionmatrix;
+		Scene _scenes[MAX_SCENES];
+		
+		ModelContainer _mc;
 	};
 
 	class RenderEngine {
@@ -48,7 +43,7 @@ namespace SAS_3D {
 		~RenderEngine();
 		void Start(ModelContainer&& mc);
 		bool isRunning();
-		void RegisterEvents(std::vector<RenderEvent>& events);
+		void RegisterScene(Scene& scene);
 	private:
 		RenderImpl _impl;
 		RenderQueue _eventqueue;

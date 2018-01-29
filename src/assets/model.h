@@ -25,6 +25,7 @@ namespace SAS_3D {
 		void Draw(); //Debug draw, just loads indices into opengl
 		void DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4& p, Model& primitive, ShaderProgram& shader);
 		std::string Path() { return _path; }
+		bool HasTextures();
 	private:
 		std::string _path;
 		std::vector<Mesh> _meshes;

@@ -30,7 +30,7 @@ namespace SAS_3D {
 					std::cout << "Error! Could not find node with name " << bone->mName.data << std::endl;
 				}
 				_bonemaps[i][n] =node;
-				_meshskeletons[i][n] = aiMatrix4x4ToGlm(bone->mOffsetMatrix);
+				_meshskeletons[i][n] = aiMatrix4x4ToGlm(bone->mOffsetMatrix);	// inverse bind pose
 			}
 		}
 

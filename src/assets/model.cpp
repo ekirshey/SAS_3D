@@ -30,6 +30,17 @@ namespace SAS_3D {
 		std::cout << "Done model processing..." << std::endl;
 	}
 
+	bool Model::HasTextures() {
+		bool hastextures = false;
+		for (auto& m : _meshes) {
+			if (m.textures.size() > 0) {
+				hastextures = true;
+				break;
+			}
+		}
+		return hastextures;
+	}
+
 	void Model::LoadIntoGPU() {
 		if (!_loaded) {
 			_loaded = true;
@@ -72,17 +83,18 @@ namespace SAS_3D {
 			// Load the model into memory
 			LoadIntoGPU();
 		}
-		auto texturemodule = shader.GetInputModule<TextureModule*>(TextureModule::ID);
+		auto materialmodule = shader.GetInputModule<MaterialModule*>(MaterialModule::ID);
 		auto animationmodule = shader.GetInputModule<AnimationModule*>(AnimationModule::ID);
 		auto pvmmodule = shader.GetInputModule<PVMModule*>(PVMModule::ID);
 
 		for (int i = 0; i < _meshes.size(); i++) {
 			auto me = &_meshes[i];
 			unsigned int tct = 0;
-			if (texturemodule != nullptr) {
+			if (materialmodule != nullptr) {
+				// Needs to change
 				for (auto& t : me->textures) {
 					glActiveTexture(GL_TEXTURE0 + tct);
-					texturemodule->SetTexture(tct);
+					materialmodule->SetMaterial(tct);
 					glBindTexture(GL_TEXTURE_2D, t);
 					tct++;
 				}
@@ -94,7 +106,7 @@ namespace SAS_3D {
 				}
 			}
 
-			pvmmodule->SetPVM(pv*m*_transform);
+			pvmmodule->SetPVM(pv, m*_transform);
 			shader.ApplyModules();
 
 			glBindVertexArray(me->VAO);

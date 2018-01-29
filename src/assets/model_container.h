@@ -26,6 +26,7 @@ namespace SAS_3D {
 		void Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones = nullptr);
 		// Debug draw
 		void DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
+		bool HasTextures(ModelIdx idx) { return _models[idx].HasTextures(); }
 	private:
 		std::string _modelpath;
 		TextureContainer _tc;

@@ -7,10 +7,11 @@ layout (location = 4) in vec4 aBoneWeight;
 
 out vec4 VertexColor;
 
-uniform mat4 pvm;
+uniform mat4 pv;
+uniform mat4 m;
 
 void main()
 {
-	VertexColor = vec4(1.0, 0.0, 0.0, 1.0);
-	gl_Position = pvm * vec4(aPos, 1.0);
+	VertexColor = vec4(1.0, 1.0, 1.0, 0.75);
+	gl_Position = pv * m * vec4(aPos, 1.0);
 }
