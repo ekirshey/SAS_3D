@@ -28,6 +28,8 @@ namespace SAS_3D {
 		int _nextstate;
 		bool _exit;
 		EntityID _player;
+		EntityID _flashlight;
+		bool _lighttoggle;
 
 		/*
 			Ids of specific systems

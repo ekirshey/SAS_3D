@@ -21,7 +21,7 @@ namespace SAS_3D {
 		void Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em);
 		SystemID GetUUID() const { return _uuid; }
 
-		virtual void BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems) = 0;
+		virtual void BeforeEntityProcessing(SubsystemController* subsystems) = 0;
 		virtual void ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) = 0;
 		virtual void AfterEntityProcessing(SubsystemController* subsystems) = 0;
 

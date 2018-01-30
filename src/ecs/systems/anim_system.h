@@ -14,12 +14,11 @@ namespace SAS_3D {
 
 		EntityID ComponentBits() { return AnimationSystem::COMPONENTIDS; }    // TODO: Is this necessary or is just accessing the variable directly better?
 
-		void BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems);
+		void BeforeEntityProcessing(SubsystemController* subsystems);
 		void ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity);
 		void AfterEntityProcessing(SubsystemController* subsystems);
 
 	private:
-		double _time;
 		std::vector<AnimationState> _animations;
 	};
 

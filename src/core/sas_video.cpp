@@ -28,6 +28,7 @@ namespace SAS_3D {
 		glewInit();
 
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_FRAMEBUFFER_SRGB); // Enable gamma correction
 
 		// Check that everything worked out okay
 		if (!_window) {

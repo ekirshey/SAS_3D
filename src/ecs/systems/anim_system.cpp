@@ -6,7 +6,6 @@
 namespace SAS_3D {
 	AnimationSystem::AnimationSystem(std::string systemname, SystemID uuid)
 		: System(systemname, uuid)
-		, _time(0.0)
 	{
 	}
 
@@ -14,10 +13,9 @@ namespace SAS_3D {
 
 	}
 
-	void AnimationSystem::BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems) {
+	void AnimationSystem::BeforeEntityProcessing(SubsystemController* subsystems) {
 		auto animengine = subsystems->GetAnimationEngine();
 		_animations = std::move(animengine->CollectBoneCalculations());
-		_time += elapsedtime / 1000.0;
 	}
 
 	void AnimationSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {
@@ -47,6 +45,6 @@ namespace SAS_3D {
 			I might need to add the amount of time it took to add the animation states.
 			Not sure if it's inconsequential
 		*/
-		animengine->StartAsyncBoneCalculations(_time);
+		animengine->StartAsyncBoneCalculations(TimeRunning()/1000.0);
 	}
 }

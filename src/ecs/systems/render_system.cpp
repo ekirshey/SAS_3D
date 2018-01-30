@@ -24,13 +24,13 @@ namespace SAS_3D {
 
 	void RenderSystem::UpdateViewTransform(const Camera& camera) {
 		auto cam = &_scene.m_camera;
+		cam->m_front = camera.GetFront();
 		cam->m_position = camera.GetPosition();
 		cam->m_viewmatrix = camera.GetViewMatrix();
 		cam->m_zoom = camera.Zoom();
 	}
 
-	void RenderSystem::BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems) {
-		_elapsedtime = elapsedtime;
+	void RenderSystem::BeforeEntityProcessing(SubsystemController* subsystems) {
 	}
 
 	void RenderSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {
@@ -41,8 +41,8 @@ namespace SAS_3D {
 		auto lighting = GetEntityComponent<LightComponent*>(em, entity, LIGHT_COMPONENT);
 
 		if (render != nullptr) {
-			if (lighting != nullptr) {
-				float forward = _elapsedtime / 1000000 * 3.0f;
+			if (lighting != nullptr && physical != nullptr) {
+				float forward = (FrameTime() / 1000000.0) * 3.0f;
 				physical->modeltransform = glm::translate(physical->modeltransform, glm::vec3(0.0, 0.0, forward));
 			}
 			RenderItem re;
@@ -57,12 +57,15 @@ namespace SAS_3D {
 
 		if (lighting != nullptr) {	
 			// Testing lighting
+			if (lighting->m_light.m_type == LightType::Spotlight) {
+				lighting->m_light.m_position = _scene.m_camera.m_position;
+				lighting->m_light.m_direction = _scene.m_camera.m_front;
+			}
 			if (physical != nullptr) {
 				lighting->m_light.m_position = physical->modeltransform * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 			_scene.AddLight(lighting->m_light);
 		}
-
 
 	}
 

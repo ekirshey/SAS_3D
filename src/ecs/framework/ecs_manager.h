@@ -33,7 +33,7 @@ namespace SAS_3D {
 
 		template<class T>
 		T GetEntityComponent(EntityID entity, EntityID componentid) {
-			return static_cast<T>(entitymanager_.GetEntityComponent(entity, componentid));
+			return static_cast<T>(_entitymanager.GetEntityComponent(entity, componentid));
 		}
 
 		std::vector<Component*> GetAllEntityComponents(EntityID entity);

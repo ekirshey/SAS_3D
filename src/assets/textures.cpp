@@ -85,7 +85,7 @@ namespace SAS_3D {
 		GLuint id;
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, bits);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, format, GL_UNSIGNED_BYTE, bits);
 		err = glGetError();
 		if (err != 0) {
 			std::cerr << "Error when loading texture: " << err << std::endl;

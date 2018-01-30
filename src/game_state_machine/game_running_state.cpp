@@ -56,13 +56,16 @@ namespace SAS_3D {
 		Light dirlight;
 		dirlight.m_type = LightType::Directional;
 		dirlight.m_direction = glm::vec3(0.0f, -1.0f, -1.0f);
-		dirlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-		dirlight.m_diffuse = glm::vec3(1.4f, 1.4f, 1.4f);
-		dirlight.m_specular = glm::vec3(0.5f, 0.5f, 0.5f);
+		//dirlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		//dirlight.m_diffuse = glm::vec3(1.4f, 1.4f, 1.4f);
+		//dirlight.m_specular = glm::vec3(0.5f, 0.5f, 0.5f);
+		dirlight.m_ambient = glm::vec3(0.02f, 0.02f, 0.02f);
+		dirlight.m_diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
+		dirlight.m_specular = glm::vec3(0.0f, 0.0f, 0.0f);
 		_ecs.AddComponentToEntity<LightComponent>(sun, dirlight);
 
 		// Point lights
-		for (int i = 0; i < 0; i++) {
+		for (int i = 0; i < 2; i++) {
 			auto light = _ecs.CreateEntity();
 			auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0 - 40*i, -50.0));
 			_ecs.AddComponentToEntity<PhysicalComponent>(light, lightbody.ModelMatrix());
@@ -72,7 +75,7 @@ namespace SAS_3D {
 			glm::vec4 lightpos = lightbody.ModelMatrix() * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			pointlight.m_position = glm::vec3(lightpos.x, lightpos.y, lightpos.z);
 			pointlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-			pointlight.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
+			pointlight.m_diffuse = glm::vec3(5.0f, 5.0f, 5.0f);
 			pointlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
 			pointlight.m_constant = 1.0f;
 			pointlight.m_linear = 0.09f;
@@ -81,25 +84,20 @@ namespace SAS_3D {
 		}
 
 		// Spotlight
-		auto light = _ecs.CreateEntity();
+		_flashlight = _ecs.CreateEntity();
 		auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0, -50.0));
-		_ecs.AddComponentToEntity<PhysicalComponent>(light, lightbody.ModelMatrix());
-		_ecs.AddComponentToEntity<RenderComponent>(light, 2);
 		Light spotlight;
 		spotlight.m_type = LightType::Spotlight;
-		glm::vec4 lightpos = lightbody.ModelMatrix() * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		spotlight.m_direction = glm::vec3(0.0f, -1.0f, -1.0f);
-		spotlight.m_position = glm::vec3(lightpos.x, lightpos.y, lightpos.z);
 		spotlight.m_ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 		spotlight.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
 		spotlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
 		spotlight.m_cutoff = glm::cos(glm::radians(12.5));
 		spotlight.m_outercutoff = glm::cos(glm::radians(15.0f));
 		spotlight.m_constant = 1.0f;
-		spotlight.m_linear = 0.09f;
-		spotlight.m_quadratic = 0.032f;
-		_ecs.AddComponentToEntity<LightComponent>(light, spotlight);
-
+		spotlight.m_linear = 0.009f;
+		spotlight.m_quadratic = 0.0032f;
+		_ecs.AddComponentToEntity<LightComponent>(_flashlight, spotlight);
+		_lighttoggle = false;
 		return FSMStates::TRANSITIONIN;
 	}
 
@@ -109,6 +107,24 @@ namespace SAS_3D {
 		_camera.Update(input, elapsedtime/1000000.0f); //microseconds
 
 		_ecs.Update(elapsedtime, subsystems);
+
+		if (input.keyarray[SDL_SCANCODE_F] == KeyState::PRESSED) {
+			if (!_lighttoggle) {
+				_lighttoggle = true;
+				auto light = _ecs.GetEntityComponent<LightComponent*>(_flashlight, LIGHT_COMPONENT);
+				if (light->m_light.m_diffuse == glm::vec3(10.0f, 10.0f, 10.0f)) {
+					light->m_light.m_diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
+					light->m_light.m_specular = glm::vec3(0.0f, 0.0f, 0.0f);
+				}
+				else {
+					light->m_light.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
+					light->m_light.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
+				}
+			}
+		}
+		else {
+			_lighttoggle = false;
+		}
 
 		/*
 		In parallel the network thread is receiving messages, processing them and

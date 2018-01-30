@@ -20,7 +20,7 @@ namespace SAS_3D {
 		// for now. I'm thinking some observer type model/signal<-> slot/what have you
 		void UpdateViewTransform(const Camera& camera);
 		
-		void BeforeEntityProcessing(int elapsedtime, SubsystemController* subsystems);
+		void BeforeEntityProcessing(SubsystemController* subsystems);
 		void ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity);
 		void AfterEntityProcessing(SubsystemController* subsystems);
 
@@ -31,7 +31,5 @@ namespace SAS_3D {
 		glm::vec3 _camerapos;
 		glm::mat4 _viewmatrix;
 		float _camerazoom;
-
-		double _elapsedtime;
 	};
 }

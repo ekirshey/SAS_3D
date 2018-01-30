@@ -12,7 +12,7 @@
 
 namespace SAS_3D {
 #define MAXKEYS 1024
-	enum class KeyState { RELEASED, PRESSED };
+	enum class KeyState { RELEASED, PRESSED};
 	using KeyArray = KeyState[MAXKEYS];
 
 	struct InputState {

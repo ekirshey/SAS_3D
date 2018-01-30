@@ -21,6 +21,7 @@ namespace SAS_3D {
 
 		glm::mat4 GetViewMatrix() const;
 		glm::vec3 GetPosition() const { return _position; }
+		glm::vec3 GetFront() const { return _front; }
 		float Zoom() const { return _zoom; }
 		void Update(const InputState& input, float deltatime);
 

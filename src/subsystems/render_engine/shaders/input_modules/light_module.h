@@ -24,9 +24,6 @@ namespace SAS_3D {
 			if (_pointlights != nullptr) {
 				shader->SetInt("numPointLights", _pointlights->size());
 			}
-			else {
-				shader->SetInt("numPointLights", 0);
-			}
 
 			shader->SetVec3("viewPos", _viewpos);
 
@@ -62,7 +59,7 @@ namespace SAS_3D {
 					shader->SetFloat("spotLight.linear", _spotlights->at(i).m_linear);
 					shader->SetFloat("spotLight.quadratic", _spotlights->at(i).m_quadratic);
 					shader->SetFloat("spotLight.cutoff", _spotlights->at(i).m_cutoff);
-					shader->SetFloat("spotLight.outerCutOff", _spotlights->at(i).m_outercutoff);
+					shader->SetFloat("spotLight.outercutoff", _spotlights->at(i).m_outercutoff);
 					/*
 					shader->SetVec3("spotLight[" + std::to_string(i) + "].direction", _spotlights->at(i).m_direction);
 					shader->SetVec3("spotLight[" + std::to_string(i) + "].position", _spotlights->at(i).m_position);
