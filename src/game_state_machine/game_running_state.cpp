@@ -55,13 +55,10 @@ namespace SAS_3D {
 		auto sun = _ecs.CreateEntity();
 		Light dirlight;
 		dirlight.m_type = LightType::Directional;
-		dirlight.m_direction = glm::vec3(0.0f, -1.0f, -1.0f);
-		//dirlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-		//dirlight.m_diffuse = glm::vec3(1.4f, 1.4f, 1.4f);
-		//dirlight.m_specular = glm::vec3(0.5f, 0.5f, 0.5f);
-		dirlight.m_ambient = glm::vec3(0.02f, 0.02f, 0.02f);
-		dirlight.m_diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
-		dirlight.m_specular = glm::vec3(0.0f, 0.0f, 0.0f);
+		dirlight.m_direction = glm::vec3(0.0f, -1.0f, 0.0f);
+		dirlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		dirlight.m_diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+		dirlight.m_specular = glm::vec3(0.5f, 0.5f, 0.5f);
 		_ecs.AddComponentToEntity<LightComponent>(sun, dirlight);
 
 		// Point lights
@@ -76,7 +73,7 @@ namespace SAS_3D {
 			pointlight.m_position = glm::vec3(lightpos.x, lightpos.y, lightpos.z);
 			pointlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
 			pointlight.m_diffuse = glm::vec3(5.0f, 5.0f, 5.0f);
-			pointlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
+			pointlight.m_specular = glm::vec3(2.0f, 2.0f, 2.0f);
 			pointlight.m_constant = 1.0f;
 			pointlight.m_linear = 0.09f;
 			pointlight.m_quadratic = 0.032f;
