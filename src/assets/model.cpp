@@ -6,7 +6,7 @@
 #include "assets/assimp_loader.h"
 
 namespace SAS_3D {
-	Model::Model(const SceneInfo* sceneinfo, TextureContainer& c)
+	Model::Model(const SceneInfo* sceneinfo, TextureContainer& tc)
 		: _path(sceneinfo->filepath)
 		, _loaded(false)
 	{
@@ -14,16 +14,16 @@ namespace SAS_3D {
 		auto scene = sceneinfo->scene;
 		auto root = scene->mRootNode;
 		for (int i = 0; i < root->mNumChildren; i++) {
-			auto c = root->mChildren[i];
-			if (c->mNumMeshes > 0) {
-				_transform = aiMatrix4x4ToGlm(c->mTransformation);
+			auto child = root->mChildren[i];
+			if (child->mNumMeshes > 0) {
+				_transform = aiMatrix4x4ToGlm(child->mTransformation);
 			}
 		}
 
 		if (scene->HasMeshes()) {
 			auto lastslash = _path.rfind('/') + 1;
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-				_meshes.push_back(Mesh(_path.substr(0, lastslash), c, scene->mMeshes[i], scene));
+				_meshes.push_back(Mesh(_path.substr(0, lastslash), tc, scene->mMeshes[i], scene));
 			}
 		}
 
@@ -91,7 +91,6 @@ namespace SAS_3D {
 			auto me = &_meshes[i];
 			unsigned int tct = 0;
 			if (materialmodule != nullptr) {
-				// Needs to change
 				for (auto& t : me->textures) {
 					glActiveTexture(GL_TEXTURE0 + tct);
 					materialmodule->SetMaterial(tct);

@@ -10,4 +10,13 @@ namespace SAS_3D {
 		virtual InputID UniqueBits() const = 0;
 		virtual void ApplyToShader(ShaderProgram* shader) = 0;
 	};
+
+
+	/*
+	Alternative:
+
+	string type pair
+	tuple<pair<string, type>...>
+	
+	*/
 }

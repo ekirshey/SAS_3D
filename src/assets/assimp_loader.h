@@ -15,6 +15,6 @@ namespace SAS_3D {
 		{}
 	};
 	namespace AssimpLoader {
-		void Load(std::string model_registry, std::vector<Animator>& ac, ModelContainer& mc, unsigned int flags);
+		void Load(std::string model_registry, std::vector<Animator>& ac, ModelContainer& mc, TextureContainer& tc, unsigned int flags);
 	};
 }

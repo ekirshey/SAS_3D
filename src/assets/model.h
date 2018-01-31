@@ -19,7 +19,7 @@ namespace SAS_3D {
 	struct SceneInfo;
 	class Model {
 	public:
-		Model(const SceneInfo* sceneinfo, TextureContainer& c);
+		Model(const SceneInfo* sceneinfo, TextureContainer& tc);
 		void LoadIntoGPU();
 		void Draw(ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones = nullptr);
 		void Draw(); //Debug draw, just loads indices into opengl

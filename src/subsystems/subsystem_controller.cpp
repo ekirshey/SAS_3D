@@ -20,10 +20,11 @@ namespace SAS_3D {
 	bool SubsystemController::Bootstrap() {
 		AnimationContainer ac;
 		ModelContainer mc;
-		AssimpLoader::Load(_config.model_registry, ac, mc, aiProcess_Triangulate | aiProcess_FlipUVs);
+		TextureContainer tc;
+		AssimpLoader::Load(_config.model_registry, ac, mc, tc, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 		_animengine.Initialize(std::move(ac));
-		_renderengine.Start(std::move(mc));
+		_renderengine.Start(std::move(mc), std::move(tc));
 
 		// Wait for subsystems to start so we can safely free the assimp loader
 		while (!_renderengine.isRunning()) {}

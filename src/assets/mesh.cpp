@@ -3,7 +3,7 @@
 #include "assets/mesh.h"
 
 namespace SAS_3D {
-	Mesh::Mesh(std::string modelpath, TextureContainer& c, const aiMesh* ai_m, const aiScene* scene)
+	Mesh::Mesh(std::string modelpath, TextureContainer& tc, const aiMesh* ai_m, const aiScene* scene)
 		: vertices{ ai_m->mNumVertices }
 	{
 		// Walk through each of the ai_m's vertices
@@ -47,8 +47,7 @@ namespace SAS_3D {
 
 		// process materials
 		aiMaterial* material = scene->mMaterials[ai_m->mMaterialIndex];
-		_loadMaterialTextures(modelpath, c, material, aiTextureType_DIFFUSE, "texture_diffuse");
-
+		_loadMaterialTextures(modelpath, tc, material, aiTextureType_DIFFUSE, "texture_diffuse");
 
 		// process bones
 		std::vector<int> bonetracker(vertices.size(), 0);
@@ -74,13 +73,13 @@ namespace SAS_3D {
 		}
 	}
 
-	void Mesh::_loadMaterialTextures(std::string modelpath, TextureContainer& c, aiMaterial *mat, aiTextureType type, std::string type_name) {
+	void Mesh::_loadMaterialTextures(std::string modelpath, TextureContainer& tc, aiMaterial *mat, aiTextureType type, std::string type_name) {
 		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
 			aiString str;
 			mat->GetTexture(type, i, &str);
 			std::string texpath(str.C_Str());
 			std::string path = modelpath + texpath;
-			textures.push_back(c.LoadTextureFromFile(path, type_name));
+			textures.push_back(tc.LoadTextureFromFile(path, type_name));
 		}
 	}
 
@@ -108,6 +107,7 @@ namespace SAS_3D {
 		// Vertex Texture Coords
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
+
 		// Vertex Bone Indices
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, bones));

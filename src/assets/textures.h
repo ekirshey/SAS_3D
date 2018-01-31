@@ -21,6 +21,7 @@ namespace SAS_3D {
 	public:
 		TextureContainer() {}
 		GLuint LoadTextureFromFile(std::string path, std::string type_name, GLint format = GL_BGRA);
+		GLuint LoadCubeMap(std::string path, GLint format = GL_RGB);
 	private:
 		std::unordered_map<GLuint, Texture> _textures;
 	};

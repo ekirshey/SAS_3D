@@ -31,7 +31,7 @@ namespace SAS_3D {
 		void LoadIntoGPU();
 		void UnloadFromGPU();
 
-		Mesh(std::string modelpath, TextureContainer& c, const aiMesh* ai_m, const aiScene* scene);
+		Mesh(std::string modelpath, TextureContainer& tc, const aiMesh* ai_m, const aiScene* scene);
 	private:
 		void _loadMaterialTextures(std::string modelpath, TextureContainer& c, aiMaterial *mat, aiTextureType type, std::string type_name);
 	};

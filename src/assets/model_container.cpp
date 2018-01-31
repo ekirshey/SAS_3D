@@ -14,8 +14,8 @@ namespace SAS_3D {
 
 	}
 
-	void ModelContainer::AddModel(const SceneInfo& sceneinfo) {
-		_models.push_back(Model(&sceneinfo, _tc));
+	void ModelContainer::AddModel(const SceneInfo& sceneinfo, TextureContainer& tc) {
+		_models.push_back(Model(&sceneinfo, tc));
 	}
 
 	void ModelContainer::LoadModelIntoGPU(ModelIdx idx) {

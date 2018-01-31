@@ -7,29 +7,12 @@
 #include "stb_image.h"
 
 namespace SAS_3D {
-	GLuint TextureContainer::LoadTextureFromFile(std::string path, std::string type_name, GLint format) {
-		bool loaded = true;
-		Texture texture;
 
-		auto it = _textures.begin();
-		while (it != _textures.end()) {
-			if (it->second.path == path) {
-				return it->first;
-			}
-			it++;
-		}
-
+	FIBITMAP* _loadTexture(std::string path) {
 		//image format
 		FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 		//pointer to the image, once loaded
 		FIBITMAP *dib(0);
-		//pointer to the image data
-		BYTE* bits(0);
-		unsigned int width;
-		unsigned int height;
-
-		texture.path = path;
-		texture.type = type_name;
 
 		fif = FreeImage_GetFileType(path.c_str(), 0);
 		if (fif == FIF_UNKNOWN) {
@@ -39,7 +22,7 @@ namespace SAS_3D {
 		//if still unkown, return failure
 		if (fif == FIF_UNKNOWN) {
 			std::cout << "Texture failed to load. Unknown File type: " << path << std::endl;
-			return -1;
+			return 0;
 		}
 
 		//check that the plugin has reading capabilities and load the file
@@ -50,7 +33,7 @@ namespace SAS_3D {
 		//if the image failed to load, return failure
 		if (!dib) {
 			std::cout << "Texture failed to load. " << path << std::endl;
-			return -1;
+			return 0;
 		}
 
 		FreeImage_FlipVertical(dib);
@@ -63,17 +46,35 @@ namespace SAS_3D {
 			FreeImage_Unload(hOldImage);
 		}
 
-		bits = FreeImage_GetBits(dib);
+		return dib;
+	}
+
+	GLuint TextureContainer::LoadTextureFromFile(std::string path, std::string type_name, GLint format) {
+		bool loaded = true;
+		Texture texture;
+
+		auto it = _textures.begin();
+		while (it != _textures.end()) {
+			if (it->second.path == path) {
+				return it->first;
+			}
+			it++;
+		}
+
+		texture.path = path;
+		texture.type = type_name;
+
+		FIBITMAP* dib = _loadTexture(path);
+		BYTE* bits = FreeImage_GetBits(dib);
+
 		if (bits == NULL) {
 			std::cout << "Bit data not valid for " << path << std::endl;
 			return -1;
 		}
 
-		FREE_IMAGE_TYPE image_type = FreeImage_GetImageType(dib);
-
 		//get the image width and height
-		width = FreeImage_GetWidth(dib);
-		height = FreeImage_GetHeight(dib);
+		unsigned int width = FreeImage_GetWidth(dib);
+		unsigned int height = FreeImage_GetHeight(dib);
 		unsigned pitch = FreeImage_GetPitch(dib);
 		//if this somehow one of these failed (they shouldn't), return failure
 		if ((bits == 0) || (width == 0) || (height == 0)) {
@@ -100,5 +101,83 @@ namespace SAS_3D {
 
 		_textures.insert({ id, texture });
 		return id;
+	}
+
+	GLuint TextureContainer::LoadCubeMap(std::string path, GLint format) {
+		unsigned int textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+		std::vector<std::string> faces =
+		{
+			path + "right.jpg",
+			path + "left.jpg",
+			path + "top.jpg",
+			path + "bottom.jpg",
+			path + "front.jpg",
+			path + "back.jpg"
+		};
+
+		int width, height, nrChannels;
+		for (unsigned int i = 0; i < faces.size(); i++)
+		{
+			unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				auto err = glGetError();
+				if (err != 0) {
+					std::cerr << "Error when loading texture: " << err << std::endl;
+				}
+				stbi_image_free(data);
+			}
+			else
+			{
+				std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+				stbi_image_free(data);
+			}
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		return textureID;
+
+#ifdef FOO
+		int width, height;
+		for (unsigned int i = 0; i < faces.size(); i++)
+		{
+			FIBITMAP* dib = _loadTexture(faces[i]);
+			BYTE* data = FreeImage_GetBits(dib);
+			unsigned int width = FreeImage_GetWidth(dib);
+			unsigned int height = FreeImage_GetHeight(dib);
+			unsigned pitch = FreeImage_GetPitch(dib);
+
+			if (data) {
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					0, format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+				);
+				err = glGetError();
+				if (err != 0) {
+					std::cerr << "Error when loading texture: " << err << std::endl;
+				}
+				FreeImage_Unload(dib);
+			}
+			else {
+				std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+				FreeImage_Unload(dib);
+			}
+		}
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		return textureID;
+#endif
 	}
 }

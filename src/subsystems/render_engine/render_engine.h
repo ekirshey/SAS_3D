@@ -5,6 +5,7 @@
 #include "subsystems/render_engine/scene.h"
 #include "game_state_machine/game_config.h"
 #include "utility/locking_queue.h"
+#include "assets/cubemap.h"
 
 namespace SAS_3D {
 	class SASWindow;
@@ -19,7 +20,7 @@ namespace SAS_3D {
 
 		~RenderImpl();
 		// Called after opengl context switches to the thread renderengine runs on
-		void Initialize(ModelContainer&& mc);
+		void Initialize(ModelContainer&& mc, TextureContainer&& tc);
 		void Run();
 		void Stop() { _running = false; }
 		bool isRunning() { return _running; }
@@ -34,14 +35,16 @@ namespace SAS_3D {
 		glm::mat4 _projectionmatrix;
 		Scene _scenes[MAX_SCENES];
 		
+		CubeMap _skybox;
 		ModelContainer _mc;
+		TextureContainer _tc;
 	};
 
 	class RenderEngine {
 	public:
 		RenderEngine(const GameConfig& config, SASWindow* window);
 		~RenderEngine();
-		void Start(ModelContainer&& mc);
+		void Start(ModelContainer&& mc, TextureContainer&& tc);
 		bool isRunning();
 		void RegisterScene(Scene& scene);
 	private:

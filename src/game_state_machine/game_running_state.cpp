@@ -72,8 +72,8 @@ namespace SAS_3D {
 			glm::vec4 lightpos = lightbody.ModelMatrix() * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			pointlight.m_position = glm::vec3(lightpos.x, lightpos.y, lightpos.z);
 			pointlight.m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-			pointlight.m_diffuse = glm::vec3(5.0f, 5.0f, 5.0f);
-			pointlight.m_specular = glm::vec3(2.0f, 2.0f, 2.0f);
+			pointlight.m_diffuse = glm::vec3(15.0f, 15.0f, 15.0f);
+			pointlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
 			pointlight.m_constant = 1.0f;
 			pointlight.m_linear = 0.09f;
 			pointlight.m_quadratic = 0.032f;

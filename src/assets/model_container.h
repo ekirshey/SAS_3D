@@ -21,7 +21,7 @@ namespace SAS_3D {
 	public:
 		ModelContainer();
 		
-		void AddModel(const SceneInfo& sceneinfo);
+		void AddModel(const SceneInfo& sceneinfo, TextureContainer& tc);
 		void LoadModelIntoGPU(ModelIdx idx);
 		void Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones = nullptr);
 		// Debug draw
@@ -29,7 +29,6 @@ namespace SAS_3D {
 		bool HasTextures(ModelIdx idx) { return _models[idx].HasTextures(); }
 	private:
 		std::string _modelpath;
-		TextureContainer _tc;
 		std::vector<Model> _models;
 	};
 }
