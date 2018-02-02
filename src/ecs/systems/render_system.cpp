@@ -17,17 +17,14 @@ namespace SAS_3D {
 	RenderSystem::RenderSystem(std::string systemname, SystemID uuid, GameConfig config) 
 		: System(systemname, uuid)
 		, _config(config)
+		, _scene(_config.screenwidth, _config.screenheight)
 	{
 	}
 
 	RenderSystem::~RenderSystem() {}
 
 	void RenderSystem::UpdateViewTransform(const Camera& camera) {
-		auto cam = &_scene.m_camera;
-		cam->m_front = camera.GetFront();
-		cam->m_position = camera.GetPosition();
-		cam->m_viewmatrix = camera.GetViewMatrix();
-		cam->m_zoom = camera.Zoom();
+		_scene.SetCamera(camera);
 	}
 
 	void RenderSystem::BeforeEntityProcessing(SubsystemController* subsystems) {
@@ -35,16 +32,12 @@ namespace SAS_3D {
 
 	void RenderSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {
 		// For each entity build up a render event
-		auto physical = GetEntityComponent<PhysicalComponent*>(em, entity, PHYSICAL_COMPONENT);
-		auto animation = GetEntityComponent<AnimationComponent*>(em, entity, ANIMATION_COMPONENT);
-		auto render = GetEntityComponent<RenderComponent*>(em, entity, RENDER_COMPONENT);
-		auto lighting = GetEntityComponent<LightComponent*>(em, entity, LIGHT_COMPONENT);
+		auto physical = GetEntityComponent<PhysicalComponent>(em, entity, PHYSICAL_COMPONENT);
+		auto animation = GetEntityComponent<AnimationComponent>(em, entity, ANIMATION_COMPONENT);
+		auto render = GetEntityComponent<RenderComponent>(em, entity, RENDER_COMPONENT);
+		auto lighting = GetEntityComponent<LightComponent>(em, entity, LIGHT_COMPONENT);
 
 		if (render != nullptr) {
-			if (lighting != nullptr && physical != nullptr) {
-				float forward = (FrameTime() / 1000000.0) * 3.0f;
-				physical->modeltransform = glm::translate(physical->modeltransform, glm::vec3(0.0, 0.0, forward));
-			}
 			RenderItem re;
 			re.m_id = entity;
 			re.m_model = physical->modeltransform;
@@ -52,18 +45,10 @@ namespace SAS_3D {
 			if (animation != nullptr) {
 				re.m_bones = std::move(animation->animationstate.bones);
 			}
-			_scene.m_objects.push_back(std::move(re));
+			_scene.AddRenderItem(std::move(re));
 		}
 
 		if (lighting != nullptr) {	
-			// Testing lighting
-			if (lighting->m_light.m_type == LightType::Spotlight) {
-				lighting->m_light.m_position = _scene.m_camera.m_position;
-				lighting->m_light.m_direction = _scene.m_camera.m_front;
-			}
-			if (physical != nullptr) {
-				lighting->m_light.m_position = physical->modeltransform * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			}
 			_scene.AddLight(lighting->m_light);
 		}
 

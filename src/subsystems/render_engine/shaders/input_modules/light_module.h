@@ -83,9 +83,9 @@ namespace SAS_3D {
 		InputID UniqueBits() const { return ID; }
 
 		void SetLightSettings( glm::vec3 viewpos,
-					   std::vector<Light>* dirlights,
-					   std::vector<Light>* points,
-					   std::vector<Light>* spotlights) 
+					   const std::vector<Light>* dirlights,
+					   const std::vector<Light>* points,
+					   const std::vector<Light>* spotlights) 
 		{
 			_viewpos = viewpos;
 			_dirlights = dirlights;
@@ -95,9 +95,9 @@ namespace SAS_3D {
 
 	private:
 		glm::vec3 _viewpos;
-		std::vector<Light>* _dirlights;
-		std::vector<Light>* _pointlights;
-		std::vector<Light>* _spotlights;
+		const std::vector<Light>* _dirlights;
+		const std::vector<Light>* _pointlights;
+		const std::vector<Light>* _spotlights;
 
 	};
 }

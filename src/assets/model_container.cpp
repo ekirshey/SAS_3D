@@ -22,17 +22,20 @@ namespace SAS_3D {
 		_models[idx].LoadIntoGPU();
 	}
 
-	void ModelContainer::Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones) {
+	void ModelContainer::Draw(ModelIdx idx, ShaderProgram& shader, const glm::mat4& pv, const glm::mat4& m, const BoneMatrix* bones) {
 		// Make sure the model exists/loaded
 		if (idx < _models.size()) {
+			//_models[idx].LoadIntoGPU();
+			_models[idx].LoadIntoGPU();	// I need to create an actual asset loader instead of checking each frame
 			_models[idx].Draw(shader, pv, m, bones);
 		}
 	}
 
-	void ModelContainer::DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader) {
+	void ModelContainer::DrawSkeleton(ModelIdx idx, const glm::mat4& m, const glm::mat4& v, const glm::mat4& p, ShaderProgram& shader) const {
 		// Make sure the model exists/loaded
 		if (idx < _models.size()) {
-			_models[idx].DrawSkeleton(m,v,p, _models[1], shader);
+			//_models[idx].LoadIntoGPU();
+			//_models[idx].DrawSkeleton(m,v,p, _models[1], shader);
 		}
 	}
 

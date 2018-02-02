@@ -30,7 +30,7 @@ namespace SAS_3D {
 		std::cout << "Done model processing..." << std::endl;
 	}
 
-	bool Model::HasTextures() {
+	bool Model::HasTextures() const {
 		bool hastextures = false;
 		for (auto& m : _meshes) {
 			if (m.textures.size() > 0) {
@@ -50,12 +50,7 @@ namespace SAS_3D {
 		}
 	}
 	
-	void Model::DrawSkeleton(glm::mat4& m, glm::mat4& v, glm::mat4& p, Model& primitive, ShaderProgram& shader) {
-		if (!_loaded) {
-			// Load the model into memory
-			LoadIntoGPU();
-		}
-
+	void Model::DrawSkeleton(const glm::mat4& m, const glm::mat4& v, const glm::mat4& p, Model& primitive, ShaderProgram& shader) const {
 		auto pvmmodule = shader.GetInputModule<PVMModule*>(PVMModule::ID);
 
 		for (auto& me : _meshes) {
@@ -78,11 +73,7 @@ namespace SAS_3D {
 		}
 	}
 
-	void Model::Draw(ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones) {
-		if (!_loaded) {
-			// Load the model into memory
-			LoadIntoGPU();
-		}
+	void Model::Draw(ShaderProgram& shader, const glm::mat4& pv, const glm::mat4& m, const BoneMatrix* bones) const {
 		auto materialmodule = shader.GetInputModule<MaterialModule*>(MaterialModule::ID);
 		auto animationmodule = shader.GetInputModule<AnimationModule*>(AnimationModule::ID);
 		auto pvmmodule = shader.GetInputModule<PVMModule*>(PVMModule::ID);

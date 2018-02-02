@@ -12,7 +12,7 @@ namespace SAS_3D {
 		CubeMap(std::string texturepath, TextureContainer& tc);
 
 		void Load(std::string texturepath, TextureContainer& tc);
-		void Draw(ShaderProgram& shader, glm::mat4& p, glm::mat4& v);
+		void Draw(ShaderProgram& shader, glm::mat4& p, glm::mat4& v) const;
 	private:
 		GLuint _VAO;
 		GLuint _VBO;

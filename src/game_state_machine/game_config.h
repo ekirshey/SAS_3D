@@ -12,6 +12,8 @@ namespace SAS_3D {
 
 		std::string serverip;
 		std::string port;
+
+		bool vsync; // true-> on | false off
 	};
 
 	GameConfig LoadConfig(std::string ini);

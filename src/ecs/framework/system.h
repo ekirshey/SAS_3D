@@ -46,8 +46,8 @@ namespace SAS_3D {
 		void SetSystemName(std::string name) { _systemname = name; }
 
 		template<typename T>
-		T GetEntityComponent(EntityManager* em, EntityID entityID, ComponentID componentID) {
-			return static_cast<T>(em->GetEntityComponent(entityID, componentID));
+		T* GetEntityComponent(EntityManager* em, EntityID entityID, ComponentID componentID) {
+			return static_cast<T*>(em->GetEntityComponent(entityID, componentID));
 		}
 
 	private:

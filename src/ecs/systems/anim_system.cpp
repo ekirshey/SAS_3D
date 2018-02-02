@@ -20,7 +20,7 @@ namespace SAS_3D {
 
 	void AnimationSystem::ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity) {
 		auto animengine = subsystems->GetAnimationEngine();
-		auto anim_comp = GetEntityComponent<AnimationComponent*>(em, entity, ANIMATION_COMPONENT);
+		auto anim_comp = GetEntityComponent<AnimationComponent>(em, entity, ANIMATION_COMPONENT);
 		AnimationState* comp_state = &anim_comp->animationstate;
 		if (_animations.size() > 0) {
 			if (comp_state->internalid >= 0) {

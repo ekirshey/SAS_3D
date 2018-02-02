@@ -1,5 +1,4 @@
 #include <iostream>
-#include <glm/gtc/matrix_transform.hpp>
 #include "render_engine.h"
 #include "shaders/input_modules/pvm_module.h"
 #include "shaders/input_modules/texture_module.h"
@@ -17,7 +16,9 @@ namespace SAS_3D {
 		, _event_queue(queue)
 		, _running(false)
 		, _shaders(4)
+		, _scenes(MAX_SCENES, Scene(_config.screenwidth, _config.screenheight))
 	{
+
 	}
 
 	RenderImpl::~RenderImpl() {
@@ -51,12 +52,10 @@ namespace SAS_3D {
 
 	void RenderImpl::Run() {
 		// Render loop 
-		// DISABLES VSYNC
-#ifdef VSYNC
-		if (SDL_GL_SetSwapInterval(0) != 0) {
-			printf("Error: %s\n", SDL_GetError());
+		if (!_config.vsync) {
+			_window->DisableVSYNC();
 		}
-#endif
+
 		std::cout << "Entering main render loop" << std::endl;
 		_running = true;
 		_window->SwapWindow();
@@ -66,8 +65,9 @@ namespace SAS_3D {
 			// Do we add a light component to the render event or do we handle the light sources in a separate queue?
 			_window->Clear(0.1f, 0.1f, 0.1f);
 			size_t size = 1;
+
 			while (size != 0) {
-				Scene newscene;
+				Scene newscene(_config.screenwidth, _config.screenheight);
 				size = _event_queue->dequeue(newscene);
 				if (size != 0) {
 					// Manage the scene index
@@ -75,38 +75,8 @@ namespace SAS_3D {
 				}
 			}
 
-			for (auto &s : _scenes) {
-				auto cam = &s.m_camera;
-				_projectionmatrix = glm::perspective(cam->m_zoom, (float)_window->GetScreenWidth() / (float)_window->GetScreenHeight(), 0.1f, 1000.0f);
-				glm::mat4 pv = _projectionmatrix * cam->m_viewmatrix;
-				for (auto &e : s.m_objects) {
-					// Need to group draws by shader type
-					if (e.m_bones.size() > 0) {
-						_shaders[0].UseProgram();
-						auto lightmodule = _shaders[0].GetInputModule<LightModule*>(LightModuleID);
-						lightmodule->SetLightSettings(cam->m_position, &s.m_dirlights, &s.m_pointlights, &s.m_spotlights);
-						_mc.Draw(e.m_modelidx, _shaders[0], pv, e.m_model, &e.m_bones);
-					}
-					else if (_mc.HasTextures(e.m_modelidx)) {
-						_shaders[1].UseProgram();
-						auto lightmodule = _shaders[1].GetInputModule<LightModule*>(LightModuleID);
-						lightmodule->SetLightSettings(cam->m_position, &s.m_dirlights, &s.m_pointlights, &s.m_spotlights);
-						_mc.Draw(e.m_modelidx, _shaders[1], pv, e.m_model);
-					}
-					else {
-						_shaders[2].UseProgram();
-						_mc.Draw(e.m_modelidx, _shaders[2], pv, e.m_model);
-					}
-					//_debugshader.UseProgram();
-					//_window->TurnOnWireframe();
-					//_mc.DrawSkeleton(e.second.modelidx, e.second.model, e.second.view, e.second.projection, _debugshader);
-				}
-
-				glDepthFunc(GL_LEQUAL);
-				_shaders[3].UseProgram();
-				glm::mat4 view = glm::mat4(glm::mat3(cam->m_viewmatrix));
-				_skybox.Draw(_shaders[3], _projectionmatrix, view);
-				glDepthFunc(GL_LESS);
+			for (const auto &s : _scenes) {
+				s.DrawScene(_shaders, _mc, _skybox);
 			}
 
 			_window->SwapWindow();

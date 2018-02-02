@@ -35,6 +35,13 @@ namespace SAS_3D {
 			SDL_GL_MakeCurrent(_window, _glcontext); 
 			std::cout << SDL_GetError() << std::endl;
 		}
+
+		void DisableVSYNC() {
+			if (SDL_GL_SetSwapInterval(0) != 0) {
+				printf("Error: %s\n", SDL_GetError());
+			}
+		}
+
 	private:
 		SDL_Window* _window;
 		SDL_GLContext _glcontext;

@@ -23,10 +23,10 @@ namespace SAS_3D {
 		
 		void AddModel(const SceneInfo& sceneinfo, TextureContainer& tc);
 		void LoadModelIntoGPU(ModelIdx idx);
-		void Draw(ModelIdx idx, ShaderProgram& shader, glm::mat4& pv, glm::mat4& m, BoneMatrix* bones = nullptr);
+		void Draw(ModelIdx idx, ShaderProgram& shader, const glm::mat4& pv, const glm::mat4& m, const BoneMatrix* bones = nullptr);
 		// Debug draw
-		void DrawSkeleton(ModelIdx idx, glm::mat4& m, glm::mat4& v, glm::mat4& p, ShaderProgram& shader);
-		bool HasTextures(ModelIdx idx) { return _models[idx].HasTextures(); }
+		void DrawSkeleton(ModelIdx idx, const glm::mat4& m, const glm::mat4& v, const glm::mat4& p, ShaderProgram& shader) const;
+		bool HasTextures(ModelIdx idx) const { return _models[idx].HasTextures(); }
 	private:
 		std::string _modelpath;
 		std::vector<Model> _models;

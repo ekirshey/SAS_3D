@@ -26,11 +26,11 @@ namespace SAS_3D {
 
 		InputID UniqueBits() const { return ID; }
 
-		void SetBones(std::vector<glm::mat4>* bones) {
+		void SetBones(const std::vector<glm::mat4>* bones) {
 			_bones = bones;
 		}
 
 	private:
-		std::vector<glm::mat4>* _bones;
+		const std::vector<glm::mat4>* _bones;
 	};
 }

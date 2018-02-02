@@ -33,8 +33,10 @@ namespace SAS_3D {
 
 		// Camera information used in calculated ProjectionView and lights
 		glm::mat4 _projectionmatrix;
-		Scene _scenes[MAX_SCENES];
-		
+
+		// Scene management
+		std::vector<Scene> _scenes;
+
 		CubeMap _skybox;
 		ModelContainer _mc;
 		TextureContainer _tc;
