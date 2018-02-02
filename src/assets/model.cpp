@@ -111,8 +111,6 @@ namespace SAS_3D {
 			glBindVertexArray(me->VAO);
 			glDrawElements(GL_TRIANGLES, me->indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
-
-			glActiveTexture(GL_TEXTURE0);
 		}
 	}
 

@@ -11,7 +11,7 @@ namespace SAS_3D {
 	class SASWindow;
 
 	using RenderQueue = LockingQueue<Scene>;
-	#define MAX_SCENES 2
+	#define MAX_SCENES 1
 	class RenderImpl {
 	public:
 		RenderImpl(const GameConfig& config, 

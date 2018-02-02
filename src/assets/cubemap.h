@@ -17,7 +17,7 @@ namespace SAS_3D {
 		GLuint _VAO;
 		GLuint _VBO;
 		unsigned int _textureid;
-		std::vector<float> cubemapvertices;
+
 	};
 
 }

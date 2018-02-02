@@ -61,7 +61,7 @@ namespace SAS_3D {
 
 			auto t = std::chrono::duration_cast<std::chrono::microseconds>(end - current);
 			std::this_thread::sleep_for(targetticks_us - t);
-
+			//std::cout << (targetticks_us - t).count() << std::endl;
 		}   // End Main Loop
 
 	}
