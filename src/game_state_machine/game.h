@@ -38,7 +38,7 @@ namespace SAS_3D {
 		GameConfig _config;
 		std::vector<std::unique_ptr<GameState>> _gamestates;
 		unsigned int _activestate;
-		bool _gamerunning;
+		bool _quitgame;
 
 		SubsystemController _subsystems;
 	};

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "model.h"
+#include <glm/gtc/type_ptr.hpp>
 #include "subsystems/render_engine/shaders/input_modules/texture_module.h"
 #include "subsystems/render_engine/shaders/input_modules/animation_module.h"
 #include "subsystems/render_engine/shaders/input_modules/pvm_module.h"
@@ -81,23 +82,28 @@ namespace SAS_3D {
 		for (int i = 0; i < _meshes.size(); i++) {
 			auto me = &_meshes[i];
 			unsigned int tct = 0;
-			if (materialmodule != nullptr) {
+			//if (materialmodule != nullptr) {
 				for (auto& t : me->textures) {
 					glActiveTexture(GL_TEXTURE0 + tct);
-					materialmodule->SetMaterial(tct);
+					//materialmodule->SetMaterial(tct);
+					shader.SetInt("texture_diffuse1", tct);
 					glBindTexture(GL_TEXTURE_2D, t);
 					tct++;
 				}
-			}
+			//}
 
-			if (animationmodule != nullptr) {
-				if (bones != nullptr && bones->size() >= (i + 1)) {
-					animationmodule->SetBones(&bones->at(i));
-				}
-			}
 
-			pvmmodule->SetPVM(pv, m*_transform);
-			shader.ApplyModules();
+			if (bones != nullptr && bones->size() >= (i + 1)) {
+				GLint bonesLoc = shader.GetUniformLocation("Bones");
+				const std::vector<glm::mat4>* pbones = &bones->at(i);
+				glUniformMatrix4fv(bonesLoc, pbones->size(), GL_FALSE, glm::value_ptr(pbones->at(0)));
+				//animationmodule->SetBones(&bones->at(i));
+			}
+			
+
+			shader.SetMat4("model", m*_transform);
+			//pvmmodule->SetPVM(pv, m*_transform);
+			//shader.ApplyModules();
 
 			glBindVertexArray(me->VAO);
 			glDrawElements(GL_TRIANGLES, me->indices.size(), GL_UNSIGNED_INT, 0);

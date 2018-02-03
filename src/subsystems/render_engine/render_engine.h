@@ -30,12 +30,13 @@ namespace SAS_3D {
 		RenderQueue* _event_queue;
 		bool _running;
 		std::vector<ShaderProgram> _shaders;
+		std::vector<ShaderProgram> _deferredshaders;
 
 		// Camera information used in calculated ProjectionView and lights
 		glm::mat4 _projectionmatrix;
 
-		// Scene management
-		std::vector<Scene> _scenes;
+		// Active scene being rendered
+		Scene _scene;
 
 		CubeMap _skybox;
 		ModelContainer _mc;

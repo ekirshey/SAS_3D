@@ -50,22 +50,21 @@ namespace SAS_3D {
 		void AddRenderItem(RenderItem item);
 		void AddLight(Light light);
 		void SetCamera(const Camera& camera);
-		void DrawScene(std::vector<ShaderProgram>& shaders, ModelContainer& mc, const CubeMap& skybox) const;
-	private:
-		float _width;
-		float _height;
-		float _width_over_height;	// result of the division
+	
+		float m_width;
+		float m_height;
+		float m_width_over_height;	// result of the division
 
-		CameraInfo _camera;
+		CameraInfo m_camera;
 
 		// Various types of lights
-		std::vector<Light> _dirlights;
-		std::vector<Light> _pointlights;
-		std::vector<Light> _spotlights;
+		std::vector<Light> m_dirlights;
+		std::vector<Light> m_pointlights;
+		std::vector<Light> m_spotlights;
 
 		// All other objects
-		std::vector<RenderItem> _objects;
-
-
+		std::vector<RenderItem> m_objects;
 	};
+
+	void ForwardRenderScene(const Scene& scene, std::vector<ShaderProgram>& shaders, ModelContainer& mc, const CubeMap& skybox);
 }

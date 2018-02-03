@@ -64,7 +64,7 @@ namespace SAS_3D {
 		// Point lights
 		for (int i = 0; i < 2; i++) {
 			auto light = _ecs.CreateEntity();
-			auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0 - 40*i, -50.0));
+			auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0 - 40*i, 20.0 + -75*i));
 			_ecs.AddComponentToEntity<PhysicalComponent>(light, lightbody.ModelMatrix());
 			_ecs.AddComponentToEntity<RenderComponent>(light, 2);
 			Light pointlight;

@@ -13,8 +13,8 @@ namespace SAS_3D {
 		: _config(LoadConfig(config))
 		, _gamestates{MAX_STATES}
 		, _activestate(0)
-		, _gamerunning(true)
 		, _subsystems(_config)
+		, _quitgame(false)
 	{
 	}
 
@@ -46,16 +46,14 @@ namespace SAS_3D {
 		// Spin up all subsystems and threads
 		_subsystems.Bootstrap();
 
-		while (_gamerunning)
+		while (!_quitgame)
 		{
 			auto previous = current;
 			current = std::chrono::high_resolution_clock::now();
 			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(current - previous).count();
 			// Read the event queue so the state has the input
-			UpdateInput(_gamerunning, inputstate);
-			if (_gamerunning) {
-				Update(elapsed, inputstate);
-			}
+			UpdateInput(_quitgame, inputstate);
+			Update(elapsed, inputstate);
 
 			auto end = std::chrono::high_resolution_clock::now();
 
@@ -70,7 +68,7 @@ namespace SAS_3D {
 		_activestate = _gamestates[_activestate]->FiniteStateMachine(elapsedtime, &_subsystems, inputstate);
 		// Invalid next state
 		if (_activestate >= _gamestates.size() || _activestate < 0) {
-			_gamerunning = false;
+			_quitgame = false;
 		}
 	}
 }
