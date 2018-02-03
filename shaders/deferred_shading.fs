@@ -1,5 +1,3 @@
-
-
 #version 330 core
 out vec4 FragColor;
 
@@ -9,7 +7,15 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 
-struct Light {
+struct DirLight {
+    vec3 direction;
+	
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight {
     vec3 Position;
     vec3 Color;
     
@@ -18,8 +24,13 @@ struct Light {
     float Radius;
 };
 const int NR_LIGHTS = 2;
-uniform Light lights[NR_LIGHTS];
+uniform DirLight dirlight;
+uniform PointLight lights[NR_LIGHTS];
 uniform vec3 viewPos;
+
+// Function prototypes
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewdir, vec3 texdiff, float texspec);
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragpos, vec3 viewdir, vec3 texdiff, float texspec);
 
 void main()
 {             
@@ -30,28 +41,51 @@ void main()
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     
     // then calculate lighting as usual
-    vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
     vec3 viewDir  = normalize(viewPos - FragPos);
-    for(int i = 0; i < NR_LIGHTS; ++i)
-    {
-        // calculate distance between light source and current fragment
-        float distance = length(lights[i].Position - FragPos);
-        if(distance < lights[i].Radius)
-        {
-            // diffuse
-            vec3 lightDir = normalize(lights[i].Position - FragPos);
-            vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lights[i].Color;
-            // specular
-            vec3 halfwayDir = normalize(lightDir + viewDir);  
-            float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-            vec3 specular = lights[i].Color * spec * Specular;
-            // attenuation
-            float attenuation = 1.0 / (1.0 + lights[i].Linear * distance + lights[i].Quadratic * distance * distance);
-            diffuse *= attenuation;
-            specular *= attenuation;
-            lighting += diffuse + specular;
-        }
+	vec3 lighting = CalcDirLight(dirlight, Normal, viewDir, Diffuse, Specular);
+    for(int i = 0; i < NR_LIGHTS; ++i) {
+		lighting += CalcPointLight(lights[i], Normal, FragPos, viewDir, Diffuse, Specular);
     }    
     FragColor = vec4(lighting, 1.0);
 }
 
+// calculates the color when using a directional light.
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewdir, vec3 texdiff, float texspec)
+{
+    vec3 lightdir = normalize(-light.direction);
+	vec3 halfwaydir = normalize(lightdir + viewdir);
+    // diffuse shading
+    float diff = max(dot(normal, lightdir), 0.0);
+    // specular shading
+    vec3 reflectdir = reflect(-lightdir, normal);
+    float spec = pow(max(dot(normal, halfwaydir), 0.0), 32);
+    // combine results
+    vec3 ambient = light.ambient * texdiff;
+    vec3 diffuse = light.diffuse * diff * texdiff;
+    vec3 specular = light.specular * spec * texspec;
+    return (ambient + diffuse + specular);
+}
+
+// calculates the color when using a point light.
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragpos, vec3 viewdir, vec3 texdiff, float texspec)
+{
+	vec3 specular;
+	vec3 diffuse;
+    // calculate distance between light source and current fragment
+    float distance = length(light.Position - fragpos);
+    if(distance < light.Radius)
+    {
+        // diffuse
+        vec3 lightDir = normalize(light.Position - fragpos);
+        diffuse = max(dot(normal, lightDir), 0.0) * texdiff * light.Color;
+        // specular
+        vec3 halfwayDir = normalize(lightDir + viewdir);  
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+        specular = light.Color * spec * texspec;
+        // attenuation
+        float attenuation = 1.0 / (1.0 + light.Linear * distance + light.Quadratic * distance * distance);
+        diffuse *= attenuation;
+        specular *= attenuation;
+    }
+    return (diffuse + specular);
+}

@@ -18,6 +18,11 @@ void main()
     gNormal = normalize(Normal);
     // and the diffuse per-fragment color
     gAlbedoSpec.rgb = texture(texture_diffuse1, TexCoords).rgb;
+	// Greyscale
+	//float average = 0.2126 * gAlbedoSpec.r + 0.7152 * gAlbedoSpec.g + 0.0722 * gAlbedoSpec.b;
+    //gAlbedoSpec.rgb = vec3(average, average, average);
+	// Inversion
+	//gAlbedoSpec.rgb = vec3(1.0 - texture(texture_diffuse1, TexCoords));
     // store specular intensity in gAlbedoSpec's alpha component
     gAlbedoSpec.a = texture(texture_diffuse1, TexCoords).r;
 }

@@ -49,7 +49,7 @@ namespace SAS_3D {
 		_shaders[2].Load(_config.shaderpath + "simple.vert", _config.shaderpath + "simple.frag");
 		_shaders[2].AddInputModule<PVMModule>();
 
-		_shaders[3].Load("F:/github/opengl_experiments/shaders/skybox.vs", "F:/github/opengl_experiments/shaders/skybox.fs");
+		_shaders[3].Load(_config.shaderpath + "skybox.vs", _config.shaderpath + "skybox.fs");
 
 		// Set up deferred shaders
 		_deferredshaders[0].Load(_config.shaderpath + "gbuffer_animated.vs", _config.shaderpath + "gbuffer.fs");
@@ -162,6 +162,13 @@ namespace SAS_3D {
 			glBindTexture(GL_TEXTURE_2D, gNormal);
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+
+			for (const auto& dl : _scene.m_dirlights) {
+				_deferredshaders[2].SetVec3("dirlight.direction", dl.m_direction);
+				_deferredshaders[2].SetVec3("dirlight.ambient", dl.m_ambient);
+				_deferredshaders[2].SetVec3("dirlight.diffuse", dl.m_diffuse);
+				_deferredshaders[2].SetVec3("dirlight.specular", dl.m_specular);
+			}
 
 			int i = 0;
 			for (const auto& pl : _scene.m_pointlights) {
