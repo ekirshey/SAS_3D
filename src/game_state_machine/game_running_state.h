@@ -18,7 +18,7 @@ namespace SAS_3D {
 		~GameRunningState();
 
 		FSMStates InitializeState(SubsystemController* subsystems, const InputState& input);
-		FSMStates UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input);
+		FSMStates UpdateState(long long elapsedtime, SubsystemController* subsystems, const InputState& input);
 		int NextState() { return _nextstate; }
 
 	private:

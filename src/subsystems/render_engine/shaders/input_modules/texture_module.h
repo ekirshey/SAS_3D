@@ -11,14 +11,9 @@ namespace SAS_3D {
 		static const InputID ID = MaterialModuleID;
 
 		void ApplyToShader(ShaderProgram* shader) {
-			GLint diffuseLoc = shader->GetUniformLocation("material.diffuse");
-			glUniform1f(diffuseLoc, _diffuse);
-
-			GLint specularLoc = shader->GetUniformLocation("material.specular");
-			glUniform1f(specularLoc, _specular);
-
-			GLint shininessLoc = shader->GetUniformLocation("material.shininess");
-			glUniform1f(shininessLoc, _shininess);
+			shader->SetInt("material.diffuse", _diffuse);
+			shader->SetInt("material.specular", _specular);
+			shader->SetFloat("material.shininess", _shininess);
 		}
 
 		InputID UniqueBits() const { return ID; }

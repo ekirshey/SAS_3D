@@ -31,7 +31,7 @@ namespace SAS_3D {
 		void Run();
 		GameConfig Config() { return _config; }
 	private:
-		void Update(int elapsedtime, const InputState& inputstate);
+		void Update(long long elapsedtime, const InputState& inputstate);
 
 		void RemoveStateAtIndex(int idx);
 

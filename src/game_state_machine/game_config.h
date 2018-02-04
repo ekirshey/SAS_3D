@@ -1,11 +1,10 @@
 #pragma once
+#include "core/sas_video.h"
 #include <string>
 
 namespace SAS_3D {
 	struct GameConfig {
 		std::string windowtitle;
-		int screenwidth;
-		int screenheight;
 
 		std::string shaderpath;
 		std::string model_registry;
@@ -13,7 +12,7 @@ namespace SAS_3D {
 		std::string serverip;
 		std::string port;
 
-		bool vsync; // true-> on | false off
+		VideoConfig videoconfig;
 	};
 
 	GameConfig LoadConfig(std::string ini);

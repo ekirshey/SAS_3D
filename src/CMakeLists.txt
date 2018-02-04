@@ -146,3 +146,5 @@ target_compile_definitions(SAS_3D
 	PRIVATE ASIO_HAS_MOVE
 	PRIVATE ASIO_HAS_STD_SYSTEM_ERROR
 )
+
+add_definitions(-D_WIN32_WINNT=0x0501)

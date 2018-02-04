@@ -14,6 +14,7 @@
 #include <string>
 #include <memory>
 #include <SDL.h>
+#include "core/core_config.h"
 
 namespace SAS_3D {
 	/*
@@ -36,11 +37,8 @@ namespace SAS_3D {
 			std::cout << SDL_GetError() << std::endl;
 		}
 
-		void DisableVSYNC() {
-			if (SDL_GL_SetSwapInterval(0) != 0) {
-				printf("Error: %s\n", SDL_GetError());
-			}
-		}
+		// vsync true enables vsync, false turns it off
+		void SetVSYNC(bool vsync);
 
 	private:
 		SDL_Window* _window;
@@ -56,5 +54,5 @@ namespace SAS_3D {
 	* ec will hold possible error information, set to NO_ERROR if good
 	*
 	*/
-	uptrSASWindow InitializeVideo(std::string windowtitle, int width, int height);
+	uptrSASWindow InitializeVideo(const VideoConfig& config);
 }

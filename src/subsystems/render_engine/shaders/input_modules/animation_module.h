@@ -20,7 +20,7 @@ namespace SAS_3D {
 		void ApplyToShader(ShaderProgram* shader) {
 			GLint bonesLoc = shader->GetUniformLocation("Bones");
 			if (_bones != nullptr) {
-				glUniformMatrix4fv(bonesLoc, _bones->size(), GL_FALSE, glm::value_ptr(_bones->at(0)));
+				glUniformMatrix4fv(bonesLoc, (GLsizei)_bones->size(), GL_FALSE, glm::value_ptr(_bones->at(0)));
 			}
 		}
 

@@ -1,6 +1,7 @@
 #include <thread>
 #include <iostream>
 #include "anim_engine.h"
+#include  "core/utility.h"
 
 namespace SAS_3D {
 	/// Engine wrapper
@@ -24,7 +25,7 @@ namespace SAS_3D {
 		_animations = std::move(ac);
 	}
 
-	int AnimationEngine::AddAnimationInstance(int id, int index, const FrameIndices& frameindices) {
+	unsigned int AnimationEngine::AddAnimationInstance(int id, int index, const FrameIndices& frameindices) {
 		if (_asyncrunning) {
 			std::cout << "Wait for animation processing to finish" << std::endl;
 			return -1;
@@ -40,7 +41,7 @@ namespace SAS_3D {
 			std::cout << "Invalid animation id: " << animation.id;
 		}
 
-		return _instances.size() - 1;
+		return convert(_instances.size() - 1);
 	}
 
 	void AnimationEngine::StartAsyncBoneCalculations(double time) {

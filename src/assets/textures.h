@@ -20,8 +20,9 @@ namespace SAS_3D {
 	class TextureContainer {
 	public:
 		TextureContainer() {}
+		// FreeImage appears to load everything as BGR and NOT RGB. STBI uses RGB but does not load DDS so using freeimage
 		GLuint LoadTextureFromFile(std::string path, std::string type_name, GLint format = GL_BGRA);
-		GLuint LoadCubeMap(std::string path, GLint format = GL_RGB);
+		GLuint LoadCubeMap(std::string path, GLint format = GL_BGR);
 	private:
 		std::unordered_map<GLuint, Texture> _textures;
 	};

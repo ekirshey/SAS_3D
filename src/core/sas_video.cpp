@@ -18,12 +18,16 @@ namespace SAS_3D {
 		}
 	}
 
+	// I think im being confused between window size and resolution
 	SASWindow::SASWindow(std::string title, int width, int height, int window_flags)
-		: _window(SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE))
+		: _window(SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags))
 		, _glcontext(SDL_GL_CreateContext(_window))
-		, _screenwidth(width)
-		, _screenheight(height)
 	{
+		int w, h;
+		SDL_GL_GetDrawableSize(_window, &w, &h);
+		_screenwidth = w;
+		_screenheight = h;
+
 		glewExperimental = GL_TRUE;
 		glewInit();
 
@@ -36,6 +40,7 @@ namespace SAS_3D {
 			CheckSDLError(__LINE__);
 			// throw here
 		}
+		glViewport(0, 0, _screenwidth, _screenheight);
 	}
 
 	SASWindow::~SASWindow() {
@@ -48,13 +53,14 @@ namespace SAS_3D {
 	void SASWindow::Clear(float r, float g, float b) {
 		glClearColor(r, g, b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0,0, _screenwidth, _screenheight);
 	}
 
 	void SASWindow::TurnOnWireframe() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	uptrSASWindow InitializeVideo(std::string windowtitle, int width, int height) {
+	uptrSASWindow InitializeVideo(const VideoConfig& config) {
 		SetError(ErrorCode::NO_ERROR);
 
 		// Start up SDL
@@ -81,7 +87,40 @@ namespace SAS_3D {
 			SDL_GetCurrentDisplayMode(0, &current);
 		}
 
-		// Construct and return the window
-		return std::make_unique<SASWindow>(windowtitle, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+		float ddpi = -1;
+		float hdpi = -1;
+		float vdpi = -1;
+
+		int ret = SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
+		if (ret != 0) {
+			std::cout << "Error getting screen dpi values " << ret<< std::endl;
+		}
+
+		int window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+		if (config.fullscreen) {
+			window_flags |= SDL_WINDOW_FULLSCREEN;
+		}
+
+		// Construct the window
+		auto win =  std::make_unique<SASWindow>(config.windowtitle, config.width, config.height, window_flags);
+
+		// After window is created check for other settings like vsync
+		win->SetVSYNC(config.vsync);
+
+		return win;
+	}
+
+	// vsync true enables vsync, false turns it off
+	void SASWindow::SetVSYNC(bool vsync) {
+		if (!vsync) {
+			if (SDL_GL_SetSwapInterval(0) != 0) {
+				printf("Error: %s\n", SDL_GetError());
+			}
+		}
+		else {
+			if (SDL_GL_SetSwapInterval(1) != 0) {
+				printf("Error: %s\n", SDL_GetError());
+			}
+		}
 	}
 }

@@ -14,7 +14,7 @@ namespace SAS_3D {
 		AnimationEngine();
 		~AnimationEngine();
 		void Initialize(AnimationContainer&& ac);
-		int AddAnimationInstance(int id, int index, const FrameIndices& frameindices);
+		unsigned int AddAnimationInstance(int id, int index, const FrameIndices& frameindices);
 		void StartAsyncBoneCalculations(double time);
 		std::vector<AnimationState> CollectBoneCalculations();
 	private:

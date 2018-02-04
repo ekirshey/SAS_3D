@@ -66,7 +66,7 @@ namespace SAS_3D {
 		}
 
 		for (int i = 0; i < vertices.size(); i++) {
-			int weights = 0;
+			float weights = 0;
 			for (int j = 0; j < 4; j++) {
 				weights += vertices[i].weights[j];
 			}

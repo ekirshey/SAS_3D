@@ -17,7 +17,7 @@ namespace SAS_3D {
 	RenderSystem::RenderSystem(std::string systemname, SystemID uuid, GameConfig config) 
 		: System(systemname, uuid)
 		, _config(config)
-		, _scene(_config.screenwidth, _config.screenheight)
+		, _scene(_config.videoconfig.width, _config.videoconfig.height)
 	{
 	}
 

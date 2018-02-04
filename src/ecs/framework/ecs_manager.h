@@ -53,7 +53,7 @@ namespace SAS_3D {
 
 		void RemoveComponentFromEntity(EntityID entity, EntityID componentid);
 
-		void Update(int elapsedtime, SubsystemController* subsystems);
+		void Update(long long elapsedtime, SubsystemController* subsystems);
 
 		// Tag functions    TODO Should these be in an object? Idk it will just double the function calls, who cares?
 		void ClearTagVector(std::string tag);

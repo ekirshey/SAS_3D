@@ -6,7 +6,7 @@ namespace SAS_3D {
 
 	SubsystemController::SubsystemController(const GameConfig& config) 
 		: _config(config)
-		, _window(InitializeVideo(_config.windowtitle, _config.screenwidth, _config.screenheight))
+		, _window(InitializeVideo(_config.videoconfig))
 		, _renderengine(_config, _window.get())
 		, _client(_config.serverip, _config.port)
 	{

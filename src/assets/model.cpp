@@ -14,7 +14,7 @@ namespace SAS_3D {
 		// Build meshes
 		auto scene = sceneinfo->scene;
 		auto root = scene->mRootNode;
-		for (int i = 0; i < root->mNumChildren; i++) {
+		for (unsigned int i = 0; i < root->mNumChildren; i++) {
 			auto child = root->mChildren[i];
 			if (child->mNumMeshes > 0) {
 				_transform = aiMatrix4x4ToGlm(child->mTransformation);
@@ -67,7 +67,7 @@ namespace SAS_3D {
 
 		for (auto& m : _meshes) {
 			glBindVertexArray(m.VAO);
-			glDrawElements(GL_TRIANGLES, m.indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, (GLsizei)m.indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 
 			glActiveTexture(GL_TEXTURE0);
@@ -96,7 +96,7 @@ namespace SAS_3D {
 			if (bones != nullptr && bones->size() >= (i + 1)) {
 				GLint bonesLoc = shader.GetUniformLocation("Bones");
 				const std::vector<glm::mat4>* pbones = &bones->at(i);
-				glUniformMatrix4fv(bonesLoc, pbones->size(), GL_FALSE, glm::value_ptr(pbones->at(0)));
+				glUniformMatrix4fv(bonesLoc, (GLsizei)pbones->size(), GL_FALSE, glm::value_ptr(pbones->at(0)));
 				//animationmodule->SetBones(&bones->at(i));
 			}
 			
@@ -106,7 +106,7 @@ namespace SAS_3D {
 			//shader.ApplyModules();
 
 			glBindVertexArray(me->VAO);
-			glDrawElements(GL_TRIANGLES, me->indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, (GLsizei)me->indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 		}
 	}

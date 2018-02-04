@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include "anim_evaluator.h"
+#include "core/utility.h"
 
 namespace SAS_3D {
 	glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from) {
@@ -27,29 +28,29 @@ namespace SAS_3D {
 		_animlength = _duration / _tickspersecond;
 
 		// Process channels/nodes
-		for (int i = 0; i < animation->mNumChannels; i++) {
+		for (unsigned int i = 0; i < animation->mNumChannels; i++) {
 			auto ai_c = animation->mChannels[i];
 			_channels.push_back(Channel());
 			auto c = &_channels.back();
 			auto node = rootnode->FindNode(ai_c->mNodeName.data);
 			if (node != nullptr) {
-				node->_channelids[id] = _channels.size() - 1;
+				node->_channelids[id] = convert(_channels.size() - 1);
 				// Build up the position, rotation and scaling keys
-				for (int p = 0; p < ai_c->mNumPositionKeys; p++) {
+				for (unsigned int p = 0; p < ai_c->mNumPositionKeys; p++) {
 					auto t = ai_c->mPositionKeys[p].mTime;
 					auto ai_v = &ai_c->mPositionKeys[p].mValue;
 					glm::vec3 v(ai_v->x, ai_v->y, ai_v->z);;
 					c->positions.push_back(Key<glm::vec3>(t, v));
 				}
 
-				for (int r = 0; r < ai_c->mNumRotationKeys; r++) {
+				for (unsigned int r = 0; r < ai_c->mNumRotationKeys; r++) {
 					auto t = ai_c->mRotationKeys[r].mTime;
 					auto ai_q = &ai_c->mRotationKeys[r].mValue;
 					glm::quat q(ai_q->w, ai_q->x, ai_q->y, ai_q->z);
 					c->rotations.push_back(Key<glm::quat>(t, q));
 				}
 
-				for (int s = 0; s < ai_c->mNumScalingKeys; s++) {
+				for (unsigned int s = 0; s < ai_c->mNumScalingKeys; s++) {
 					auto t = ai_c->mScalingKeys[s].mTime;
 					auto ai_v = &ai_c->mScalingKeys[s].mValue;
 					glm::vec3 v(ai_v->x, ai_v->y, ai_v->z);;
@@ -89,7 +90,7 @@ namespace SAS_3D {
 				int frame = std::get<0>(lastindices[i]);
 				if (frame > 0 && frame >= c->positions.size()) { frame = 0; }
 
-				int size = c->positions.size() - 1;
+				auto size = c->positions.size() - 1;
 				while (frame < size) {
 					if (time < c->positions[frame+1].time) {
 						break;
@@ -122,7 +123,7 @@ namespace SAS_3D {
 			if (c->rotations.size() > 0) {
 				int frame = std::get<1>(lastindices[i]);
 				if (frame > 0 && frame >= c->rotations.size()) { frame = 0; }
-				int size = c->rotations.size() - 1;
+				auto size = c->rotations.size() - 1;
 				while (frame < size) {
 					if (time < c->rotations[frame + 1].time) {
 						break;
@@ -156,7 +157,7 @@ namespace SAS_3D {
 				int frame = std::get<2>(lastindices[i]);
 				if (frame > 0 && frame >= c->scalings.size()) { frame = 0; }
 
-				int size = c->scalings.size() - 1;
+				auto size = c->scalings.size() - 1;
 				while (frame < size ) {
 					if (time < c->scalings[frame + 1].time) {
 						break;

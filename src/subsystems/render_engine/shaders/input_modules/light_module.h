@@ -22,7 +22,7 @@ namespace SAS_3D {
 
 		void ApplyToShader(ShaderProgram* shader) {
 			if (_pointlights != nullptr) {
-				shader->SetInt("numPointLights", _pointlights->size());
+				shader->SetInt("numPointLights", (GLsizei)_pointlights->size());
 			}
 
 			shader->SetVec3("viewPos", _viewpos);

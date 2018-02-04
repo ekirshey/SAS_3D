@@ -9,7 +9,7 @@ namespace SAS_3D {
 	EntityManager::EntityManager() : _entitylistsize(MAXOBJECTS) {
 		_entitycount = 0;
 
-		for (unsigned int i = 0; i < _entitylistsize; i++) {
+		for (int i = 0; i < _entitylistsize; i++) {
 			_entitylist[i] = std::vector<std::unique_ptr<Component>>();
 			_entitylist[i].resize(MAX_COMPONENT_LIST);
 			_entitycomponentbits[i] = 0;

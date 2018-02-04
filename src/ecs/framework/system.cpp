@@ -14,7 +14,7 @@ namespace SAS_3D {
 		std::cout << "Name: " << systemname << " ID: " << uuid << std::endl;
 	}
 
-	void System::Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em) {
+	void System::Update(long long elapsedtime, SubsystemController* subsystems, EntityManager* em) {
 		SetFrameTime(elapsedtime);
 		UpdateTimeRunning(elapsedtime);
 

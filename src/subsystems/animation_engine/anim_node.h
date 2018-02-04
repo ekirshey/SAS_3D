@@ -12,7 +12,7 @@ namespace SAS_3D {
 		glm::mat4 _global_transform;
 
 		// Corresponding channel id in each animation state
-		std::vector<int> _channelids;
+		std::vector<unsigned int> _channelids;
 
 		AnimNode* FindNode(std::string name) {
 			if (_name == name) {

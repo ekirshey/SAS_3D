@@ -73,7 +73,7 @@ namespace SAS_3D {
 		}
 	}
 
-	void SystemManager::Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em) {
+	void SystemManager::Update(long long elapsedtime, SubsystemController* subsystems, EntityManager* em) {
 		for (unsigned int i = 0; i < _systemcount; i++) {
 			_systemlist[i]->Update(elapsedtime, subsystems, em);
 		}

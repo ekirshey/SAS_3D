@@ -46,13 +46,13 @@ namespace SAS_3D {
 
 	class Scene {
 	public:
-		Scene(float width, float height);
+		Scene(int width, int height);
 		void AddRenderItem(RenderItem item);
 		void AddLight(Light light);
 		void SetCamera(const Camera& camera);
 	
-		float m_width;
-		float m_height;
+		int m_width;
+		int m_height;
 		float m_width_over_height;	// result of the division
 
 		CameraInfo m_camera;

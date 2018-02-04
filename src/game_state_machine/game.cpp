@@ -64,7 +64,7 @@ namespace SAS_3D {
 
 	}
 
-	void Game::Update(int elapsedtime, const InputState& inputstate) {
+	void Game::Update(long long elapsedtime, const InputState& inputstate) {
 		_activestate = _gamestates[_activestate]->FiniteStateMachine(elapsedtime, &_subsystems, inputstate);
 		// Invalid next state
 		if (_activestate >= _gamestates.size() || _activestate < 0) {

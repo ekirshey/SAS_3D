@@ -88,7 +88,7 @@ namespace SAS_3D {
 		spotlight.m_ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 		spotlight.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
 		spotlight.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
-		spotlight.m_cutoff = glm::cos(glm::radians(12.5));
+		spotlight.m_cutoff = static_cast<float>(glm::cos(glm::radians(12.5)));
 		spotlight.m_outercutoff = glm::cos(glm::radians(15.0f));
 		spotlight.m_constant = 1.0f;
 		spotlight.m_linear = 0.009f;
@@ -98,7 +98,7 @@ namespace SAS_3D {
 		return FSMStates::TRANSITIONIN;
 	}
 
-	FSMStates GameRunningState::UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input) {
+	FSMStates GameRunningState::UpdateState(long long elapsedtime, SubsystemController* subsystems, const InputState& input) {
 		bool sendevent = false;
 		auto prevcam = _camera.GetViewMatrix();
 		_camera.Update(input, elapsedtime/1000000.0f); //microseconds

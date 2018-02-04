@@ -35,7 +35,7 @@ namespace SAS_3D {
 		}
 
 		// Build up the transforms
-		for (int i = 0; i < scene->mNumAnimations; i++) {
+		for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 			_animations.push_back(AnimEvaluator(i, _rootnode.get(), scene->mAnimations[i]));
 		}
 	}
@@ -68,7 +68,7 @@ namespace SAS_3D {
 	}
 
 	void Animator::CalculateBoneMatrices(double time, AnimationState& animation) {
-		_animidx != animation.index;
+		_animidx = animation.index;
 		_animations[_animidx].Calculate(time, animation.frameindices);
 		_updateNodes(_rootnode.get());
 
@@ -95,7 +95,7 @@ namespace SAS_3D {
 		internalnode->_local_transform = aiMatrix4x4ToGlm(node->mTransformation);
 		_getGlobalTransform(internalnode.get());
 
-		for (int i = 0; i < node->mNumChildren; i++) {
+		for (unsigned int i = 0; i < node->mNumChildren; i++) {
 			auto childnode = _createNodeTree(node->mChildren[i], internalnode.get());
 			internalnode->_children.push_back(std::move(childnode));
 		}

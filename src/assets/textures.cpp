@@ -3,12 +3,10 @@
 #include "assimp/Importer.hpp"
 #include "assets/textures.h"
 #include "FreeImage/FreeImage.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 namespace SAS_3D {
 
-	FIBITMAP* _loadTexture(std::string path) {
+	FIBITMAP* _loadTexture(std::string path, GLint format) {
 		//image format
 		FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 		//pointer to the image, once loaded
@@ -40,10 +38,21 @@ namespace SAS_3D {
 
 		//retrieve the image data
 		auto bpp = FreeImage_GetBPP(dib);
-		if (bpp != 32) {
-			FIBITMAP* hOldImage = dib;
-			dib = FreeImage_ConvertTo32Bits(hOldImage);
-			FreeImage_Unload(hOldImage);
+		// Convert to 32 bits if a 3d bit format
+		if (format == GL_RGBA || format == GL_BGRA) {
+			if (bpp != 32) {
+				FIBITMAP* hOldImage = dib;
+				dib = FreeImage_ConvertTo32Bits(hOldImage);
+				FreeImage_Unload(hOldImage);
+			}
+		}
+		else {
+			// No alpha so make sure its at least 24 bits
+			if (bpp != 24) {
+				FIBITMAP* hOldImage = dib;
+				dib = FreeImage_ConvertTo24Bits(hOldImage);
+				FreeImage_Unload(hOldImage);
+			}
 		}
 
 		return dib;
@@ -64,7 +73,7 @@ namespace SAS_3D {
 		texture.path = path;
 		texture.type = type_name;
 
-		FIBITMAP* dib = _loadTexture(path);
+		FIBITMAP* dib = _loadTexture(path, format);
 		BYTE* bits = FreeImage_GetBits(dib);
 
 		if (bits == NULL) {
@@ -117,40 +126,19 @@ namespace SAS_3D {
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-#define STBI
-#ifdef STBI
-		int width, height, nrChannels;
-		for (unsigned int i = 0; i < faces.size(); i++) {
-			unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-			if (data) {
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				stbi_image_free(data);
-			}
-			else {
-				std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-				stbi_image_free(data);
-			}
-		}
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		return textureID;
-#endif
-#ifdef FREEIMAGE
 		int width, height;
 		for (unsigned int i = 0; i < faces.size(); i++)
 		{
-			FIBITMAP* dib = _loadTexture(faces[i]);
+			FIBITMAP* dib = _loadTexture(faces[i], GL_RGB);
 			BYTE* data = FreeImage_GetBits(dib);
 			width = FreeImage_GetWidth(dib);
 			height = FreeImage_GetHeight(dib);
 			unsigned pitch = FreeImage_GetPitch(dib);
 
 			if (data) {
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				// It seems freeimage loads everything as BGR and NOT RGB
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 				auto err = glGetError();
 				if (err != 0) {
 					std::cerr << "Error when loading texture: " << err << std::endl;
@@ -170,6 +158,5 @@ namespace SAS_3D {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 		return textureID;
-#endif
 	}
 }

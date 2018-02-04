@@ -14,7 +14,7 @@ namespace SAS_3D {
 		return FSMStates::TRANSITIONIN;
 	}
 
-	FSMStates MainMenuState::UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input) {
+	FSMStates MainMenuState::UpdateState(long long elapsedtime, SubsystemController* subsystems, const InputState& input) {
 		_nextstate = 1;
 		return FSMStates::TRANSITIONOUT;
 	}

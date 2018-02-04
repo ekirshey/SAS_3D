@@ -18,7 +18,7 @@ namespace SAS_3D {
 
 		virtual ~System() {}
 
-		void Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em);
+		void Update(long long elapsedtime, SubsystemController* subsystems, EntityManager* em);
 		SystemID GetUUID() const { return _uuid; }
 
 		virtual void BeforeEntityProcessing(SubsystemController* subsystems) = 0;
@@ -33,16 +33,16 @@ namespace SAS_3D {
 		bool ContainsEntity(EntityID entityid);    // TODO Not sure if needed
 		bool ValidEntity(EntityID componentbits, EntityID SYSTEMID);
 
-		EntityID GetEntityCount() { return _entitycount; }
+		EntityID GetEntityCount() const { return _entitycount; }
 		void EntityCount(EntityID entitycount) { _entitycount = entitycount; }
 
-		int FrameTime() { return _frametime; }
-		void SetFrameTime(int frametime) { _frametime = frametime; }
+		long long FrameTime() const { return _frametime; }
+		void SetFrameTime(long long frametime) { _frametime = frametime; }
 
-		int TimeRunning() { return _elapsedtime; }
-		void UpdateTimeRunning(int runtime) { _elapsedtime += runtime; }
+		long long TimeRunning() const { return _elapsedtime; }
+		void UpdateTimeRunning(long long runtime) { _elapsedtime += runtime; }
 
-		std::string SystemName() { return _systemname; }
+		std::string SystemName() const { return _systemname; }
 		void SetSystemName(std::string name) { _systemname = name; }
 
 		template<typename T>
@@ -53,8 +53,8 @@ namespace SAS_3D {
 	private:
 		std::string _systemname;	// For debugging purposes
 		SystemID _uuid;
-		int _elapsedtime;
-		int _frametime;
+		long long _elapsedtime;
+		long long _frametime;
 		EntityID _entitycount;
 		std::vector<EntityID> _relevantentities;
 	};

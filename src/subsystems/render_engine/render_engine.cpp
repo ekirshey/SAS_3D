@@ -20,7 +20,7 @@ namespace SAS_3D {
 		, _running(false)
 		, _shaders(4)
 		, _deferredshaders(4)
-		, _scene(_config.screenwidth, _config.screenheight)
+		, _scene(_config.videoconfig.width, _config.videoconfig.height)
 	{
 
 	}
@@ -57,14 +57,12 @@ namespace SAS_3D {
 		_deferredshaders[2].Load(_config.shaderpath + "deferred_shading.vs", _config.shaderpath + "deferred_shading.fs");
 
 
-		_skybox.Load("F:/github/SAS_3D/media/skybox/", tc);
+		_skybox.Load("C:/cygwin64/home/prome/code/SAS_3D/media/skybox/", tc);
 	}
 
 	void RenderImpl::Run() {
 		// Render loop 
-		if (!_config.vsync) {
-			_window->DisableVSYNC();
-		}
+		std::cout << _window->GetScreenWidth() << " " << _window->GetScreenHeight() << std::endl;
 
 		std::cout << "Entering main render loop" << std::endl;
 		_running = true;
@@ -125,8 +123,7 @@ namespace SAS_3D {
 			_window->Clear(0.1f, 0.1f, 0.1f);
 			size_t size = 1;
 
-
-			Scene newscene(_config.screenwidth, _config.screenheight);
+			Scene newscene(_config.videoconfig.width, _config.videoconfig.height);
 			size = _event_queue->dequeue(newscene);
 			if (size != 0) {
 				// Manage the scene index
@@ -206,6 +203,7 @@ namespace SAS_3D {
 			_window->SwapWindow();
 
 		}   // End Main Loop
+
 	}
 
 	// Engine wrapper 

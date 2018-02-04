@@ -14,7 +14,7 @@ namespace SAS_3D {
 
 		// Every state must handle init and update
 		virtual FSMStates InitializeState(SubsystemController* subsystems, const InputState& input) = 0;
-		virtual FSMStates UpdateState(int elapsedtime, SubsystemController* subsystems, const InputState& input) = 0;
+		virtual FSMStates UpdateState(long long elapsedtime, SubsystemController* subsystems, const InputState& input) = 0;
 
 		// Not every state has to do these
 		virtual FSMStates TransitionIntoState() {
@@ -45,7 +45,7 @@ namespace SAS_3D {
 		virtual ~GameState() {}
 
 		// Default FSM for a state
-		int FiniteStateMachine(int elapsedtime, SubsystemController* subsystems, const InputState& input)
+		int FiniteStateMachine(long long elapsedtime, SubsystemController* subsystems, const InputState& input)
 		{
 			int nextgamestate = _stateid;
 			switch (_currentfsmstate)

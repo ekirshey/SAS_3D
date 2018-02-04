@@ -25,7 +25,7 @@ namespace SAS_3D {
 		void RemoveEntityFromSystems(EntityID entity);
 		void RemoveEntityFromSystems(EntityID entity, EntityID entitycomponents);
 
-		void Update(int elapsedtime, SubsystemController* subsystems, EntityManager* em);
+		void Update(long long elapsedtime, SubsystemController* subsystems, EntityManager* em);
 	private:
 		std::vector<std::unique_ptr<System>> _systemlist;
 		EntityID _systemcount;

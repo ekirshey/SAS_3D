@@ -4,10 +4,10 @@
 
 
 namespace SAS_3D {
-	Scene::Scene(float width, float height) 
+	Scene::Scene(int width, int height) 
 		: m_width(width)
 		, m_height(height)
-		, m_width_over_height(width/height)
+		, m_width_over_height((float)width/height)
 	{
 
 	}

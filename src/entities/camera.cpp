@@ -68,14 +68,14 @@ namespace SAS_3D {
 	void Camera::_process_mouse_movement(const InputState& input, GLboolean constrain_pitch)
 	{
 		if (_firstmouse) {
-			_lastx = input.m_x;
-			_lasty = input.m_y;
+			_lastx = static_cast<float>(input.m_x);
+			_lasty = static_cast<float>(input.m_y);
 			_firstmouse = false;
 		}
 		auto xoffset = input.m_x - _lastx;
 		auto yoffset = _lasty - input.m_y;
-		_lastx = input.m_x;
-		_lasty = input.m_y;
+		_lastx = static_cast<float>(input.m_x);
+		_lasty = static_cast<float>(input.m_y);
 
 		xoffset *= _mouse_sensitivity;
 		yoffset *= _mouse_sensitivity;

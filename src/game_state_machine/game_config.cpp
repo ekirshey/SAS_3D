@@ -21,9 +21,10 @@ namespace SAS_3D {
 		}
 
 		config.windowtitle = reader.Get("video", "windowtitle", "default");
-		config.screenwidth = reader.GetInteger("video", "screenwidth", 800);
-		config.screenheight = reader.GetInteger("video", "screenheight", 600);
-		config.vsync = reader.GetBoolean("video", "VSYNC", true);
+		config.videoconfig.width = reader.GetInteger("video", "width", 800);
+		config.videoconfig.height = reader.GetInteger("video", "height", 600);
+		config.videoconfig.vsync = reader.GetBoolean("video", "VSYNC", true);
+		config.videoconfig.fullscreen = reader.GetBoolean("video", "fullscreen", true);
 
 		config.shaderpath = reader.Get("paths", "shader_path", "");
 		sanitizePath(config.shaderpath);

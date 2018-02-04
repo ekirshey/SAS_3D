@@ -58,7 +58,7 @@ namespace SAS_3D {
 		}
 	}
 
-	void ECSManager::Update(int elapsedtime, SubsystemController* subsystems) {
+	void ECSManager::Update(long long elapsedtime, SubsystemController* subsystems) {
 		_systemmanager.Update(elapsedtime, subsystems, &this->_entitymanager);
 	}
 
