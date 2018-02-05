@@ -13,6 +13,7 @@ namespace SAS_3D {
 	}
 
 	void Scene::AddRenderItem(RenderItem item) {
+		// Perhaps add some sort of frustum culling here
 		m_objects.emplace_back(item);
 	}
 

@@ -90,7 +90,7 @@ namespace SAS_3D {
 				int frame = std::get<0>(lastindices[i]);
 				if (frame > 0 && frame >= c->positions.size()) { frame = 0; }
 
-				auto size = c->positions.size() - 1;
+				int size = convert(c->positions.size()) - 1;
 				while (frame < size) {
 					if (time < c->positions[frame+1].time) {
 						break;
@@ -123,7 +123,7 @@ namespace SAS_3D {
 			if (c->rotations.size() > 0) {
 				int frame = std::get<1>(lastindices[i]);
 				if (frame > 0 && frame >= c->rotations.size()) { frame = 0; }
-				auto size = c->rotations.size() - 1;
+				int size = convert(c->rotations.size()) - 1;
 				while (frame < size) {
 					if (time < c->rotations[frame + 1].time) {
 						break;
@@ -157,7 +157,7 @@ namespace SAS_3D {
 				int frame = std::get<2>(lastindices[i]);
 				if (frame > 0 && frame >= c->scalings.size()) { frame = 0; }
 
-				auto size = c->scalings.size() - 1;
+				int size = convert(c->scalings.size()) - 1;
 				while (frame < size ) {
 					if (time < c->scalings[frame + 1].time) {
 						break;
