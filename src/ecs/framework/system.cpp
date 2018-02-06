@@ -1,32 +1,26 @@
 #include <algorithm>
 #include <iostream>
-#include "ecs/framework/system.h"
 #include "subsystems/subsystem_controller.h"
+#include "entity_manager.h"
+#include "system.h"
 
 namespace SAS_3D {
-	System::System(std::string systemname, SystemID uuid) 
-		: _systemname(systemname)
-		, _uuid(uuid)
-		, _elapsedtime(0)
-		, _frametime(0)
-		, _entitycount(0) 
-	{
-		std::cout << "Name: " << systemname << " ID: " << uuid << std::endl;
-	}
-
-	void System::Update(long long elapsedtime, SubsystemController* subsystems, EntityManager* em) {
+	/*
+	* Core of the class. It updates the time and passes all relevant information to the wrapped object
+	*/
+	void System::Update(long long elapsedtime, EntityManager* em, SubsystemController* subsystems) {
 		SetFrameTime(elapsedtime);
 		UpdateTimeRunning(elapsedtime);
 
-		BeforeEntityProcessing(subsystems);
-		for (unsigned int i = 0; i < _relevantentities.size(); i++) {
-			ProcessEntity(subsystems, em, _relevantentities[i]);
-		}
-		AfterEntityProcessing(subsystems);
+		_self->Update(elapsedtime, _relevantentities, em, subsystems);
 	}
 
-	bool System::ValidEntity(EntityID componentbits, EntityID SYSTEMID) {
-		return ((componentbits & SYSTEMID) == SYSTEMID);
+	void System::HandleCallback(Message& m) {
+		_self->HandleCallback(m);
+	}
+
+	bool System::ValidEntity(EntityID entitycomponents) {
+		return (_componentids & entitycomponents);
 	}
 
 	void System::AddEntity(EntityID entityid) {
@@ -45,7 +39,6 @@ namespace SAS_3D {
 				_relevantentities.erase(result);
 				_entitycount--;
 			}
-
 		}
 	}
 

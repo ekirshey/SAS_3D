@@ -23,21 +23,19 @@ namespace SAS_3D {
 
 	FSMStates GameRunningState::InitializeState(SubsystemController* subsystems, const InputState& input) {
 		int priority = 0;
-		_ecs.AddSystem<AnimationSystem>("AnimationSystem",priority++);
+
+		_ecs.AddSystem<AnimationSystem>("AnimationSystem", ANIMATION_COMPONENT);
 		/* 
-			Generate UUID for system, not related to priority
-			I'm saving uuid of the system and that's how the system should be accessed.
-			No guarantee on the lifetime of the system pointer returned from the get function
-			You should use it in as limited scope as possible.
-			Does it make sense to do some weird thing where I return a special system pointer
-			object with an overloaded accessor, which will update the pointer to the internal ECS
+			Internally a UUID is generated for the system and returned. That can 
+			be used to access a pointer to the system.
 		*/
-		_renderuuid = _ecs.AddSystem<RenderSystem>("RenderSystem", priority++, _config);
-		_camera.RegisterObserver([&](const Camera& c) {
-			auto rendersystem = static_cast<RenderSystem*>(_ecs.GetSystem(_renderuuid));
-			if (rendersystem != nullptr) {
-				rendersystem->UpdateViewTransform(c);
-			}
+		_renderuuid = _ecs.AddSystem<RenderSystem>("RenderSystem", RENDER_COMPONENT | LIGHT_COMPONENT, _config);
+
+		/*
+			_ecs.AddCallback(&camera, systemname, )
+		*/
+		_camera.RegisterObserver([&](Message& m) {
+			_ecs.CallSystemCallback(_renderuuid, m);
 		});
 
 		_player = _ecs.CreateEntity();
@@ -95,6 +93,7 @@ namespace SAS_3D {
 		spotlight.m_quadratic = 0.0032f;
 		_ecs.AddComponentToEntity<LightComponent>(_flashlight, spotlight);
 		_lighttoggle = false;
+
 		return FSMStates::TRANSITIONIN;
 	}
 
@@ -104,24 +103,6 @@ namespace SAS_3D {
 		_camera.Update(input, elapsedtime/1000000.0f); //microseconds
 
 		_ecs.Update(elapsedtime, subsystems);
-
-		if (input.keyarray[SDL_SCANCODE_F] == KeyState::PRESSED) {
-			if (!_lighttoggle) {
-				_lighttoggle = true;
-				auto light = _ecs.GetEntityComponent<LightComponent*>(_flashlight, LIGHT_COMPONENT);
-				if (light->m_light.m_diffuse == glm::vec3(10.0f, 10.0f, 10.0f)) {
-					light->m_light.m_diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
-					light->m_light.m_specular = glm::vec3(0.0f, 0.0f, 0.0f);
-				}
-				else {
-					light->m_light.m_diffuse = glm::vec3(10.0f, 10.0f, 10.0f);
-					light->m_light.m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
-				}
-			}
-		}
-		else {
-			_lighttoggle = false;
-		}
 
 		/*
 		In parallel the network thread is receiving messages, processing them and

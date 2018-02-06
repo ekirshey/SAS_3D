@@ -1,22 +1,22 @@
 #pragma once
 #include <vector>
 #include <functional>
+#include "message.h"
 
 namespace SAS_3D {
-	template<typename T>
 	class Subject {
 	public:
-		void RegisterObserver(std::function<void(const T&)> obs) {
+		void RegisterObserver(std::function<void(Message&)> obs) {
 			_observers.push_back(obs);
 		}
 
-		void SignalObservers(const T& subject) {
+		void SignalObservers(Message& subject) {
 			for (auto& o : _observers) {
 				o(subject);
 			}
 		}
 
 	private:
-		std::vector<std::function<void(const T&)>> _observers;
+		std::vector<std::function<void(Message&)>> _observers;
 	};
 }

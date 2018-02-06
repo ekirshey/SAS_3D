@@ -5,7 +5,6 @@
 #include "assets/cubemap.h"
 #include "entities/camera.h"
 
-
 namespace SAS_3D {
 	enum class LightType { Directional, Point, Spotlight };
 	// Light definitions
@@ -29,13 +28,6 @@ namespace SAS_3D {
 		float m_quadratic;
 	};
 
-	struct CameraInfo {
-		float		m_zoom;
-		glm::vec3	m_position;
-		glm::vec3	m_front;
-		glm::mat4	m_viewmatrix;
-	};
-
 	using RenderID = unsigned long long;
 	struct RenderItem {
 		RenderID m_id;
@@ -49,7 +41,7 @@ namespace SAS_3D {
 		Scene(int width, int height);
 		void AddRenderItem(RenderItem item);
 		void AddLight(Light light);
-		void SetCamera(const Camera& camera);
+		void SetCamera(const CameraInfo& camera);
 	
 		int m_width;
 		int m_height;

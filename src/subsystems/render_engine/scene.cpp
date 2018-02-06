@@ -1,6 +1,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "scene.h"
 #include "shaders/input_modules/light_module.h"
+#include <glm/ext.hpp>
+#include <iostream>
 
 
 namespace SAS_3D {
@@ -33,16 +35,15 @@ namespace SAS_3D {
 		}
 	}
 
-	void Scene::SetCamera(const Camera& camera) {
-		m_camera.m_front = camera.GetFront();
-		m_camera.m_position = camera.GetPosition();
-		m_camera.m_viewmatrix = camera.GetViewMatrix();
-		m_camera.m_zoom = camera.Zoom();
+	void Scene::SetCamera(const CameraInfo& camera) {
+		m_camera = camera;
 	}
 
 	void ForwardRenderScene(const Scene& scene, std::vector<ShaderProgram>& shaders, ModelContainer& mc, const CubeMap& skybox) {
+
+		auto viewmatrix = scene.m_camera.GetViewMatrix();
 		auto projectionmatrix = glm::perspective(scene.m_camera.m_zoom, scene.m_width_over_height, 0.1f, 1000.0f);
-		glm::mat4 pv = projectionmatrix * scene.m_camera.m_viewmatrix;
+		glm::mat4 pv = projectionmatrix * viewmatrix;
 		for (const auto &e : scene.m_objects) {
 			// Need to group draws by shader type
 			if (e.m_bones.size() > 0) {
@@ -65,7 +66,7 @@ namespace SAS_3D {
 
 		glDepthFunc(GL_LEQUAL);
 		shaders[3].UseProgram();
-		glm::mat4 view = glm::mat4(glm::mat3(scene.m_camera.m_viewmatrix));
+		glm::mat4 view = glm::mat4(glm::mat3(viewmatrix));
 		skybox.Draw(shaders[3], projectionmatrix, view);
 		glDepthFunc(GL_LESS);
 	}

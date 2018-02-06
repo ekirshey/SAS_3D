@@ -26,11 +26,12 @@ namespace SAS_3D {
 
 		EntityID EntityCount() { return _entitycount; }
 
-		inline Component* EntityManager::GetEntityComponent(EntityID UUID, EntityID componentid)
+		template<typename T>
+		T* GetEntityComponent(EntityID UUID, EntityID componentid)
 		{
 			int convertedcomponentid = fastlog(componentid);
 			if (_entitylist[UUID][convertedcomponentid] != nullptr) {
-				return _entitylist[UUID][convertedcomponentid].get();
+				return static_cast<T*>(_entitylist[UUID][convertedcomponentid].get());
 			}
 			else {
 				return nullptr;
@@ -53,4 +54,6 @@ namespace SAS_3D {
 		EntityID _entitycount;
 		int _entitylistsize;
 	};
+
+	// Helper function for accessing components from an entity
 }

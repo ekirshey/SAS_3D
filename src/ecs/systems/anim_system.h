@@ -1,25 +1,27 @@
 #pragma once
 #include <vector>
-#include "ecs/framework/system.h"
 #include "subsystems/animation_engine/anim_state.h"
+#include "ecs/ecs_defines.h"
+#include "ecs/framework/message.h"
 
 namespace SAS_3D {
-	class AnimationSystem : public System
+	class EntityManager;
+	class SubsystemController;
+
+	class AnimationSystem
 	{
 	public:
-		static const EntityID COMPONENTIDS = ANIMATION_COMPONENT;
-
-		AnimationSystem(std::string systemname, SystemID uuid);
+		AnimationSystem();
 		~AnimationSystem();
 
-		EntityID ComponentBits() { return AnimationSystem::COMPONENTIDS; }    // TODO: Is this necessary or is just accessing the variable directly better?
+		void Update(long long elapsedtime, 
+					const std::vector<EntityID>& entities, 
+					EntityManager* em, 
+					SubsystemController* subsystems);
 
-		void BeforeEntityProcessing(SubsystemController* subsystems);
-		void ProcessEntity(SubsystemController* subsystems, EntityManager* em, EntityID entity);
-		void AfterEntityProcessing(SubsystemController* subsystems);
+		void HandleCallback(const Message m) {}
 
 	private:
 		std::vector<AnimationState> _animations;
 	};
-
 }

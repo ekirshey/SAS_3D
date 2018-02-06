@@ -134,18 +134,19 @@ namespace SAS_3D {
 			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			auto projectionmatrix = glm::perspective(_scene.m_camera.m_zoom, _scene.m_width_over_height, 0.1f, 1000.0f);
+			auto viewmatrix = _scene.m_camera.GetViewMatrix();
 			for (const auto &e : _scene.m_objects) {
 				if (e.m_bones.size() > 0) {
 					_deferredshaders[0].UseProgram();
 					_deferredshaders[0].SetMat4("projection", projectionmatrix);
-					_deferredshaders[0].SetMat4("view", _scene.m_camera.m_viewmatrix);
-					_mc.Draw(e.m_modelidx, _deferredshaders[0], projectionmatrix * _scene.m_camera.m_viewmatrix, e.m_model, &e.m_bones);
+					_deferredshaders[0].SetMat4("view", viewmatrix);
+					_mc.Draw(e.m_modelidx, _deferredshaders[0], projectionmatrix * viewmatrix, e.m_model, &e.m_bones);
 				}
 				else if (_mc.HasTextures(e.m_modelidx)) {
 					_deferredshaders[1].UseProgram();
 					_deferredshaders[1].SetMat4("projection", projectionmatrix);
-					_deferredshaders[1].SetMat4("view", _scene.m_camera.m_viewmatrix);
-					_mc.Draw(e.m_modelidx, _deferredshaders[1], projectionmatrix * _scene.m_camera.m_viewmatrix, e.m_model);
+					_deferredshaders[1].SetMat4("view", viewmatrix);
+					_mc.Draw(e.m_modelidx, _deferredshaders[1], projectionmatrix * viewmatrix, e.m_model);
 				}
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -194,7 +195,7 @@ namespace SAS_3D {
 
 			glDepthFunc(GL_LEQUAL);
 			_shaders[3].UseProgram();
-			glm::mat4 view = glm::mat4(glm::mat3(_scene.m_camera.m_viewmatrix));
+			glm::mat4 view = glm::mat4(glm::mat3(viewmatrix));
 			_skybox.Draw(_shaders[3], projectionmatrix, view);
 			glDepthFunc(GL_LESS);
 			//ForwardRenderScene(_scene, _shaders, _mc, _skybox);

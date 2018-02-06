@@ -2,7 +2,6 @@
 #include <iostream>
 #include "ecs/framework/ecs_manager.h"
 #include "ecs/framework/system_manager.h"
-#include "ecs/framework/system.h"
 #include "subsystems/subsystem_controller.h"
 
 namespace SAS_3D {
@@ -12,17 +11,6 @@ namespace SAS_3D {
 
 	ECSManager::~ECSManager() {
 		//dtor
-	}
-
-
-	SystemID ECSManager::AddSystem(std::unique_ptr<System> system, int priority) {
-		//system->SetECSManager(this);
-		return _systemmanager.AddSystem(std::move(system), priority);
-	}
-
-
-	System* ECSManager::GetSystem(SystemID systemid) {
-		return _systemmanager.GetSystem(systemid);
 	}
 
 	EntityID ECSManager::CreateEntity() {
@@ -51,15 +39,18 @@ namespace SAS_3D {
 		}
 	}
 
-
 	void ECSManager::RemoveComponentFromEntity(EntityID entity, EntityID componentid) {
 		if (_entitymanager.RemoveComponent(entity, componentid)) {
 			_systemmanager.RemoveEntityFromSystems(entity, _entitymanager.GetEntityComponentBits(entity));
 		}
 	}
 
+	void ECSManager::CallSystemCallback(SystemID id, Message& message) {
+		_systemmanager.CallSystemCallback(id, message);
+	}
+
 	void ECSManager::Update(long long elapsedtime, SubsystemController* subsystems) {
-		_systemmanager.Update(elapsedtime, subsystems, &this->_entitymanager);
+		_systemmanager.Update(elapsedtime, &this->_entitymanager, subsystems);
 	}
 
 	// Tag functions

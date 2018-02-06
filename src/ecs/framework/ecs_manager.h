@@ -17,16 +17,18 @@ namespace SAS_3D {
 		ECSManager();
 		virtual ~ECSManager();
 
-		SystemID AddSystem(std::unique_ptr<System> system, int priority);
-
 		// Use std::forward to maintain lvalue and rvalue references
 		template<typename T, typename... Args>
-		SystemID AddSystem(std::string systemname, int priority, Args&&... args) {
-			auto system = std::make_unique<T>(systemname, GenerateUUID(), std::forward<Args>(args)...);
-			return _systemmanager.AddSystem(std::move(system), priority);
+		SystemID AddSystem(std::string systemname, int componentids, Args&&... args) {
+			return _systemmanager.AddSystem(T(std::forward<Args>(args)...), systemname, componentids);
 		}
 
-		System* GetSystem(SystemID systemid);
+		template<typename T>
+		SystemID AddSystem(T x, std::string systemname, int componentids) {
+			return _systemmanager.AddSystem(x, systemname, componentids);
+		}
+
+		void CallSystemCallback(SystemID id, Message& message);
 
 		EntityID CreateEntity();
 		void RemoveEntity(EntityID entity);
