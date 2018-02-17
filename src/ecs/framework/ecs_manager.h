@@ -34,8 +34,8 @@ namespace SAS_3D {
 		void RemoveEntity(EntityID entity);
 
 		template<class T>
-		T GetEntityComponent(EntityID entity, EntityID componentid) {
-			return static_cast<T>(_entitymanager.GetEntityComponent(entity, componentid));
+		T* GetEntityComponent(EntityID entity, EntityID componentid) {
+			return _entitymanager.GetEntityComponent<T>(entity, componentid);
 		}
 
 		std::vector<Component*> GetAllEntityComponents(EntityID entity);

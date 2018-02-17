@@ -57,7 +57,7 @@ namespace SAS_3D {
 		_deferredshaders[2].Load(_config.shaderpath + "deferred_shading.vs", _config.shaderpath + "deferred_shading.fs");
 
 
-		_skybox.Load("F:/github/SAS_3D/media/skybox/", tc);
+		_skybox.Load("../../media/skybox/", tc);
 	}
 
 	void RenderImpl::Run() {

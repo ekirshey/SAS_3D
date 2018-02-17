@@ -1,10 +1,13 @@
 #include <thread>
 #include "game_state_machine/game_running_state.h"
 #include "ecs/systems/anim_system.h"
+#include "ecs/systems/dynamics_system.h"
 #include "ecs/systems/render_system.h"
+#include "entities/player_input.h"
 
 // components
-#include "ecs/components/physical_component.h"
+#include "ecs/components/dynamics_component.h"
+#include "ecs/components/static_component.h"
 #include "ecs/components/anim_component.h"
 #include "ecs/components/render_component.h"
 #include "ecs/components/light_component.h"
@@ -24,6 +27,7 @@ namespace SAS_3D {
 	FSMStates GameRunningState::InitializeState(SubsystemController* subsystems, const InputState& input) {
 		int priority = 0;
 
+		_ecs.AddSystem<DynamicsSystem>("DynamicsSystem", DYNAMICS_COMPONENT);
 		_ecs.AddSystem<AnimationSystem>("AnimationSystem", ANIMATION_COMPONENT);
 		/* 
 			Internally a UUID is generated for the system and returned. That can 
@@ -39,14 +43,12 @@ namespace SAS_3D {
 		});
 
 		_player = _ecs.CreateEntity();
-		auto x = RigidBody(0.1f, glm::vec3(0, 55.0, 0.0));
-		_ecs.AddComponentToEntity<PhysicalComponent>(_player, x.ModelMatrix());
+		_ecs.AddComponentToEntity<DynamicsComponent>(_player, glm::vec3(0.0f,55.0f, 0.0f), 100.0f);
 		_ecs.AddComponentToEntity<AnimationComponent>(_player);
 		_ecs.AddComponentToEntity<RenderComponent>(_player,0);		
 
 		auto landscape = _ecs.CreateEntity();
-		auto l = RigidBody(0.1f, glm::vec3(0, 0.0, 0.0));
-		_ecs.AddComponentToEntity<PhysicalComponent>(landscape, l.ModelMatrix());
+		_ecs.AddComponentToEntity<DynamicsComponent>(landscape, glm::vec3(0, 0.0, 0.0), 1.0f);
 		_ecs.AddComponentToEntity<RenderComponent>(landscape, 1);
 
 		// Directional light with no physical representation
@@ -58,12 +60,12 @@ namespace SAS_3D {
 		dirlight.m_diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
 		dirlight.m_specular = glm::vec3(0.5f, 0.5f, 0.5f);
 		_ecs.AddComponentToEntity<LightComponent>(sun, dirlight);
-
+		/**
 		// Point lights
 		for (int i = 0; i < 2; i++) {
 			auto light = _ecs.CreateEntity();
 			auto lightbody = RigidBody(0.1f, glm::vec3(0.0, 100.0 - 40*i, 20.0 + -75*i));
-			_ecs.AddComponentToEntity<PhysicalComponent>(light, lightbody.ModelMatrix());
+			_ecs.AddComponentToEntity<DynamicsComponent>(light, lightbody.ModelMatrix());
 			_ecs.AddComponentToEntity<RenderComponent>(light, 2);
 			Light pointlight;
 			pointlight.m_type = LightType::Point;
@@ -93,14 +95,17 @@ namespace SAS_3D {
 		spotlight.m_quadratic = 0.0032f;
 		_ecs.AddComponentToEntity<LightComponent>(_flashlight, spotlight);
 		_lighttoggle = false;
-
+		*/
 		return FSMStates::TRANSITIONIN;
 	}
 
 	FSMStates GameRunningState::UpdateState(long long elapsedtime, SubsystemController* subsystems, const InputState& input) {
 		bool sendevent = false;
 		auto prevcam = _camera.GetViewMatrix();
-		_camera.Update(input, elapsedtime/1000000.0f); //microseconds
+		_camera.Update(input, elapsedtime/1000000.0f); //microseconds to seconds
+
+		auto dynamics = _ecs.GetEntityComponent<DynamicsComponent>(_player, DYNAMICS_COMPONENT);
+		UpdatePlayerInput(input, dynamics);
 
 		_ecs.Update(elapsedtime, subsystems);
 

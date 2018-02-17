@@ -5,7 +5,7 @@
 #include "entities/camera.h"
 
 // Relevant Component includes
-#include "ecs/components/physical_component.h"
+#include "ecs/components/dynamics_component.h"
 #include "ecs/components/anim_component.h"
 #include "ecs/components/render_component.h"
 #include "ecs/components/light_component.h"
@@ -35,7 +35,7 @@ namespace SAS_3D {
 		// Update each entity
 		for (const auto& entity : entities) {
 			// For each entity build up a render event
-			auto physical = em->GetEntityComponent<PhysicalComponent>(entity, PHYSICAL_COMPONENT);
+			auto dynamics = em->GetEntityComponent<DynamicsComponent>(entity, DYNAMICS_COMPONENT);
 			auto animation = em->GetEntityComponent<AnimationComponent>( entity, ANIMATION_COMPONENT);
 			auto render = em->GetEntityComponent<RenderComponent>(entity, RENDER_COMPONENT);
 			auto lighting = em->GetEntityComponent<LightComponent>(entity, LIGHT_COMPONENT);
@@ -43,7 +43,7 @@ namespace SAS_3D {
 			if (render != nullptr) {
 				RenderItem re;
 				re.m_id = entity;
-				re.m_model = physical->modeltransform;
+				re.m_model = glm::translate(glm::mat4(), dynamics->m_position);
 				re.m_modelidx = render->modelidx;
 				if (animation != nullptr) {
 					re.m_bones = std::move(animation->animationstate.bones);
