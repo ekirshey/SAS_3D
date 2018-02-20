@@ -30,8 +30,8 @@ namespace SAS_3D {
 		void SwapWindow() { SDL_GL_SwapWindow(_window); }
 		void Clear(float r, float g, float b);
 		void TurnOnWireframe();
-		int GetScreenWidth() { return _screenwidth; }
-		int GetScreenHeight() { return _screenheight; }
+		int GetScreenWidth() const { return _screenwidth; }
+		int GetScreenHeight() const { return _screenheight; }
 		void SwitchContext() { 
 			SDL_GL_MakeCurrent(_window, _glcontext); 
 			std::cout << SDL_GetError() << std::endl;

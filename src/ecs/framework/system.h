@@ -6,6 +6,7 @@
 * This allows new systems to be created without having to inherit from some base class.
 *
 */
+#pragma once
 #include <cstdint>
 #include <vector>
 #include <queue>

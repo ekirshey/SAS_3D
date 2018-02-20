@@ -12,7 +12,7 @@ namespace SAS_3D {
 		SetFrameTime(elapsedtime);
 		UpdateTimeRunning(elapsedtime);
 
-		_self->Update(elapsedtime, _relevantentities, em, subsystems);
+		_self->Update(TimeRunning(), _relevantentities, em, subsystems);
 	}
 
 	void System::HandleCallback(Message& m) {
